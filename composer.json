@@ -1,0 +1,6 @@
+{
+    "require": {
+        "fortawesome/font-awesome": "^7.0",
+        "snapappointments/bootstrap-select": "^1.13"
+    }
+}
