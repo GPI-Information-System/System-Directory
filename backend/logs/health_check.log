@@ -1,0 +1,88 @@
+[2026-02-18 06:17:07] === Starting health check ===
+[2026-02-18 06:17:07] Checking system #2: Finance Portal (finance.company.com) - Current status: down
+[2026-02-18 06:17:07]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:17:08] Checking system #3: Customer Portal (customers.company.com) - Current status: down
+[2026-02-18 06:17:08]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:17:09] Checking system #6: Test Add System (testadd.com) - Current status: down
+[2026-02-18 06:17:09]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:17:10] Checking system #9: TESTTSSwww (TESTTT.COM) - Current status: offline
+[2026-02-18 06:17:20]   ✗ System not accessible (Connection timeout - Server did not respond within 10 seconds) - Already marked as offline
+[2026-02-18 06:17:20] Checking system #10: Canteen System!@#!!#!@#!123sssadadaaasaasdadaasdadaasdADAqeqqeqewqqeqwqwqweq (youtube.com) - Current status: down
+[2026-02-18 06:17:22] FATAL ERROR: Cannot add or update a child row: a foreign key constraint fails (`system_directory_db`.`status_logs`, CONSTRAINT `fk_status_logs_user` FOREIGN KEY (`changed_by`) REFERENCES `users` (`id`) ON DELETE CASCADE)
+[2026-02-18 06:21:53] === Starting health check ===
+[2026-02-18 06:21:53] Checking system #2: Finance Portal (finance.company.com) - Current status: down
+[2026-02-18 06:21:54]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:21:54] Checking system #3: Customer Portal (customers.company.com) - Current status: down
+[2026-02-18 06:21:55]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:21:55] Checking system #6: Test Add System (testadd.com) - Current status: down
+[2026-02-18 06:21:55]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:21:56] Checking system #9: TESTTSSwww (TESTTT.COM) - Current status: offline
+[2026-02-18 06:22:06]   ✗ System not accessible (Connection timeout - Server did not respond within 10 seconds) - Already marked as offline
+[2026-02-18 06:22:06] Checking system #10: Canteen System!@#!!#!@#!123sssadadaaasaasdadaasdadaasdADAqeqqeqewqqeqwqwqweq (youtube.com) - Current status: online
+[2026-02-18 06:22:07]   ✓ System accessible (HTTP 200, 897.46ms) - No change needed
+[2026-02-18 06:22:08] Checking system #11: Test system down 123 (Testagainupdateddomain.com.ph) - Current status: down
+[2026-02-18 06:22:08] FATAL ERROR: Cannot add or update a child row: a foreign key constraint fails (`system_directory_db`.`status_logs`, CONSTRAINT `fk_status_logs_user` FOREIGN KEY (`changed_by`) REFERENCES `users` (`id`) ON DELETE CASCADE)
+[2026-02-18 06:22:20] === Starting health check ===
+[2026-02-18 06:22:20] Checking system #2: Finance Portal (finance.company.com) - Current status: down
+[2026-02-18 06:22:20]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:22:20] Checking system #3: Customer Portal (customers.company.com) - Current status: down
+[2026-02-18 06:22:20]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:22:21] Checking system #6: Test Add System (testadd.com) - Current status: down
+[2026-02-18 06:22:21]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:22:22] Checking system #9: TESTTSSwww (TESTTT.COM) - Current status: offline
+[2026-02-18 06:22:32]   ✗ System not accessible (Connection timeout - Server did not respond within 10 seconds) - Already marked as offline
+[2026-02-18 06:22:32] Checking system #10: Canteen System!@#!!#!@#!123sssadadaaasaasdadaasdadaasdADAqeqqeqewqqeqwqwqweq (youtube.com) - Current status: online
+[2026-02-18 06:22:33]   ✓ System accessible (HTTP 200, 862.06ms) - No change needed
+[2026-02-18 06:22:34] Checking system #11: Test system down 123 (Testagainupdateddomain.com.ph) - Current status: online
+[2026-02-18 06:22:34]   ✓ System accessible (HTTP 200, 505.02ms) - No change needed
+[2026-02-18 06:22:35] Checking system #12: TESTchangenote 2 (TESTMAINTE.COM) - Current status: down
+[2026-02-18 06:22:35]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:22:35] Checking system #15: testing Online 1 2 3 (testind add morehan 2.2.2.2.2) - Current status: online
+[2026-02-18 06:22:35] Updated system #15 (testing Online 1 2 3): online → down - Connection error: URL rejected: Malformed input to a URL function
+[2026-02-18 06:22:36] Checking system #16: testing maintenance (testingmainte.3.3.3.3) - Current status: maintenance
+[2026-02-18 06:22:36]   ⚠ System not accessible but in maintenance mode - Keeping maintenance status
+[2026-02-18 06:22:36] Checking system #17: testing online 4.4.4.4 (4.4.4.4.4) - Current status: online
+[2026-02-18 06:25:32] === Starting health check ===
+[2026-02-18 06:25:32] Checking system #2: Finance Portal (finance.company.com) - Current status: down
+[2026-02-18 06:25:32]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:25:33] Checking system #3: Customer Portal (customers.company.com) - Current status: down
+[2026-02-18 06:25:33]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:25:33] Checking system #6: Test Add System (testadd.com) - Current status: down
+[2026-02-18 06:25:34]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:25:34] Checking system #9: TESTTSSwww (TESTTT.COM) - Current status: offline
+[2026-02-18 06:25:44]   ✗ System not accessible (Connection timeout - Server did not respond within 10 seconds) - Already marked as offline
+[2026-02-18 06:25:45] Checking system #10: Canteen System!@#!!#!@#!123sssadadaaasaasdadaasdadaasdADAqeqqeqewqqeqwqwqweq (youtube.com) - Current status: online
+[2026-02-18 06:25:46]   ✓ System accessible (HTTP 200, 1100.68ms) - No change needed
+[2026-02-18 06:25:46] Checking system #11: Test system down 123 (Testagainupdateddomain.com.ph) - Current status: online
+[2026-02-18 06:25:47]   ✓ System accessible (HTTP 200, 555.07ms) - No change needed
+[2026-02-18 06:25:47] Checking system #12: TESTchangenote 2 (TESTMAINTE.COM) - Current status: down
+[2026-02-18 06:25:48]   ✗ System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:25:48] Checking system #15: testing Online 1 2 3 (testind add morehan 2.2.2.2.2) - Current status: down
+[2026-02-18 06:25:48]   ✗ System not accessible (Connection error: URL rejected: Malformed input to a URL function) - Already marked as down
+[2026-02-18 06:25:49] Checking system #16: testing maintenance (testingmainte.3.3.3.3) - Current status: maintenance
+[2026-02-18 06:25:49]   ⚠ System not accessible but in maintenance mode - Keeping maintenance status
+[2026-02-18 06:25:49] Checking system #17: testing online 4.4.4.4 (4.4.4.4.4) - Current status: online
+[2026-02-18 06:25:49] Updated system #17 (testing online 4.4.4.4): online → down - DNS resolution failed - Could not resolve host
+[2026-02-18 06:33:19] Starting health check
+[2026-02-18 06:33:19] Checking system #2: Finance Portal (finance.company.com) - Current status: down
+[2026-02-18 06:33:19]   ERROR: System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:33:19] Checking system #3: Customer Portal (customers.company.com) - Current status: down
+[2026-02-18 06:33:19]   ERROR: System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:33:20] Checking system #6: Test Add System (testadd.com) - Current status: down
+[2026-02-18 06:33:20]   ERROR: System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:33:20] Checking system #9: TESTTSSwww (TESTTT.COM) - Current status: offline
+[2026-02-18 06:33:30]   ERROR: System not accessible (Connection timeout - Server did not respond within 10 seconds) - Already marked as offline
+[2026-02-18 06:33:31] Checking system #10: Canteen System!@#!!#!@#!123sssadadaaasaasdadaasdadaasdADAqeqqeqewqqeqwqwqweq (youtube.com) - Current status: online
+[2026-02-18 06:33:32]   OK: System accessible (HTTP 200, 825.56ms) - No change needed
+[2026-02-18 06:33:32] Checking system #11: Test system down 123 (Testagainupdateddomain.com.ph) - Current status: online
+[2026-02-18 06:33:33]   OK: System accessible (HTTP 200, 560.67ms) - No change needed
+[2026-02-18 06:33:33] Checking system #12: TESTchangenote 2 (TESTMAINTE.COM) - Current status: down
+[2026-02-18 06:33:34]   ERROR: System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:33:34] Checking system #15: testing Online 1 2 3 (testind add morehan 2.2.2.2.2) - Current status: down
+[2026-02-18 06:33:34]   ERROR: System not accessible (Connection error: URL rejected: Malformed input to a URL function) - Already marked as down
+[2026-02-18 06:33:35] Checking system #16: testing maintenance (testingmainte.3.3.3.3) - Current status: maintenance
+[2026-02-18 06:33:35]   WARNING: System not accessible but in maintenance mode - Keeping maintenance status
+[2026-02-18 06:33:35] Checking system #17: testing online 4.4.4.4 (4.4.4.4.4) - Current status: down
+[2026-02-18 06:33:35]   ERROR: System not accessible (DNS resolution failed - Could not resolve host) - Already marked as down
+[2026-02-18 06:33:36] Health check completed: 10 systems checked, 0 status changes
+[2026-02-18 06:33:36] 
