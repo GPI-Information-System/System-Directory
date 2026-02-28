@@ -147,6 +147,17 @@ $totalSystems = count($systems);
                                 </button>
                             </div>
                         </div>
+
+                        <!-- Maintenance Schedule Button — with calendar icon -->
+                        <a href="viewer_maintenance.php" class="btn-maintenance-viewer">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            Maintenance Schedule
+                        </a>
                     </div>
 
                     <div class="active-filters-container" id="activeFilters" style="display: none;">
@@ -174,8 +185,8 @@ $totalSystems = count($systems);
                 <?php else: ?>
                     <?php foreach ($systems as $system): ?>
                         <?php
-                        $status       = $system['status'] ?? 'online';
-                        $statusLabel  = $statusLabels[$status] ?? 'Online';
+                        $status        = $system['status'] ?? 'online';
+                        $statusLabel   = $statusLabels[$status] ?? 'Online';
                         $contactNumber = $system['contact_number'] ?? '123';
                         ?>
                         <div class="system-card-viewer"

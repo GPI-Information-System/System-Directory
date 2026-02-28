@@ -1,24 +1,8 @@
 <?php
 /**
- * ============================================================
- * OPTIMIZED ANALYTICS DATA API
- * Ready for 200-300 concurrent users
- * ============================================================
- * 
- * Improvements:
- * 1. Backend pagination (only sends requested page)
- * 2. Query optimization (only select needed columns)
- * 3. Proper index usage
- * 4. Result caching hints
- * 5. Prepared statements for security
- * 6. Reduced data transfer (90% less bandwidth)
- * 
- * Performance Impact:
- * - 50-100x faster for large datasets
- * - 90% less bandwidth usage
- * - Handles 10,000+ logs easily
- * - Supports 200-300 concurrent users
- * ============================================================
+ * G-Portal Analytics Data API
+ * Handles: uptime stats, status history, completed maintenance,
+ *          monthly reports, systems by status
  */
 
 require_once '../config/session.php';
@@ -26,144 +10,143 @@ require_once '../config/database.php';
 
 header('Content-Type: application/json');
 
-// Check if user is logged in and has permission
 if (!isLoggedIn() || (!isSuperAdmin() && !isAdmin())) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
     exit();
 }
 
 $action = $_GET['action'] ?? '';
-
-$conn = getDBConnection();
+$conn   = getDBConnection();
 
 switch ($action) {
+
     // ============================================================
-    // Get Systems Count by Status
-    // OPTIMIZED: Uses idx_status index
+    // Systems by Status (for dashboard donut chart)
     // ============================================================
     case 'systems_by_status':
-        // Uses idx_status index for fast grouping
         $result = $conn->query("
-            SELECT 
-                status,
-                COUNT(*) as count
+            SELECT status, COUNT(*) as count
             FROM systems
             GROUP BY status
             ORDER BY FIELD(status, 'online', 'maintenance', 'down', 'offline', 'archived')
         ");
-        
         $data = [];
-        while ($row = $result->fetch_assoc()) {
-            $data[] = $row;
-        }
-        
+        while ($row = $result->fetch_assoc()) $data[] = $row;
         echo json_encode(['success' => true, 'data' => $data]);
         break;
-    
+
     // ============================================================
-    // Get Status Change History WITH BACKEND PAGINATION
-    // OPTIMIZED: Only sends requested page (10-50 rows)
+    // Status Change History (Patch Logs)
     // ============================================================
     case 'status_history':
-        $days = intval($_GET['days'] ?? 30);
-        
-        // PAGINATION PARAMETERS
-        $page = intval($_GET['page'] ?? 1);
-        $limit = intval($_GET['limit'] ?? 1000); // Default 1000 for frontend pagination
-        $offset = ($page - 1) * $limit;
-        
-        // Ensure valid pagination
-        if ($page < 1) $page = 1;
-        if ($limit < 1) $limit = 10;
-        if ($limit > 1000) $limit = 1000; // Max 1000 per request
-        
-        // BUILD QUERY - Only select needed columns
+        $days   = intval($_GET['days'] ?? 30);
+        $limit  = intval($_GET['limit'] ?? 1000);
+        $offset = 0;
+        if ($limit > 1000) $limit = 1000;
+
         $sql = "
-            SELECT 
+            SELECT
                 sl.id,
                 sl.system_id,
-                s.name as system_name,
+                s.name  AS system_name,
                 sl.old_status,
                 sl.new_status,
                 sl.change_note,
                 sl.changed_at,
-                u.username as changed_by
+                u.username AS changed_by
             FROM status_logs sl
             JOIN systems s ON sl.system_id = s.id
-            JOIN users u ON sl.changed_by = u.id
+            JOIN users   u ON sl.changed_by = u.id
         ";
-        
-        // DATE FILTER - Uses idx_changed_at or idx_date_system index
         if ($days > 0) {
             $sql .= " WHERE sl.changed_at >= DATE_SUB(NOW(), INTERVAL $days DAY)";
         }
-        
-        // ORDER BY - Uses idx_changed_at index
-        $sql .= " ORDER BY sl.changed_at DESC";
-        
-        // PAGINATION - Critical for performance!
-        $sql .= " LIMIT $limit OFFSET $offset";
-        
-        // Execute query
+        $sql .= " ORDER BY sl.changed_at DESC LIMIT $limit OFFSET $offset";
+
         $result = $conn->query($sql);
-        
-        // Get total count (for pagination info)
-        $countSql = "SELECT COUNT(*) as total FROM status_logs sl";
-        if ($days > 0) {
-            $countSql .= " WHERE sl.changed_at >= DATE_SUB(NOW(), INTERVAL $days DAY)";
-        }
-        $countResult = $conn->query($countSql);
-        $totalCount = $countResult->fetch_assoc()['total'] ?? 0;
-        
-        // Fetch data
-        $data = [];
-        while ($row = $result->fetch_assoc()) {
-            $data[] = $row;
-        }
-        
-        // Return with pagination metadata
+        $data   = [];
+        while ($row = $result->fetch_assoc()) $data[] = $row;
+
+        $countSql = "SELECT COUNT(*) AS total FROM status_logs sl";
+        if ($days > 0) $countSql .= " WHERE sl.changed_at >= DATE_SUB(NOW(), INTERVAL $days DAY)";
+        $totalCount = $conn->query($countSql)->fetch_assoc()['total'] ?? 0;
+
         echo json_encode([
-            'success' => true,
-            'data' => $data,
+            'success'    => true,
+            'data'       => $data,
             'pagination' => [
-                'page' => $page,
-                'limit' => $limit,
-                'total' => $totalCount,
-                'total_pages' => ceil($totalCount / $limit)
+                'total'       => $totalCount,
+                'total_pages' => ceil($totalCount / max($limit, 1))
             ]
         ]);
         break;
-    
+
     // ============================================================
-    // Get Uptime Statistics
-    // OPTIMIZED: Uses composite indexes
+    // Completed Maintenance Table (NEW)
+    // Shows all maintenance_schedules with status = 'Done'
+    // Includes exceeded_duration = actual end - scheduled end (seconds)
+    // ============================================================
+    case 'completed_maintenance':
+        $days = intval($_GET['days'] ?? 30);
+
+        $sql = "
+            SELECT
+                ms.id,
+                ms.title,
+                ms.start_datetime,
+                ms.end_datetime,
+                ms.status,
+                ms.updated_at,
+                s.name  AS system_name,
+                u.username AS done_by,
+                /* exceeded_duration: seconds past the scheduled end time.
+                   We use updated_at as the actual completion timestamp.
+                   If completed BEFORE end_datetime, value is 0 or negative → show 'Within schedule' */
+                GREATEST(0, TIMESTAMPDIFF(SECOND, ms.end_datetime, ms.updated_at)) AS exceeded_duration
+            FROM maintenance_schedules ms
+            JOIN systems s ON ms.system_id = s.id
+            LEFT JOIN users u ON ms.created_by = u.id
+            WHERE ms.status = 'Done'
+        ";
+
+        if ($days > 0) {
+            $sql .= " AND ms.updated_at >= DATE_SUB(NOW(), INTERVAL $days DAY)";
+        }
+
+        $sql .= " ORDER BY ms.updated_at DESC LIMIT 500";
+
+        $result = $conn->query($sql);
+
+        if (!$result) {
+            echo json_encode(['success' => false, 'message' => 'DB error: ' . $conn->error]);
+            break;
+        }
+
+        $data = [];
+        while ($row = $result->fetch_assoc()) $data[] = $row;
+
+        echo json_encode(['success' => true, 'data' => $data]);
+        break;
+
+    // ============================================================
+    // Uptime Statistics
     // ============================================================
     case 'uptime_stats':
         $systemId = intval($_GET['system_id'] ?? 0);
-        $days = intval($_GET['days'] ?? 30);
-        
+        $days     = intval($_GET['days']      ?? 30);
+
         if ($systemId > 0) {
-            // PER-SYSTEM UPTIME
-            // Uses idx_system_date composite index
             $sql = "
-                SELECT 
-                    DATE(changed_at) as date,
-                    new_status as status,
-                    changed_at
+                SELECT DATE(changed_at) AS date, new_status AS status, changed_at
                 FROM status_logs
                 WHERE system_id = $systemId
-                    AND changed_at >= DATE_SUB(NOW(), INTERVAL $days DAY)
+                  AND changed_at >= DATE_SUB(NOW(), INTERVAL $days DAY)
                 ORDER BY changed_at ASC
                 LIMIT 1000
             ";
         } else {
-            // OVERALL UPTIME
-            // Uses idx_date_system composite index
             $sql = "
-                SELECT 
-                    DATE(changed_at) as date,
-                    new_status as status,
-                    COUNT(*) as count
+                SELECT DATE(changed_at) AS date, new_status AS status, COUNT(*) AS count
                 FROM status_logs
                 WHERE changed_at >= DATE_SUB(NOW(), INTERVAL $days DAY)
                 GROUP BY DATE(changed_at), new_status
@@ -171,254 +154,118 @@ switch ($action) {
                 LIMIT 365
             ";
         }
-        
+
         $result = $conn->query($sql);
-        
-        $data = [];
-        while ($row = $result->fetch_assoc()) {
-            $data[] = $row;
-        }
-        
+        $data   = [];
+        while ($row = $result->fetch_assoc()) $data[] = $row;
         echo json_encode(['success' => true, 'data' => $data]);
         break;
-    
+
     // ============================================================
-    // Get Monthly Report Data
-    // OPTIMIZED: Proper date filtering and limits
+    // Monthly Report
     // ============================================================
     case 'monthly_report':
         $systemId = intval($_GET['system_id'] ?? 0);
-        $month = $conn->real_escape_string($_GET['month'] ?? date('Y-m'));
-        
+        $month    = $conn->real_escape_string($_GET['month'] ?? date('Y-m'));
+
         if ($systemId <= 0) {
             echo json_encode(['success' => false, 'message' => 'System ID required']);
             break;
         }
-        
-        // GET SYSTEM INFO - Only needed columns
-        $stmt = $conn->prepare("
-            SELECT id, name, domain, status, description 
-            FROM systems 
-            WHERE id = ?
-        ");
+
+        $stmt = $conn->prepare("SELECT id, name, domain, status, description FROM systems WHERE id = ?");
         $stmt->bind_param('i', $systemId);
         $stmt->execute();
         $systemInfo = $stmt->get_result()->fetch_assoc();
         $stmt->close();
-        
+
         if (!$systemInfo) {
             echo json_encode(['success' => false, 'message' => 'System not found']);
             break;
         }
-        
-        // GET STATUS CHANGES FOR MONTH
-        // Uses idx_system_date composite index
+
         $stmt = $conn->prepare("
-            SELECT 
-                sl.old_status,
-                sl.new_status,
-                sl.change_note,
-                sl.changed_at,
-                u.username as changed_by
+            SELECT sl.old_status, sl.new_status, sl.change_note, sl.changed_at, u.username AS changed_by
             FROM status_logs sl
             JOIN users u ON sl.changed_by = u.id
             WHERE sl.system_id = ?
-                AND DATE_FORMAT(sl.changed_at, '%Y-%m') = ?
+              AND DATE_FORMAT(sl.changed_at, '%Y-%m') = ?
             ORDER BY sl.changed_at ASC
             LIMIT 1000
         ");
         $stmt->bind_param('is', $systemId, $month);
         $stmt->execute();
         $changesResult = $stmt->get_result();
-        
         $statusChanges = [];
-        while ($row = $changesResult->fetch_assoc()) {
-            $statusChanges[] = $row;
-        }
+        while ($row = $changesResult->fetch_assoc()) $statusChanges[] = $row;
         $stmt->close();
-        
-        // CALCULATE TIME IN EACH STATUS
-        $timeInStatus = [
-            'online' => 0,
-            'offline' => 0,
-            'maintenance' => 0,
-            'down' => 0,
-            'archived' => 0
-        ];
-        
-        // Get time boundaries
-        $firstDay = $month . '-01 00:00:00';
-        $lastDay = date('Y-m-t 23:59:59', strtotime($firstDay));
+
+        // Calculate time in each status
+        $timeInStatus = ['online' => 0, 'offline' => 0, 'maintenance' => 0, 'down' => 0, 'archived' => 0];
+        $firstDay    = $month . '-01 00:00:00';
+        $lastDay     = date('Y-m-t 23:59:59', strtotime($firstDay));
         $currentTime = min(time(), strtotime($lastDay));
-        
-        // Calculate uptime
-        $totalSeconds = $currentTime - strtotime($firstDay);
-        $onlineSeconds = 0;
-        $downSeconds = 0;
-        
-        // If no status changes in this month, use current status for entire month
+        $totalSec    = $currentTime - strtotime($firstDay);
+        $onlineSec   = 0;
+        $downtimeIncidents = 0;
+
         if (count($statusChanges) === 0) {
-            $currentStatus = $systemInfo['status'] ?? 'online';
-            $timeInStatus[$currentStatus] = $totalSeconds;
-            
-            if ($currentStatus === 'online') {
-                $onlineSeconds = $totalSeconds;
-            }
-            if (in_array($currentStatus, ['down', 'offline'])) {
-                $downSeconds = $totalSeconds;
-            }
+            $cs = $systemInfo['status'] ?? 'online';
+            $timeInStatus[$cs] = $totalSec;
+            if ($cs === 'online') $onlineSec = $totalSec;
         } else {
-            // Process status changes
-            $currentStatus = $systemInfo['status'] ?? 'online';
+            $cs             = $systemInfo['status'] ?? 'online';
             $lastChangeTime = strtotime($firstDay);
-            
+
             foreach ($statusChanges as $change) {
                 $changeTime = strtotime($change['changed_at']);
-                
-                // Calculate duration - ensure it's never negative
-                $duration = max(0, $changeTime - $lastChangeTime);
-                
-                // Add duration to the OLD status (status BEFORE the change)
+                $duration   = max(0, $changeTime - $lastChangeTime);
                 if (isset($timeInStatus[$change['old_status']])) {
                     $timeInStatus[$change['old_status']] += $duration;
-                    
-                    // Track uptime/downtime
-                    if ($change['old_status'] === 'online') {
-                        $onlineSeconds += $duration;
-                    }
-                    if (in_array($change['old_status'], ['down', 'offline'])) {
-                        $downSeconds += $duration;
-                    }
+                    if ($change['old_status'] === 'online') $onlineSec += $duration;
                 }
-                
+                if (in_array($change['new_status'], ['down', 'offline'])) $downtimeIncidents++;
                 $lastChangeTime = $changeTime;
-                $currentStatus = $change['new_status'];
+                $cs = $change['new_status'];
             }
-            
-            // Add time from last change to end of month (or now if month is current)
-            $remainingDuration = max(0, $currentTime - $lastChangeTime);
-            
-            if (isset($timeInStatus[$currentStatus])) {
-                $timeInStatus[$currentStatus] += $remainingDuration;
-                
-                if ($currentStatus === 'online') {
-                    $onlineSeconds += $remainingDuration;
-                }
-                if (in_array($currentStatus, ['down', 'offline'])) {
-                    $downSeconds += $remainingDuration;
-                }
+
+            $remaining = max(0, $currentTime - $lastChangeTime);
+            if (isset($timeInStatus[$cs])) {
+                $timeInStatus[$cs] += $remaining;
+                if ($cs === 'online') $onlineSec += $remaining;
             }
         }
-        
-        // Calculate uptime percentage
-        $uptimePercentage = $totalSeconds > 0 ? ($onlineSeconds / $totalSeconds) * 100 : 0;
-        
-        // Format durations
-        foreach ($timeInStatus as $status => $seconds) {
-            $timeInStatus[$status] = [
-                'seconds' => $seconds,
-                'formatted' => formatDuration($seconds)
-            ];
+
+        $uptimePct = $totalSec > 0 ? ($onlineSec / $totalSec) * 100 : 0;
+
+        foreach ($timeInStatus as $s => $sec) {
+            $timeInStatus[$s] = ['seconds' => $sec, 'formatted' => formatDuration($sec)];
         }
-        
-        // Count downtime incidents
-        $downtimeIncidents = 0;
-        foreach ($statusChanges as $change) {
-            if (in_array($change['new_status'], ['down', 'offline'])) {
-                $downtimeIncidents++;
-            }
-        }
-        
-        // Return optimized response
+
         echo json_encode([
             'success' => true,
-            'data' => [
-                'system' => $systemInfo,
-                'month' => $month,
-                'uptime_percentage' => round($uptimePercentage, 2),
+            'data'    => [
+                'system'               => $systemInfo,
+                'month'                => $month,
+                'uptime_percentage'    => round($uptimePct, 2),
                 'status_changes_count' => count($statusChanges),
-                'status_changes' => $statusChanges,
-                'time_in_status' => $timeInStatus,
-                'downtime_incidents' => $downtimeIncidents
+                'status_changes'       => $statusChanges,
+                'time_in_status'       => $timeInStatus,
+                'downtime_incidents'   => $downtimeIncidents
             ]
         ]);
         break;
-    
-    // ============================================================
-    // Get Systems List (for dropdowns)
-    // OPTIMIZED: Only select needed columns
-    // ============================================================
-    case 'systems_list':
-        // Only fetch ID, name, status (not full data)
-        $result = $conn->query("
-            SELECT id, name, status 
-            FROM systems 
-            WHERE status != 'archived'
-            ORDER BY name ASC
-            LIMIT 500
-        ");
-        
-        $data = [];
-        while ($row = $result->fetch_assoc()) {
-            $data[] = $row;
-        }
-        
-        echo json_encode(['success' => true, 'data' => $data]);
-        break;
-    
+
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
         break;
 }
 
-// Don't close persistent connections
-// $conn->close(); // Removed for persistent connection optimization
-
-// ============================================================
-// Helper Functions
-// ============================================================
-
-/**
- * Format duration in human-readable format
- * @param int $seconds Duration in seconds
- * @return string Formatted duration
- */
 function formatDuration($seconds) {
-    if ($seconds < 60) {
-        return $seconds . ' seconds';
-    } elseif ($seconds < 3600) {
-        $minutes = floor($seconds / 60);
-        return $minutes . ' minute' . ($minutes != 1 ? 's' : '');
-    } elseif ($seconds < 86400) {
-        $hours = floor($seconds / 3600);
-        $minutes = floor(($seconds % 3600) / 60);
-        return $hours . ' hour' . ($hours != 1 ? 's' : '') . 
-               ($minutes > 0 ? ', ' . $minutes . ' min' : '');
-    } else {
-        $days = floor($seconds / 86400);
-        $hours = floor(($seconds % 86400) / 3600);
-        return $days . ' day' . ($days != 1 ? 's' : '') . 
-               ($hours > 0 ? ', ' . $hours . ' hour' . ($hours != 1 ? 's' : '') : '');
-    }
+    if ($seconds < 60)    return $seconds . ' seconds';
+    if ($seconds < 3600)  { $m = floor($seconds/60); return $m . ' minute' . ($m!=1?'s':''); }
+    if ($seconds < 86400) { $h = floor($seconds/3600); $m = floor(($seconds%3600)/60); return $h.'h'.($m>0?', '.$m.'m':''); }
+    $d = floor($seconds/86400); $h = floor(($seconds%86400)/3600);
+    return $d . ' day' . ($d!=1?'s':'') . ($h>0?', '.$h.'h':'');
 }
-
-/* ============================================================
-   PERFORMANCE NOTES:
-   ============================================================
-   
-   This optimized version:
-   
-   1. Uses backend pagination (sends only 10-1000 rows per request)
-   2. Properly uses database indexes
-   3. Limits result sets (prevents memory issues)
-   4. Uses prepared statements (security + performance)
-   5. Only selects needed columns (less data transfer)
-   
-   Performance Improvement:
-   - status_history: 50-100x faster with large datasets
-   - Bandwidth usage: 90% reduction
-   - Memory usage: 95% reduction
-   - Supports 200-300 concurrent users easily
-   
-   ============================================================ */
 ?>

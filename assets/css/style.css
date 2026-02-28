@@ -73,14 +73,10 @@ body {
 }
 
 
-
-
-
-
 /* ================================
-   SIDEBAR - 
+   SIDEBAR
    ================================ */
-   
+
 .sidebar {
     width: 240px;
     background-color: var(--white);
@@ -231,7 +227,7 @@ nav {
     margin-right: 12px;
 }
 
-/* Logout Button - Minimalist */
+/* Logout Button */
 .btn-logout {
     width: 100%;
     margin-top: auto;
@@ -252,9 +248,11 @@ nav {
     border-color: var(--danger);
 }
 
+
 /* ================================
    MAIN CONTENT
    ================================ */
+
 .main-content {
     flex: 1;
     margin-left: 240px;
@@ -267,6 +265,7 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    margin-top: 48px;
     margin-bottom: 32px;
     gap: 24px;
 }
@@ -303,11 +302,9 @@ nav {
 }
 
 
-
-
-/* ============================================================
-Dashboard Analytics Chart
-   ============================================================ */
+/* ================================
+   DASHBOARD ANALYTICS CHART
+   ================================ */
 
 .analytics-chart-section {
     background: white;
@@ -357,275 +354,18 @@ Dashboard Analytics Chart
 }
 
 
-
-
 /* ================================
-   ADDITIONAL CSS FOR NEW FEATURES
-   Add this to your existing style.css
+   SEARCH BAR
    ================================ */
 
-/* ================================
-   SEARCH WRAPPER WITH FILTER BUTTON
-   Location: Search container section
-   ================================ */
+.search-container {
+    margin-bottom: 0;
+}
+
 .search-wrapper {
     display: flex;
     gap: 12px;
     align-items: center;
-}
-
-/* ================================
-   FILTER BUTTON STYLING
-   Location: Next to search box
-   ================================ */
-.btn-filter {
-    padding: 11px 16px;
-    background-color: var(--white);
-    color: var(--primary-color);
-    border: 1px solid var(--secondary-color);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
-}
-
-.btn-filter:hover {
-    background-color: var(--secondary-color);
-    border-color: var(--primary-color);
-}
-
-.btn-filter svg {
-    width: 18px;
-    height: 18px;
-}
-
-/* ================================
-   FILTER DROPDOWN CONTAINER
-   Location: Contains filter button and dropdown menu
-   ================================ */
-.filter-dropdown-container {
-    position: relative;
-}
-
-/* ================================
-   FILTER DROPDOWN MENU
-   Location: Dropdown that appears when filter button is clicked
-   ================================ */
-.filter-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    background-color: var(--white);
-    border: 1px solid var(--secondary-color);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
-    min-width: 180px;
-    z-index: 1000;
-    display: none;
-    overflow: hidden;
-}
-
-.filter-dropdown-menu.show {
-    display: block;
-    animation: fadeIn 0.15s ease;
-}
-
-/* ================================
-   FILTER OPTIONS
-   Location: Individual filter items in dropdown
-   ================================ */
-.filter-option {
-    width: 100%;
-    padding: 10px 14px;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--gray-700);
-    transition: all var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.filter-option:hover {
-    background-color: var(--secondary-color);
-    color: var(--primary-dark);
-}
-
-.filter-option.online {
-    background-color: var(--tertiary-color);
-    color: var(--primary-color);
-    font-weight: 600;
-}
-
-/* ================================
-   FILTER STATUS DOTS
-   Location: Colored indicators next to filter options
-   ================================ */
-.filter-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.filter-all {
-    background-color: var(--primary-light);
-}
-
-.filter-online {
-    background-color: var(--success);
-}
-
-.filter-offline {
-    background-color: var(--gray-500);
-}
-
-.filter-maintenance {
-    background-color: var(--warning);
-}
-
-.filter-down {
-    background-color: var(--danger);
-}
-
-.filter-archived {
-    background-color: var(--gray-300);
-}
-
-/* ================================
-   LAST UPDATED TIMESTAMP
-   Location: Below domain name in system cards
-   ================================ */
-.card-last-updated {
-    font-size: 11px;
-    color: var(--gray-500);
-    margin-top: 8px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    font-weight: 500;
-}
-
-.card-last-updated svg {
-    width: 12px;
-    height: 12px;
-    flex-shrink: 0;
-}
-
-/* ================================
-   RESPONSIVE ADJUSTMENTS
-   Location: Mobile responsive styles
-   ================================ */
-@media (max-width: 768px) {
-    .search-wrapper {
-        flex-direction: column;
-        width: 100%;
-    }
-    
-    .search-box {
-        max-width: 100%;
-    }
-    
-    .btn-filter {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .filter-dropdown-menu {
-        right: auto;
-        left: 0;
-        width: 100%;
-    }
-}
-
-
-
-
-
-/* ================================
-   CONTACT MESSAGE FOR DASHBOARD
-   Add this to the end of your style.css
-   ================================ */
-
-/* Contact Message for Unavailable Systems - Dashboard */
-.system-contact-message {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    margin-top: 12px;
-    padding: 8px 12px;
-    background-color: var(--gray-100);
-    border: 1px solid var(--gray-300);
-    border-radius: var(--radius-sm);
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--gray-700);
-}
-
-.system-contact-message svg {
-    width: 14px;
-    height: 14px;
-    color: var(--gray-600);
-    flex-shrink: 0;
-}
-
-/* Highlighted Contact Number */
-.contact-number {
-    color: var(--primary-color);
-    font-weight: 700;
-    font-size: 13px;
-    padding: 2px 6px;
-    background-color: var(--secondary-color);
-    border-radius: 4px;
-}
-
-
-
-/* Add System Button - Top Right */
-.btn-add-top {
-    padding: 10px 20px;
-    background-color: var(--primary-color);
-    color: var(--white);
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    align-self: flex-end;
-    height: fit-content;
-}
-
-.btn-add-top:hover {
-    background-color: var(--primary-dark);
-    box-shadow: var(--shadow-md);
-}
-
-.btn-add-top svg {
-    width: 18px;
-    height: 18px;
-}
-
-/* ================================
-   SEARCH BAR - Clean Design
-   ================================ */
-.search-container {
-    margin-bottom: 0;
 }
 
 .search-box {
@@ -653,9 +393,138 @@ Dashboard Analytics Chart
     box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.1);
 }
 
+
 /* ================================
-   CARDS GRID - Minimalist Cards
+   FILTER BUTTON & DROPDOWN
    ================================ */
+
+.btn-filter {
+    padding: 11px 16px;
+    background-color: var(--white);
+    color: var(--primary-color);
+    border: 1px solid var(--secondary-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.btn-filter:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-filter svg {
+    width: 18px;
+    height: 18px;
+}
+
+.filter-dropdown-container {
+    position: relative;
+}
+
+.filter-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background-color: var(--white);
+    border: 1px solid var(--secondary-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    min-width: 180px;
+    z-index: 1000;
+    display: none;
+    overflow: hidden;
+}
+
+.filter-dropdown-menu.show {
+    display: block;
+    animation: fadeIn 0.15s ease;
+}
+
+.filter-option {
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-700);
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-option:hover {
+    background-color: var(--secondary-color);
+    color: var(--primary-dark);
+}
+
+.filter-option.online {
+    background-color: var(--tertiary-color);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.filter-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.filter-all      { background-color: var(--primary-light); }
+.filter-online   { background-color: var(--success); }
+.filter-offline  { background-color: var(--gray-500); }
+.filter-maintenance { background-color: var(--warning); }
+.filter-down     { background-color: var(--danger); }
+.filter-archived { background-color: var(--gray-300); }
+
+
+/* ================================
+   ADD SYSTEM BUTTON
+   ================================ */
+
+.btn-add-top {
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-end;
+    height: fit-content;
+}
+
+.btn-add-top:hover {
+    background-color: var(--primary-dark);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-add-top svg {
+    width: 18px;
+    height: 18px;
+}
+
+
+/* ================================
+   SYSTEM CARDS GRID
+   ================================ */
+
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -663,7 +532,6 @@ Dashboard Analytics Chart
     margin-top: 20px;
 }
 
-/* Replace your existing .system-card styling with this: */
 .system-card {
     background-color: var(--white);
     border: 1px solid var(--secondary-color);
@@ -677,30 +545,6 @@ Dashboard Analytics Chart
     text-align: center;
 }
 
-/* Ensure the card content is centered */
-.card-header > div:first-child {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-/* Make sure card description is also centered */
-.card-description {
-    font-size: 14px;
-    color: var(--gray-600);
-    line-height: 1.6;
-    margin-top: 12px;
-    text-align: center;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-}
 .system-card:hover {
     border-color: var(--primary-color);
     box-shadow: var(--shadow-lg);
@@ -716,6 +560,7 @@ Dashboard Analytics Chart
     gap: 12px;
     width: 100%;
 }
+
 .card-header > div:first-child {
     flex: 1;
     min-width: 0;
@@ -723,6 +568,7 @@ Dashboard Analytics Chart
     flex-direction: column;
     align-items: center;
     width: 100%;
+    text-align: center;
 }
 
 /* System Logo */
@@ -755,6 +601,20 @@ Dashboard Analytics Chart
     color: var(--white);
 }
 
+.system-logo-clickable,
+.system-logo.system-logo-clickable,
+.system-logo-placeholder.system-logo-clickable {
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.system-logo-clickable:hover,
+.system-logo.system-logo-clickable:hover,
+.system-logo-placeholder.system-logo-clickable:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
 .card-title {
     font-size: 18px;
     font-weight: 700;
@@ -768,136 +628,27 @@ Dashboard Analytics Chart
     max-width: 100%;
 }
 
-/* ================================
-   DOMAIN LINK STYLING UPDATE
-   Find .card-domain in your CSS and replace with this:
-   ================================ */
-
 .card-domain {
     font-size: 13px;
     color: var(--primary-color);
     font-weight: 600;
     word-break: break-all;
-    text-decoration: underline; /* ADDED: Underline to make it more noticeable */
-    text-decoration-thickness: 1.4px; /* ADDED: Thicker underline */
-    text-underline-offset: 3px; /* ADDED: Space between text and underline */
+    text-decoration: underline;
+    text-decoration-thickness: 1.4px;
+    text-underline-offset: 3px;
     display: block;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    cursor: pointer; /* ADDED: Shows it's clickable */
+    cursor: pointer;
 }
 
 .card-domain:hover {
-    text-decoration: underline;
-    color: var(--primary-dark); /* ADDED: Darker color on hover */
-    text-decoration-thickness: 2px; /* ADDED: Thicker underline on hover */
-}
-
-/* ================================
-   MAKE SYSTEM LOGO CLICKABLE
-   Add this NEW style for clickable logos:
-   ================================ */
-
-.system-logo-clickable {
-    cursor: pointer;
-    transition: all var(--transition);
-}
-
-.system-logo-clickable:hover {
-    transform: scale(1.05);
-    opacity: 0.8;
-}
-
-.system-logo.system-logo-clickable {
-    cursor: pointer;
-}
-
-.system-logo.system-logo-clickable:hover {
-    transform: scale(1.05);
-    opacity: 0.9;
-}
-
-.system-logo-placeholder.system-logo-clickable {
-    cursor: pointer;
-}
-
-.system-logo-placeholder.system-logo-clickable:hover {
-    transform: scale(1.05);
-    opacity: 0.9;
-}
-
-
-
-
-/* ================================
-   STATUS DROPDOWN STYLING
-   Add this to your style.css
-   For select dropdown in Edit System modal
-   ================================ */
-
-/* ================================
-   SELECT DROPDOWN BASE STYLING
-   Matches the input field design
-   ================================ */
-.form-group select {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid var(--secondary-color);
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    font-family: inherit;
-    transition: all var(--transition);
-    background-color: var(--white);
-    color: var(--gray-700);
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23162660' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 40px;
-}
-
-.form-group select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    background-color: var(--secondary-color);
-    box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.1);
-}
-
-.form-group select:hover {
-    border-color: var(--primary-color);
-}
-
-/* ================================
-   SELECT OPTIONS STYLING
-   Styling for dropdown options
-   ================================ */
-.form-group select option {
-    padding: 10px;
-    background-color: var(--white);
-    color: var(--gray-700);
-}
-
-.form-group select option:hover,
-.form-group select option:checked {
-    background-color: var(--secondary-color);
     color: var(--primary-dark);
-}
-
-
-
-
-
-
-
-
-
-
-.card-domain:hover {
     text-decoration: underline;
+    text-decoration-thickness: 2px;
 }
 
 .card-description {
@@ -911,14 +662,30 @@ Dashboard Analytics Chart
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    width: 100%;
+}
+
+.card-last-updated {
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-top: 8px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-weight: 500;
+}
+
+.card-last-updated svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
 }
 
 
-
-
 /* ================================
-   STATUS BADGE CONTAINER
-   Displays above the system title
+   STATUS BADGES
    ================================ */
 
 .card-status-badge {
@@ -938,60 +705,12 @@ Dashboard Analytics Chart
     margin-right: auto;
 }
 
-/* ================================
-   STATUS BADGE - ACTIVE
-   Green badge for active systems
-   ================================ */
-.status-online {
-    background-color: #D1FAE5;
-    color: #065F46;
-    border: 1px solid #6EE7B7;
-}
+.status-online      { background-color: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+.status-offline     { background-color: #F3F4F6; color: #374151; border: 1px solid #D1D5DB; }
+.status-maintenance { background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+.status-down        { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+.status-archived    { background-color: #E5E7EB; color: #6B7280; border: 1px solid #D1D5DB; }
 
-/* ================================
-   STATUS BADGE - OFFLINE
-   Gray badge for offline systems
-   ================================ */
-.status-offline {
-    background-color: #F3F4F6;
-    color: #374151;
-    border: 1px solid #D1D5DB;
-}
-
-/* ================================
-   STATUS BADGE - MAINTENANCE
-   Orange/Yellow badge for maintenance
-   ================================ */
-.status-maintenance {
-    background-color: #FEF3C7;
-    color: #92400E;
-    border: 1px solid #FCD34D;
-}
-
-/* ================================
-   STATUS BADGE - DOWN
-   Red badge for systems that are down
-   ================================ */
-.status-down {
-    background-color: #FEE2E2;
-    color: #991B1B;
-    border: 1px solid #FCA5A5;
-}
-
-/* ================================
-   STATUS BADGE - ARCHIVED
-   Light gray badge for archived systems
-   ================================ */
-.status-archived {
-    background-color: #E5E7EB;
-    color: #6B7280;
-    border: 1px solid #D1D5DB;
-}
-
-/* ================================
-   STATUS INDICATOR DOT
-   Small colored dot inside badge
-   ================================ */
 .status-indicator {
     width: 6px;
     height: 6px;
@@ -999,77 +718,37 @@ Dashboard Analytics Chart
     flex-shrink: 0;
 }
 
-.status-online .status-indicator {
-    background-color: #10B981;
-    animation: pulse-active 2s infinite;
-}
+.status-online .status-indicator      { background-color: #10B981; animation: pulse-active 2s infinite; }
+.status-offline .status-indicator     { background-color: #6B7280; }
+.status-maintenance .status-indicator { background-color: #F59E0B; animation: pulse-warning 2s infinite; }
+.status-down .status-indicator        { background-color: #EF4444; animation: pulse-danger 1.5s infinite; }
+.status-archived .status-indicator    { background-color: #9CA3AF; }
 
-.status-offline .status-indicator {
-    background-color: #6B7280;
-}
-
-.status-maintenance .status-indicator {
-    background-color: #F59E0B;
-    animation: pulse-warning 2s infinite;
-}
-
-.status-down .status-indicator {
-    background-color: #EF4444;
-    animation: pulse-danger 1.5s infinite;
-}
-
-.status-archived .status-indicator {
-    background-color: #9CA3AF;
-}
-
-/* ================================
-   PULSE ANIMATIONS FOR STATUS DOTS
-   Visual feedback for active/maintenance/down states
-   ================================ */
 @keyframes pulse-active {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.5; }
 }
 
 @keyframes pulse-warning {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.6;
-    }
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.6; }
 }
 
 @keyframes pulse-danger {
-    0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.7;
-        transform: scale(1.1);
-    }
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.7; transform: scale(1.1); }
 }
-
-
-
-
-
 
 
 /* ================================
    THREE DOTS MENU
    ================================ */
+
 .card-menu {
     position: absolute;
     top: 24px;
     right: 24px;
 }
-
 
 .menu-toggle {
     background: transparent;
@@ -1125,13 +804,8 @@ Dashboard Analytics Chart
     color: var(--primary-dark);
 }
 
-.dropdown-menu button.delete-btn {
-    color: var(--danger);
-}
-
-.dropdown-menu button.delete-btn:hover {
-    background-color: #FEE2E2;
-}
+.dropdown-menu button.delete-btn       { color: var(--danger); }
+.dropdown-menu button.delete-btn:hover { background-color: #FEE2E2; }
 
 .dropdown-menu button svg {
     margin-right: 8px;
@@ -1139,9 +813,47 @@ Dashboard Analytics Chart
     height: 16px;
 }
 
+
 /* ================================
-   MODAL - Clean & Professional
+   CONTACT MESSAGE
    ================================ */
+
+.system-contact-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 8px 12px;
+    background-color: var(--gray-100);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.system-contact-message svg {
+    width: 14px;
+    height: 14px;
+    color: var(--gray-600);
+    flex-shrink: 0;
+}
+
+.contact-number {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 2px 6px;
+    background-color: var(--secondary-color);
+    border-radius: 4px;
+}
+
+
+/* ================================
+   MODAL
+   ================================ */
+
 .modal {
     display: none;
     position: fixed;
@@ -1212,9 +924,19 @@ Dashboard Analytics Chart
     padding: 24px;
 }
 
+.modal-footer {
+    padding: 20px 24px;
+    border-top: 1px solid var(--secondary-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+
 /* ================================
    FORM STYLES
    ================================ */
+
 .form-group {
     margin-bottom: 20px;
 }
@@ -1257,18 +979,103 @@ Dashboard Analytics Chart
     min-height: 100px;
 }
 
-.modal-footer {
-    padding: 20px 24px;
-    border-top: 1px solid var(--secondary-color);
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-
+/* Select Dropdown */
+.form-group select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--secondary-color);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    transition: all var(--transition);
+    background-color: var(--white);
+    color: var(--gray-700);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23162660' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polylyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
 }
+
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.1);
+}
+
+.form-group select:hover {
+    border-color: var(--primary-color);
+}
+
+.form-group select option {
+    padding: 10px;
+    background-color: var(--white);
+    color: var(--gray-700);
+}
+
+.form-group select option:hover,
+.form-group select option:checked {
+    background-color: var(--secondary-color);
+    color: var(--primary-dark);
+}
+
+/* ================================
+   HEALTH CHECK TOGGLE SWITCH
+   Used in Edit System modal
+   ================================ */
+
+.health-check-toggle {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 24px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.health-check-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--gray-300);
+    border-radius: 24px;
+    transition: var(--transition);
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: var(--white);
+    border-radius: 50%;
+    transition: var(--transition);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.health-check-toggle input:checked + .toggle-slider {
+    background-color: var(--primary-color);
+}
+
+.health-check-toggle input:checked + .toggle-slider::before {
+    transform: translateX(18px);
+}
+
 
 /* ================================
    BUTTONS
    ================================ */
+
 .btn {
     padding: 10px 20px;
     border: none;
@@ -1299,183 +1106,11 @@ Dashboard Analytics Chart
     border-color: var(--primary-color);
 }
 
-/* ================================
-   LOGIN PAGE 
-   ================================ */
-.login-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #162660 0%, #0f1a45 100%);
-    position: relative;
-    overflow: hidden;
-}
-
-/* Animated background shapes */
-.login-container::before,
-.login-container::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(208, 230, 253, 0.1);
-}
-
-.login-container::before {
-    width: 600px;
-    height: 600px;
-    top: -200px;
-    right: -200px;
-    animation: float 20s ease-in-out infinite;
-}
-
-.login-container::after {
-    width: 400px;
-    height: 400px;
-    bottom: -150px;
-    left: -150px;
-    animation: float 25s ease-in-out infinite reverse;
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translate(0, 0) scale(1);
-    }
-    33% {
-        transform: translate(30px, -30px) scale(1.1);
-    }
-    66% {
-        transform: translate(-20px, 20px) scale(0.9);
-    }
-}
-
-.login-box {
-    background-color: var(--white);
-    border-radius: 16px;
-    padding: 48px 40px;
-    width: 90%;
-    max-width: 440px;
-    box-shadow: 0 20px 60px rgba(22, 38, 96, 0.3);
-    border: 1px solid var(--secondary-color);
-    position: relative;
-    z-index: 1;
-    animation: slideUp 0.6s ease;
-}
-
-.login-header {
-    text-align: center;
-    margin-bottom: 36px;
-}
-
-.login-header h1 {
-    font-size: 32px;
-    color: var(--primary-dark);
-    margin-bottom: 6px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-}
-
-.login-header p {
-    color: var(--gray-600);
-    font-size: 15px;
-    font-weight: 500;
-}
-
-/* Login Form Enhancements */
-.login-box .form-group {
-    margin-bottom: 24px;
-}
-
-.login-box .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--primary-dark);
-}
-
-.login-box .form-group input {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1.5px solid var(--secondary-color);
-    border-radius: var(--radius-sm);
-    font-size: 15px;
-    transition: all var(--transition);
-    background-color: var(--white);
-}
-
-.login-box .form-group input::placeholder {
-    color: var(--gray-400);
-}
-
-.login-box .form-group input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    background-color: var(--secondary-color);
-    box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.1);
-}
-
-/* Login Button */
-.login-box .btn-primary {
-    width: 100%;
-    padding: 13px 24px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-    color: var(--white);
-    border: none;
-    border-radius: var(--radius-sm);
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    transition: all var(--transition);
-    margin-top: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.login-box .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(22, 38, 96, 0.4);
-}
-
-.login-box .btn-primary:active {
-    transform: translateY(0);
-}
-
-/* Demo Accounts Section */
-.demo-accounts {
-    margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid var(--secondary-color);
-}
-
-.demo-accounts h4 {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--primary-dark);
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.demo-accounts p {
-    font-size: 13px;
-    color: var(--gray-600);
-    margin-bottom: 6px;
-    font-family: 'Courier New', monospace;
-    background-color: var(--tertiary-color);
-    padding: 8px 12px;
-    border-radius: 6px;
-    border-left: 3px solid var(--primary-color);
-}
-
-.demo-accounts p strong {
-    color: var(--primary-dark);
-    font-weight: 700;
-}
 
 /* ================================
    ALERTS
    ================================ */
+
 .alert {
     padding: 12px 16px;
     border-radius: var(--radius-sm);
@@ -1484,21 +1119,14 @@ Dashboard Analytics Chart
     font-weight: 500;
 }
 
-.alert-error {
-    background-color: #FEE2E2;
-    color: var(--danger);
-    border: 1px solid #FCA5A5;
-}
+.alert-error   { background-color: #FEE2E2; color: var(--danger);  border: 1px solid #FCA5A5; }
+.alert-success { background-color: #D1FAE5; color: var(--success); border: 1px solid #6EE7B7; }
 
-.alert-success {
-    background-color: #D1FAE5;
-    color: var(--success);
-    border: 1px solid #6EE7B7;
-}
 
 /* ================================
    EMPTY STATE
    ================================ */
+
 .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -1521,32 +1149,11 @@ Dashboard Analytics Chart
     font-size: 14px;
 }
 
-/* ================================
-   ANIMATIONS
-   ================================ */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes slideUp {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
 
 /* ================================
    DELETE CONFIRMATION MODAL
    ================================ */
+
 .delete-modal {
     display: none;
     position: fixed;
@@ -1602,9 +1209,7 @@ Dashboard Analytics Chart
     color: var(--danger);
 }
 
-.delete-modal-title {
-    flex: 1;
-}
+.delete-modal-title { flex: 1; }
 
 .delete-modal-title h3 {
     font-size: 18px;
@@ -1666,7 +1271,6 @@ Dashboard Analytics Chart
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    
 }
 
 .btn-delete-confirm {
@@ -1703,88 +1307,175 @@ Dashboard Analytics Chart
     border-color: var(--primary-color);
 }
 
+
 /* ================================
-   RESPONSIVE
+   LOGIN PAGE
    ================================ */
-@media (max-width: 1024px) {
-    .cards-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    }
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #162660 0%, #0f1a45 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
 }
 
-@media (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        position: relative;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--secondary-color);
-    }
-    
-    .main-content {
-        margin-left: 0;
-        padding: 24px 20px;
-    }
-    
-    .container {
-        flex-direction: column;
-    }
-    
-    .content-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-    }
-    
-    .btn-add-top {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .cards-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .search-box {
-        max-width: 100%;
-    }
-    
-    .delete-modal-content {
-        max-width: 95%;
-    }
+.login-container::before,
+.login-container::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(208, 230, 253, 0.1);
 }
 
-@media (max-width: 480px) {
-    .main-content {
-        padding: 20px 16px;
-    }
-    
-    .system-card {
-        padding: 20px;
-    }
-    
-    .login-box {
-        padding: 32px 24px;
-    }
-    
-    .delete-modal-body {
-        padding: 20px;
-    }
+.login-container::before {
+    width: 600px; height: 600px;
+    top: -200px; right: -200px;
+    animation: float 20s ease-in-out infinite;
+}
+
+.login-container::after {
+    width: 400px; height: 400px;
+    bottom: -150px; left: -150px;
+    animation: float 25s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%       { transform: translate(30px, -30px) scale(1.1); }
+    66%       { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+.login-box {
+    background-color: var(--white);
+    border-radius: 16px;
+    padding: 48px 40px;
+    width: 90%;
+    max-width: 440px;
+    box-shadow: 0 20px 60px rgba(22, 38, 96, 0.3);
+    border: 1px solid var(--secondary-color);
+    position: relative;
+    z-index: 1;
+    animation: slideUp 0.6s ease;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.login-header h1 {
+    font-size: 32px;
+    color: var(--primary-dark);
+    margin-bottom: 6px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.login-header p {
+    color: var(--gray-600);
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.login-box .form-group { margin-bottom: 24px; }
+
+.login-box .form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--secondary-color);
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    transition: all var(--transition);
+    background-color: var(--white);
+}
+
+.login-box .form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.1);
+}
+
+.login-box .btn-primary {
+    width: 100%;
+    padding: 13px 24px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all var(--transition);
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.login-box .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(22, 38, 96, 0.4);
+}
+
+.login-box .btn-primary:active { transform: translateY(0); }
+
+.demo-accounts {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--secondary-color);
+}
+
+.demo-accounts h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.demo-accounts p {
+    font-size: 13px;
+    color: var(--gray-600);
+    margin-bottom: 6px;
+    font-family: 'Courier New', monospace;
+    background-color: var(--tertiary-color);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.demo-accounts p strong {
+    color: var(--primary-dark);
+    font-weight: 700;
 }
 
 
+/* ================================
+   ANIMATIONS
+   ================================ */
 
-/* ============================================================
-   IMPROVED RESPONSIVE DESIGN WITH HAMBURGER MENU
-   REPLACE the previous responsive-additions.css with this
-   ============================================================ */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
 
-/* ========================================
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+
+/* ================================
    HAMBURGER MENU BUTTON
-   ======================================== */
+   ================================ */
 
 .hamburger-menu {
-    display: none; /* Hidden on desktop */
+    display: none;
     position: fixed;
     top: 20px;
     left: 20px;
@@ -1804,14 +1495,9 @@ Dashboard Analytics Chart
     transition: all 0.3s ease;
 }
 
-.hamburger-menu:hover {
-    background: var(--primary-dark);
-    transform: scale(1.05);
-}
-
-.hamburger-menu:active {
-    transform: scale(0.95);
-}
+.hamburger-menu:hover  { background: var(--primary-dark); transform: scale(1.05); }
+.hamburger-menu:active { transform: scale(0.95); }
+.hamburger-menu:focus  { outline: 3px solid var(--secondary-color); outline-offset: 2px; }
 
 .hamburger-line {
     width: 24px;
@@ -1821,611 +1507,354 @@ Dashboard Analytics Chart
     transition: all 0.3s ease;
 }
 
-/* Animated hamburger when sidebar is open */
-.sidebar-open .hamburger-menu .hamburger-line:nth-child(1) {
-    transform: rotate(45deg) translate(7px, 7px);
-}
+.sidebar-open .hamburger-menu .hamburger-line:nth-child(1) { transform: rotate(45deg) translate(7px, 7px); }
+.sidebar-open .hamburger-menu .hamburger-line:nth-child(2) { opacity: 0; transform: translateX(-20px); }
+.sidebar-open .hamburger-menu .hamburger-line:nth-child(3) { transform: rotate(-45deg) translate(7px, -7px); }
 
-.sidebar-open .hamburger-menu .hamburger-line:nth-child(2) {
-    opacity: 0;
-    transform: translateX(-20px);
-}
 
-.sidebar-open .hamburger-menu .hamburger-line:nth-child(3) {
-    transform: rotate(-45deg) translate(7px, -7px);
-}
-
-/* ========================================
+/* ================================
    SIDEBAR OVERLAY (MOBILE)
-   ======================================== */
+   ================================ */
 
 .sidebar-overlay {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.5);
     z-index: 1999;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
-.sidebar-overlay.show {
-    display: block;
-    opacity: 1;
-}
+.sidebar-overlay.show { display: block; opacity: 1; }
 
-/* ========================================
-   RESPONSIVE BREAKPOINTS
-   ======================================== */
+.sidebar:focus-within { outline: none; }
 
-/* Tablet and below (1024px) */
+
+/* ================================
+   RESPONSIVE — TABLET (max 1024px)
+   ================================ */
+
 @media (max-width: 1024px) {
-    .hamburger-menu {
-        display: flex; /* Show hamburger on tablet and mobile */
-    }
-    
+    body, .container { overflow-x: hidden; }
+
+    .hamburger-menu { display: flex; }
+
     .sidebar {
         position: fixed;
-        left: -240px; /* Hide sidebar off-screen */
+        left: -240px;
         transition: left 0.3s ease;
         z-index: 2000;
         box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
-        padding: 24px 16px; /* Reduce padding on mobile */
+        padding: 24px 16px;
     }
-    
-    .sidebar-open .sidebar {
-        left: 0; /* Slide in from left */
-    }
-    
+
+    .sidebar-open .sidebar { left: 0; }
+
     .main-content {
         margin-left: 0;
         width: 100%;
-        padding-top: 80px; /* Space for hamburger button */
+        padding-top: 80px;
     }
-    
-    /* IMPROVED: Sidebar header spacing */
-    .sidebar-header {
-        margin-bottom: 24px;
-        padding-bottom: 16px;
-    }
-    
-    .sidebar-header h1 {
-        font-size: 20px;
-    }
-    
-    .sidebar-header .user-info {
-        font-size: 12px;
-    }
-    
-    .sidebar-header .user-role {
-        font-size: 9px;
-        padding: 3px 8px;
-    }
-    
-    /* IMPROVED: User profile section */
-    .user-profile {
-        padding: 12px;
-        margin-bottom: 12px;
-    }
-    
-    .user-avatar-large {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .user-info .user-name {
-        font-size: 13px;
-    }
-    
-    .user-info .user-role {
-        font-size: 10px;
-    }
-    
-    /* IMPROVED: Nav menu */
-    .nav-menu a {
-        padding: 8px 10px;
-        font-size: 13px;
-    }
-    
-    .nav-menu a svg {
-        width: 16px;
-        height: 16px;
-    }
-    
-    /* Adjust top section for tablet */
+
+    .sidebar-header { margin-bottom: 24px; padding-bottom: 16px; }
+    .sidebar-header h1 { font-size: 20px; }
+    .sidebar-header .user-info { font-size: 12px; }
+    .sidebar-header .user-role { font-size: 9px; padding: 3px 8px; }
+
+    .user-profile { padding: 12px; margin-bottom: 12px; }
+    .user-avatar-large { width: 40px; height: 40px; }
+    .user-info .user-name { font-size: 13px; }
+    .user-info .user-role { font-size: 10px; }
+
+    .nav-menu a { padding: 8px 10px; font-size: 13px; }
+    .nav-menu a svg { width: 16px; height: 16px; }
+
     .top-section {
         flex-direction: column;
+        margin-top: 48px;
         align-items: stretch;
         gap: 16px;
     }
-    
-    .header-with-search {
-        width: 100%;
-    }
-    
-    .btn-add-top {
-        width: 100%;
-        margin-top: 0;
-    }
-    
-    /* IMPROVED: Analytics chart adjustments */
-    .analytics-chart-section {
-        padding: 20px 16px;
-        margin-bottom: 20px;
-    }
-    
-    .dashboard-chart-container {
-        height: 280px; /* Increased from 250px */
-    }
-    
-    .chart-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-    
-    .chart-header h3 {
-        font-size: 16px;
-    }
-    
-    .link-to-analytics {
-        font-size: 13px;
-    }
-    
-    /* IMPROVED: Cards grid on tablet - 2 columns */
-    .cards-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-    }
-}
 
-/* Mobile (768px and below) */
-@media (max-width: 768px) {
-    .main-content {
-        padding: 20px 16px;
-        padding-top: 80px;
-    }
-    
-    /* Header adjustments */
-    .content-header h2 {
-        font-size: 22px;
-    }
-    
-    .content-header h2::after {
-        width: 36px;
-        height: 2px;
-    }
-    
-    /* Search and filter */
-    .search-wrapper {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .search-box {
-        max-width: 100%;
-        padding: 10px 14px 10px 38px;
-    }
-    
-    .btn-filter {
-        width: 100%;
-        justify-content: center;
-        padding: 10px 14px;
-    }
-    
-    .filter-dropdown-menu {
-        left: 0;
-        right: 0;
-        width: 100%;
-    }
-    
-    /* IMPROVED: Cards grid - single column on mobile */
-    .cards-grid {
-        grid-template-columns: 1fr;
-        gap: 14px;
-    }
-    
-    .system-card {
-        padding: 18px;
-    }
-    
-    /* IMPROVED: Chart adjustments */
-    .dashboard-chart-container {
-        height: 240px;
-    }
-    
-    .analytics-chart-section {
-        padding: 16px 12px;
-        margin-bottom: 16px;
-    }
-    
-    /* Analytics page adjustments */
-    .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-    
-    .section-header h3 {
-        font-size: 16px;
-    }
-    
-    .section-controls {
-        width: 100%;
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .toggle-group {
-        width: 100%;
-    }
-    
-    .toggle-btn {
-        flex: 1;
-        padding: 7px 14px;
-        font-size: 13px;
-    }
-    
-    .select-system,
-    .month-picker {
-        width: 100%;
-        padding: 9px 12px;
-        font-size: 14px;
-    }
-    
-    .btn-export {
-        width: 100%;
-        justify-content: center;
-        padding: 9px 16px;
-        font-size: 14px;
-    }
-    
-    .chart-container {
-        height: 280px;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    
-    /* Table responsive */
-    .table-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .data-table {
-        font-size: 12px;
-        min-width: 600px; /* Force horizontal scroll on small tables */
-    }
-    
-    .data-table th,
-    .data-table td {
-        padding: 8px 10px;
-    }
-    
-    /* Modal adjustments */
-    .modal-content,
-    .delete-modal-content,
-    .edit-note-modal-content {
-        width: 95%;
-        max-width: 100%;
-        margin: 12px;
-    }
-    
-    .modal-header {
-        padding: 18px 20px;
-    }
-    
-    .modal-header h3 {
-        font-size: 17px;
-    }
-    
-    .modal-body,
-    .delete-modal-body,
-    .edit-note-modal-body {
-        padding: 18px;
-    }
-    
-    .modal-footer,
-    .delete-modal-footer,
-    .edit-note-modal-footer {
-        padding: 14px 18px;
-    }
-}
+    .header-with-search { width: 100%; }
+    .btn-add-top { width: 100%; margin-top: 0; }
 
-/* Small mobile (480px and below) */
-@media (max-width: 480px) {
-    .hamburger-menu {
-        top: 16px;
-        left: 16px;
-        width: 42px;
-        height: 42px;
+    .analytics-chart-section { padding: 20px 16px; margin-bottom: 20px; }
+    .dashboard-chart-container { height: 280px; }
+    .chart-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .chart-header h3 { font-size: 16px; }
+    .link-to-analytics { font-size: 13px; }
+
+    .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+    /* Login — Tablet */
+    .login-container::before {
+        width: 400px;
+        height: 400px;
+        top: -150px;
+        right: -150px;
     }
-    
-    .hamburger-line {
-        width: 22px;
+
+    .login-container::after {
+        width: 300px;
+        height: 300px;
+        bottom: -100px;
+        left: -100px;
     }
-    
-    .main-content {
-        padding: 16px 12px;
-        padding-top: 70px;
-    }
-    
-    .content-header h2 {
-        font-size: 20px;
-    }
-    
-    .page-header-analytics .page-title {
-        font-size: 20px;
-    }
-    
-    .page-header-analytics .page-subtitle {
-        font-size: 13px;
-    }
-    
-    .system-card {
-        padding: 16px;
-    }
-    
-    .card-title {
-        font-size: 15px;
-    }
-    
-    .card-domain {
-        font-size: 12px;
-    }
-    
-    .card-description {
-        font-size: 13px;
-    }
-    
-    .system-logo,
-    .system-logo-placeholder {
-        width: 70px;
-        height: 70px;
-    }
-    
-    .system-logo-placeholder svg {
-        width: 35px;
-        height: 35px;
-    }
-    
-    /* Reduce chart height on small screens */
-    .dashboard-chart-container {
-        height: 200px;
-    }
-    
-    .chart-container {
-        height: 220px;
-    }
-    
-    /* Stats cards */
-    .stat-card {
-        padding: 14px;
-    }
-    
-    .stat-value {
-        font-size: 22px;
-    }
-    
-    .stat-label {
-        font-size: 12px;
-    }
-    
-    /* Form adjustments */
-    .form-group label {
-        font-size: 13px;
-    }
-    
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-        font-size: 14px;
-        padding: 9px 12px;
-    }
-    
-    /* Button adjustments */
-    .btn,
-    .btn-primary,
-    .btn-secondary {
-        font-size: 13px;
-        padding: 9px 16px;
-    }
-    
-    /* Login page mobile */
+
     .login-box {
-        padding: 24px 18px;
+        padding: 40px 32px;
+        max-width: 420px;
     }
-    
-    .login-header h1 {
-        font-size: 24px;
-    }
-    
-    .login-header p {
-        font-size: 14px;
-    }
-    
-    /* Search box adjustments */
-    .search-box {
-        font-size: 14px;
-        padding: 9px 12px 9px 36px;
-    }
-    
-    /* Status badges */
-    .card-status-badge {
-        font-size: 10px;
-        padding: 3px 10px;
-    }
-    
-    .status-indicator {
-        width: 5px;
-        height: 5px;
-    }
+
+    .login-header h1 { font-size: 28px; }
+    .login-header p  { font-size: 14px; }
 }
 
-/* ========================================
-   LANDSCAPE MOBILE FIX
-   ======================================== */
 
-@media (max-height: 600px) and (orientation: landscape) {
-    .sidebar {
-        overflow-y: auto;
-        max-height: 100vh;
-        padding: 16px 12px;
-    }
-    
-    .sidebar-header {
-        margin-bottom: 16px;
-        padding-bottom: 12px;
-    }
-    
-    .user-profile {
-        padding: 10px;
-        margin-bottom: 10px;
-    }
-    
-    .nav-menu li {
-        margin-bottom: 2px;
-    }
-    
-    .main-content {
-        padding-top: 65px;
-    }
-}
+/* ================================
+   RESPONSIVE — MOBILE (max 768px)
+   ================================ */
 
-/* ========================================
-   VERY SMALL SCREENS (360px and below)
-   ======================================== */
-
-@media (max-width: 360px) {
-    .hamburger-menu {
-        width: 40px;
-        height: 40px;
-        top: 14px;
-        left: 14px;
-    }
-    
-    .main-content {
-        padding: 14px 10px;
-        padding-top: 65px;
-    }
-    
-    .content-header h2 {
-        font-size: 18px;
-    }
-    
-    .system-card {
-        padding: 14px;
-    }
-    
-    .card-title {
-        font-size: 14px;
-    }
-    
-    .system-logo,
-    .system-logo-placeholder {
-        width: 60px;
-        height: 60px;
-    }
-    
-    .dashboard-chart-container,
-    .chart-container {
-        height: 180px;
-    }
-    
-    .stat-value {
-        font-size: 20px;
-    }
-    
-    .btn-add-top {
-        padding: 9px 14px;
-        font-size: 13px;
-    }
-}
-
-/* ========================================
-   PRINT STYLES (for PDF reports)
-   ======================================== */
-
-@media print {
-    .hamburger-menu,
-    .sidebar,
-    .sidebar-overlay,
-    .btn-export,
-    .section-controls,
-    .btn-edit-note,
-    .card-menu {
-        display: none !important;
-    }
-    
-    .main-content {
-        margin-left: 0;
-        padding: 0;
-    }
-    
-    .system-card {
-        page-break-inside: avoid;
-    }
-    
-    .analytics-chart-section {
-        page-break-inside: avoid;
-    }
-}
-
-/* ========================================
-   ACCESSIBILITY IMPROVEMENTS
-   ======================================== */
-
-/* Focus states for keyboard navigation */
-.hamburger-menu:focus {
-    outline: 3px solid var(--secondary-color);
-    outline-offset: 2px;
-}
-
-.sidebar:focus-within {
-    outline: none;
-}
-
-/* Better touch targets on mobile */
 @media (max-width: 768px) {
-    .nav-menu a,
-    .btn-logout,
-    .menu-toggle,
-    .dropdown-menu button {
+    .main-content { padding: 20px 16px; padding-top: 80px; }
+
+    .content-header h2 { font-size: 22px; }
+    .content-header h2::after { width: 36px; height: 2px; }
+
+    .search-wrapper { flex-direction: column; gap: 10px; }
+    .search-box { max-width: 100%; padding: 10px 14px 10px 38px; }
+    .btn-filter { width: 100%; justify-content: center; padding: 10px 14px; }
+    .filter-dropdown-menu { left: 0; right: 0; width: 100%; }
+
+    .cards-grid { grid-template-columns: 1fr; gap: 14px; }
+    .system-card { padding: 18px; }
+
+    .dashboard-chart-container { height: 240px; }
+    .analytics-chart-section { padding: 16px 12px; margin-bottom: 16px; }
+
+    .section-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .section-header h3 { font-size: 16px; }
+    .section-controls { width: 100%; flex-direction: column; gap: 8px; }
+    .toggle-group { width: 100%; }
+    .toggle-btn { flex: 1; padding: 7px 14px; font-size: 13px; }
+    .select-system, .month-picker { width: 100%; padding: 9px 12px; font-size: 14px; }
+    .btn-export { width: 100%; justify-content: center; padding: 9px 16px; font-size: 14px; }
+    .chart-container { height: 280px; }
+    .stats-grid { grid-template-columns: 1fr; gap: 10px; }
+
+    .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .data-table { font-size: 12px; min-width: 600px; }
+    .data-table th, .data-table td { padding: 8px 10px; }
+
+    .modal-content, .delete-modal-content, .edit-note-modal-content {
+        width: 95%; max-width: 100%; margin: 12px;
+    }
+    .modal-header { padding: 18px 20px; }
+    .modal-header h3 { font-size: 17px; }
+    .modal-body, .delete-modal-body, .edit-note-modal-body { padding: 18px; }
+    .modal-footer, .delete-modal-footer, .edit-note-modal-footer { padding: 14px 18px; }
+
+    .nav-menu a, .btn-logout, .menu-toggle, .dropdown-menu button {
         min-height: 44px;
         display: flex;
         align-items: center;
     }
+
+    .sidebar { width: 100%; position: relative; height: auto; border-right: none; border-bottom: 1px solid var(--secondary-color); }
+    .btn-add-top { width: 100%; justify-content: center; }
+    .delete-modal-content { max-width: 95%; }
+
+    /* Login — Small Tablet / Mobile */
+    .login-container {
+        padding: 20px 16px;
+        align-items: center;
+    }
+
+    .login-container::before {
+        width: 300px;
+        height: 300px;
+        top: -100px;
+        right: -100px;
+    }
+
+    .login-container::after {
+        width: 220px;
+        height: 220px;
+        bottom: -80px;
+        left: -80px;
+    }
+
+    .login-box {
+        width: 100%;
+        max-width: 100%;
+        padding: 36px 28px;
+        border-radius: 14px;
+    }
+
+    .login-header        { margin-bottom: 28px; }
+    .login-header h1     { font-size: 26px; }
+    .login-header p      { font-size: 14px; }
+
+    .login-box .form-group          { margin-bottom: 20px; }
+    .login-box .form-group input    { padding: 11px 14px; font-size: 15px; }
+    .login-box .btn-primary         { padding: 12px 20px; font-size: 14px; }
+
+    .demo-accounts          { margin-top: 24px; padding-top: 20px; }
+    .demo-accounts h4       { font-size: 12px; }
+    .demo-accounts p        { font-size: 12px; padding: 7px 10px; }
 }
 
-/* Reduce motion for users who prefer it */
+
+/* ================================
+   RESPONSIVE — SMALL MOBILE (max 480px)
+   ================================ */
+
+@media (max-width: 480px) {
+    .hamburger-menu { top: 16px; left: 16px; width: 42px; height: 42px; }
+    .hamburger-line { width: 22px; }
+    .main-content { padding: 16px 12px; padding-top: 70px; }
+
+    .content-header h2 { font-size: 20px; }
+    .page-header-analytics .page-title { font-size: 20px; }
+    .page-header-analytics .page-subtitle { font-size: 13px; }
+
+    .system-card { padding: 16px; }
+    .card-title { font-size: 15px; }
+    .card-domain { font-size: 12px; }
+    .card-description { font-size: 13px; }
+
+    .system-logo, .system-logo-placeholder { width: 70px; height: 70px; }
+    .system-logo-placeholder svg { width: 35px; height: 35px; }
+
+    .dashboard-chart-container { height: 200px; }
+    .chart-container { height: 220px; }
+
+    .stat-card { padding: 14px; }
+    .stat-value { font-size: 22px; }
+    .stat-label { font-size: 12px; }
+
+    .form-group label { font-size: 13px; }
+    .form-group input, .form-group textarea, .form-group select { font-size: 14px; padding: 9px 12px; }
+    .btn, .btn-primary, .btn-secondary { font-size: 13px; padding: 9px 16px; }
+
+    .login-box { padding: 24px 18px; }
+    .login-header h1 { font-size: 24px; }
+    .login-header p { font-size: 14px; }
+    .search-box { font-size: 14px; padding: 9px 12px 9px 36px; }
+    .card-status-badge { font-size: 10px; padding: 3px 10px; }
+    .status-indicator { width: 5px; height: 5px; }
+
+    .main-content { padding: 20px 16px; }
+    .system-card { padding: 20px; }
+    .login-box { padding: 30px 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(22, 38, 96, 0.25); }
+    .delete-modal-body { padding: 20px; }
+
+    /* Login — Mobile */
+    .login-container { padding: 16px 14px; }
+
+    .login-container::before,
+    .login-container::after { display: none; }
+
+    .login-header        { margin-bottom: 24px; }
+    .login-header h1     { font-size: 24px; }
+    .login-header p      { font-size: 13px; }
+
+    .login-box .form-group          { margin-bottom: 18px; }
+    .login-box .form-group label    { font-size: 13px; margin-bottom: 6px; }
+    .login-box .form-group input    { padding: 10px 12px; font-size: 14px; }
+    .login-box .btn-primary         { padding: 11px 18px; font-size: 14px; margin-top: 4px; }
+
+    .demo-accounts          { margin-top: 20px; padding-top: 16px; }
+    .demo-accounts h4       { font-size: 11px; margin-bottom: 10px; }
+    .demo-accounts p        { font-size: 11px; padding: 6px 10px; margin-bottom: 4px; }
+}
+
+
+/* ================================
+   RESPONSIVE — VERY SMALL (max 360px)
+   ================================ */
+
+@media (max-width: 360px) {
+    .hamburger-menu { width: 40px; height: 40px; top: 14px; left: 14px; }
+    .main-content { padding: 14px 10px; padding-top: 65px; }
+    .content-header h2 { font-size: 18px; }
+    .system-card { padding: 14px; }
+    .card-title { font-size: 14px; }
+    .system-logo, .system-logo-placeholder { width: 60px; height: 60px; }
+    .dashboard-chart-container, .chart-container { height: 180px; }
+    .stat-value { font-size: 20px; }
+    .btn-add-top { padding: 9px 14px; font-size: 13px; }
+
+    /* Login — Very Small */
+    .login-box {
+        padding: 24px 16px;
+        border-radius: 10px;
+    }
+
+    .login-header h1     { font-size: 22px; }
+    .login-header p      { font-size: 12px; }
+
+    .login-box .form-group input    { padding: 9px 11px; font-size: 13px; }
+    .login-box .btn-primary         { font-size: 13px; padding: 10px 16px; }
+    .demo-accounts p                { font-size: 10px; }
+}
+
+
+/* ================================
+   RESPONSIVE — LANDSCAPE MOBILE
+   ================================ */
+
+@media (max-height: 600px) and (orientation: landscape) {
+    .sidebar { overflow-y: auto; max-height: 100vh; padding: 16px 12px; }
+    .sidebar-header { margin-bottom: 16px; padding-bottom: 12px; }
+    .user-profile { padding: 10px; margin-bottom: 10px; }
+    .nav-menu li { margin-bottom: 2px; }
+    .main-content { padding-top: 65px; }
+
+    /* Login — Landscape */
+    .login-container {
+        align-items: flex-start;
+        padding: 16px;
+    }
+
+    .login-box {
+        padding: 24px 28px;
+        margin: 0 auto;
+    }
+
+    .login-header        { margin-bottom: 16px; }
+    .login-header h1     { font-size: 22px; }
+    .login-box .form-group { margin-bottom: 14px; }
+    .demo-accounts       { margin-top: 16px; padding-top: 14px; }
+}
+
+
+/* ================================
+   PRINT STYLES
+   ================================ */
+
+@media print {
+    .hamburger-menu, .sidebar, .sidebar-overlay,
+    .btn-export, .section-controls, .btn-edit-note, .card-menu {
+        display: none !important;
+    }
+    .main-content { margin-left: 0; padding: 0; }
+    .system-card { page-break-inside: avoid; }
+    .analytics-chart-section { page-break-inside: avoid; }
+}
+
+
+/* ================================
+   REDUCE MOTION
+   ================================ */
+
 @media (prefers-reduced-motion: reduce) {
-    .sidebar,
-    .sidebar-overlay,
-    .hamburger-menu,
-    .hamburger-line,
-    .system-card,
-    * {
+    .sidebar, .sidebar-overlay, .hamburger-menu,
+    .hamburger-line, .system-card, * {
         transition: none !important;
         animation: none !important;
-    }
-}
-
-/* ========================================
-   FIX: Prevent horizontal scroll
-   ======================================== */
-
-@media (max-width: 1024px) {
-    body {
-        overflow-x: hidden;
-    }
-    
-    .container {
-        overflow-x: hidden;
     }
 }

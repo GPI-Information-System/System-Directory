@@ -47,16 +47,18 @@ function closeAddModal() {
 
 // ================================
 // UPDATED: Open Edit System Modal
-// Now includes contactNumber parameter (6th parameter)
+// Now includes excludeHealthCheck parameter (7th parameter)
 // ================================
-function openEditModal(id, name, domain, description, status, contactNumber) {
+function openEditModal(id, name, domain, description, status, contactNumber, excludeHealthCheck = 0) {
     currentEditId = id;
     document.getElementById('editModal').classList.add('show');
     document.getElementById('editSystemName').value = name;
     document.getElementById('editSystemDomain').value = domain;
     document.getElementById('editSystemDescription').value = description;
     document.getElementById('editSystemStatus').value = status || 'online';
-    document.getElementById('editSystemContact').value = contactNumber || '123'; // NEW: Set contact number
+    document.getElementById('editSystemContact').value = contactNumber || '123';
+    // Set exclude health check toggle
+    document.getElementById('editExcludeHealthCheck').checked = excludeHealthCheck == 1;
 }
 
 // Close Edit System Modal
@@ -214,7 +216,6 @@ function searchSystems() {
 // Open system domain in new tab
 function openDomain(domain) {
     if (domain) {
-        // Add https:// if not present
         let url = domain;
         if (!domain.startsWith('http://') && !domain.startsWith('https://')) {
             url = 'https://' + domain;
@@ -241,23 +242,15 @@ window.onclick = function(event) {
 }
 
 
-
-
-
 /* ================================
    JAVASCRIPT FOR FILTER FUNCTIONALITY
    ================================ */
 
-// ================================
-// FUNCTION: toggleFilterDropdown
-// PURPOSE: Show/hide filter dropdown menu when filter button is clicked
-// ================================
 function toggleFilterDropdown(event) {
     event.stopPropagation();
     const dropdown = event.currentTarget.nextElementSibling;
     dropdown.classList.toggle('show');
     
-    // Close dropdown when clicking outside
     document.addEventListener('click', function closeDropdown(e) {
         if (!dropdown.contains(e.target) && !event.currentTarget.contains(e.target)) {
             dropdown.classList.remove('show');
@@ -266,15 +259,9 @@ function toggleFilterDropdown(event) {
     });
 }
 
-// ================================
-// FUNCTION: filterSystems
-// PURPOSE: Filter system cards based on selected status
-// ================================
 function filterSystems(status) {
-    // Get all system cards
     const cards = document.querySelectorAll('.system-card');
     
-    // Update active state on filter options
     const filterOptions = document.querySelectorAll('.filter-option');
     filterOptions.forEach(option => {
         option.classList.remove('active');
@@ -283,7 +270,6 @@ function filterSystems(status) {
         }
     });
     
-    // Filter cards
     cards.forEach(card => {
         const cardStatus = card.getAttribute('data-status') || 'online';
         
@@ -294,23 +280,19 @@ function filterSystems(status) {
         }
     });
     
-    // Close dropdown after selection
     const dropdown = document.querySelector('.filter-dropdown-menu');
     if (dropdown) {
         dropdown.classList.remove('show');
     }
     
-    // Check if no cards are visible
     const visibleCards = Array.from(cards).filter(card => card.style.display !== 'none');
     const cardsGrid = document.querySelector('.cards-grid');
     
-    // Remove existing empty state if present
     const existingEmptyState = cardsGrid.querySelector('.filter-empty-state');
     if (existingEmptyState) {
         existingEmptyState.remove();
     }
     
-    // Show empty state if no cards match filter
     if (visibleCards.length === 0) {
         const emptyState = document.createElement('div');
         emptyState.className = 'empty-state filter-empty-state';
@@ -327,16 +309,12 @@ function filterSystems(status) {
 }
 
 
-
-
 /* ============================================================
    PHASE 2: Dashboard Chart - Systems by Status
-   FIXED: Added extra space above bars
    ============================================================ */
 
 let dashboardChart = null;
 
-// Load chart on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadDashboardChart();
 });
@@ -379,9 +357,8 @@ function renderDashboardChart(data) {
         dashboardChart.destroy();
     }
     
-    // Calculate the maximum value with extra space
     const maxValue = Math.max(...counts);
-    const suggestedMax = maxValue + Math.ceil(maxValue * 0.9); // Add 20% extra space
+    const suggestedMax = maxValue + Math.ceil(maxValue * 0.9);
     
     dashboardChart = new Chart(ctx, {
         type: 'bar',
@@ -404,10 +381,7 @@ function renderDashboardChart(data) {
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: { 
-                        stepSize: 1
-                    },
-                    // FIXED: Add 20% extra space above the highest bar
+                    ticks: { stepSize: 1 },
                     suggestedMax: suggestedMax < 2 ? 2 : suggestedMax
                 }
             }
@@ -416,47 +390,27 @@ function renderDashboardChart(data) {
 }
 
 
-
 /* ============================================================
-   RESPONSIVE HAMBURGER MENU JAVASCRIPT
-   Add this to the END of your main.js file
+   RESPONSIVE HAMBURGER MENU
    ============================================================ */
 
-// ============================================================
-// HAMBURGER MENU FUNCTIONALITY
-// ============================================================
-
-// Toggle sidebar on mobile
 function toggleSidebar() {
     document.body.classList.toggle('sidebar-open');
-    
-    // Toggle overlay
     const overlay = document.querySelector('.sidebar-overlay');
-    if (overlay) {
-        overlay.classList.toggle('show');
-    }
+    if (overlay) overlay.classList.toggle('show');
 }
 
-// Close sidebar when clicking overlay
 function closeSidebar() {
     document.body.classList.remove('sidebar-open');
-    
     const overlay = document.querySelector('.sidebar-overlay');
-    if (overlay) {
-        overlay.classList.remove('show');
-    }
+    if (overlay) overlay.classList.remove('show');
 }
 
-// Close sidebar when clicking a nav link (mobile only)
 function handleNavLinkClick() {
-    if (window.innerWidth <= 1024) {
-        closeSidebar();
-    }
+    if (window.innerWidth <= 1024) closeSidebar();
 }
 
-// Initialize sidebar overlay and event listeners
 function initializeResponsiveMenu() {
-    // Create overlay element if it doesn't exist
     if (!document.querySelector('.sidebar-overlay')) {
         const overlay = document.createElement('div');
         overlay.className = 'sidebar-overlay';
@@ -464,7 +418,6 @@ function initializeResponsiveMenu() {
         document.body.appendChild(overlay);
     }
     
-    // Create hamburger menu if it doesn't exist
     if (!document.querySelector('.hamburger-menu')) {
         const hamburger = document.createElement('button');
         hamburger.className = 'hamburger-menu';
@@ -478,24 +431,19 @@ function initializeResponsiveMenu() {
         document.body.appendChild(hamburger);
     }
     
-    // Add click handlers to nav links
     const navLinks = document.querySelectorAll('.nav-menu a');
     navLinks.forEach(link => {
         link.addEventListener('click', handleNavLinkClick);
     });
     
-    // Close sidebar on window resize if transitioning to desktop
     let resizeTimer;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
-            if (window.innerWidth > 1024) {
-                closeSidebar();
-            }
+            if (window.innerWidth > 1024) closeSidebar();
         }, 250);
     });
     
-    // Close sidebar when pressing Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && document.body.classList.contains('sidebar-open')) {
             closeSidebar();
@@ -503,32 +451,12 @@ function initializeResponsiveMenu() {
     });
 }
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     initializeResponsiveMenu();
 });
 
-// Re-initialize if needed (for dynamic content)
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeResponsiveMenu);
 } else {
     initializeResponsiveMenu();
 }
-
-
-
-
-
-
-// ================================
-// NOTE: Make sure to add data-status attribute to your system cards
-// Example in PHP:
-// <div class="system-card" data-status="<?php echo isset($system['status']) ? htmlspecialchars($system['status']) : 'online'; ?>">
-// 
-// Your database should have a 'status' column with values:
-// - 'online'
-// - 'offline'
-// - 'maintenance'
-// - 'down'
-// - 'archived'
-// ================================
