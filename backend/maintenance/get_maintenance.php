@@ -6,6 +6,7 @@
  *   ?action=day&date=YYYY-MM-DD     → schedules on a specific date (side panel)
  *   ?action=system&system_id=N      → all schedules for a system
  *   ?action=single&id=N             → single schedule by id
+ *   ?action=counts                  → in_progress + scheduled counts (public, no auth)
  */
 
 require_once '../../config/session.php';
@@ -13,13 +14,40 @@ require_once '../../config/database.php';
 
 header('Content-Type: application/json');
 
+$action = trim($_GET['action'] ?? '');
+$conn   = getDBConnection();
+
+// -------------------------------------------------------
+// COUNTS: Public endpoint — no auth required
+// Returns in_progress and scheduled counts for viewer badge
+// -------------------------------------------------------
+if ($action === 'counts') {
+    $stmt = $conn->prepare("
+        SELECT
+            SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) AS in_progress,
+            SUM(CASE WHEN status = 'Scheduled'   THEN 1 ELSE 0 END) AS scheduled
+        FROM maintenance_schedules
+        WHERE deleted_from_calendar = 0
+          AND status IN ('In Progress', 'Scheduled')
+    ");
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    $conn->close();
+
+    echo json_encode([
+        'success'     => true,
+        'in_progress' => (int)($row['in_progress'] ?? 0),
+        'scheduled'   => (int)($row['scheduled']   ?? 0),
+    ]);
+    exit();
+}
+
+// All other actions require login
 if (!isLoggedIn()) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
 }
-
-$action = trim($_GET['action'] ?? '');
-$conn   = getDBConnection();
 
 // -------------------------------------------------------
 // CALENDAR: Get all schedules in a given month

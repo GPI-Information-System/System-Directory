@@ -13,7 +13,7 @@ system-directory/
 │   │
 │   └── js/
 │       ├── main.js                      # Login & admin JavaScript functionality
-│       ├── viewer.js                    # Viewer JavaScript functionality
+│       ├── viewer_maitenance.js         # Viewer Maintenance Schedule page JS functionality
 │       ├── analytics.js                 # Charts, reports, PDF export, edit note
 │       ├── notifications.js             # Bell widget, recent updates, auto-refresh
 │       └── maintenance.js               # Calendar, maintenance modal, bulk scheduling,

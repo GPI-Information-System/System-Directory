@@ -108,13 +108,27 @@ function isodt($dt) { return date('c', strtotime($dt)); }
                     </div>
                 </div>
 
+                <!-- IMPROVED DROPDOWN -->
                 <div class="vm-alert-dropdown" id="vmAlertDropdown" aria-hidden="true">
                     <div class="vm-alert-dropdown-inner">
+
+                        <!-- Header label inside dropdown -->
+                        <div class="vm-alert-dropdown-label">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <?php echo $countActive; ?> system<?php echo $countActive > 1 ? 's' : ''; ?> currently under maintenance
+                        </div>
+
                         <?php foreach ($activeSystems as $sys):
                             $logoPath = !empty($sys['system_logo']) ? '../' . $sys['system_logo'] : null;
                             $hasLogo  = $logoPath && file_exists('../' . $sys['system_logo']);
+                            $contact  = !empty($sys['system_contact']) ? htmlspecialchars($sys['system_contact']) : null;
                         ?>
                         <div class="vm-alert-system-row">
+                            <!-- Logo -->
                             <?php if ($hasLogo): ?>
                                 <img src="<?php echo htmlspecialchars($logoPath); ?>"
                                      alt="<?php echo htmlspecialchars($sys['system_name']); ?>"
@@ -129,16 +143,33 @@ function isodt($dt) { return date('c', strtotime($dt)); }
                                     </svg>
                                 </div>
                             <?php endif; ?>
+
+                            <!-- System info -->
                             <div class="vm-alert-system-info">
-                                <span class="vm-alert-system-name"><?php echo htmlspecialchars($sys['system_name']); ?></span>
-                                <span class="vm-alert-system-domain"><?php echo htmlspecialchars($sys['system_domain']); ?></span>
+                                <span class="vm-alert-system-name" title="<?php echo htmlspecialchars($sys['system_name']); ?>">
+                                    <?php echo htmlspecialchars($sys['system_name']); ?>
+                                </span>
+                                <span class="vm-alert-system-domain">
+                                    <?php echo htmlspecialchars($sys['system_domain']); ?>
+                                </span>
+                                <?php if ($contact): ?>
+                                <div class="vm-alert-contact">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                    </svg>
+                                    Contact <strong><?php echo $contact; ?></strong> for assistance
+                                </div>
+                                <?php endif; ?>
                             </div>
-                            <div class="vm-alert-system-live">
-                                <span class="vm-live-dot-small"></span>
-                                Live
+
+                            <!-- Status badge -->
+                            <div class="vm-alert-system-status">
+                                <span class="vm-maintenance-dot"></span>
+                                Under Maintenance
                             </div>
                         </div>
                         <?php endforeach; ?>
+
                     </div>
                 </div>
             </div>
@@ -196,9 +227,7 @@ function isodt($dt) { return date('c', strtotime($dt)); }
                 </div>
             </div>
 
-            <!-- ══════════════════════════════════
-                 STICKY FILTER BAR (Feature 5)
-                 ══════════════════════════════════ -->
+            <!-- STICKY FILTER BAR -->
             <div class="vm-sticky-controls" id="vmStickyControls">
                 <div class="vm-controls">
                     <div class="vm-search-wrap">
@@ -211,7 +240,6 @@ function isodt($dt) { return date('c', strtotime($dt)); }
                                oninput="vmFilter()"
                                aria-label="Search maintenance schedules">
                     </div>
-                    <!-- Desktop filter buttons -->
                     <div class="vm-filter-group">
                         <button class="vm-filter-btn active" data-status="all"         onclick="vmSetFilter('all', this)">All</button>
                         <button class="vm-filter-btn"        data-status="In Progress" onclick="vmSetFilter('In Progress', this)">
@@ -224,7 +252,6 @@ function isodt($dt) { return date('c', strtotime($dt)); }
                             <span class="vm-btn-dot done"></span>Done
                         </button>
                     </div>
-                    <!-- Mobile filter trigger (Feature 6) -->
                     <button class="vm-filter-sheet-btn" id="vmFilterSheetBtn" onclick="vmOpenFilterSheet()" aria-label="Open filter options">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
@@ -274,7 +301,6 @@ function isodt($dt) { return date('c', strtotime($dt)); }
                         $fullName   = htmlspecialchars($sched['system_name']);
                         $updatedIso = isodt($sched['updated_at']);
                     ?>
-                    <!-- Feature 2: staggered entrance animation via CSS custom property -->
                     <div class="vm-card vm-card-animate"
                          style="--vm-card-delay: <?php echo min($idx * 60, 600); ?>ms"
                          data-status="<?php echo htmlspecialchars($status); ?>"
@@ -297,9 +323,7 @@ function isodt($dt) { return date('c', strtotime($dt)); }
                                     </div>
                                 <?php endif; ?>
                                 <div class="vm-system-name-wrap">
-                                    <!-- Feature 1: native tooltip via title attr -->
-                                    <span class="vm-system-name"
-                                          title="<?php echo $fullName; ?>"><?php echo $fullName; ?></span>
+                                    <span class="vm-system-name" title="<?php echo $fullName; ?>"><?php echo $fullName; ?></span>
                                     <span class="vm-system-domain"><?php echo htmlspecialchars($sched['system_domain']); ?></span>
                                 </div>
                             </div>
@@ -312,7 +336,6 @@ function isodt($dt) { return date('c', strtotime($dt)); }
                         <div class="vm-card-divider"></div>
 
                         <div class="vm-card-body">
-                            <!-- Feature 4: data-title used by JS for search highlight -->
                             <h3 class="vm-maint-title" data-original="<?php echo htmlspecialchars($sched['title']); ?>"><?php echo htmlspecialchars($sched['title']); ?></h3>
                             <?php if (!empty($sched['description'])): ?>
                                 <p class="vm-maint-desc"><?php echo htmlspecialchars($sched['description']); ?></p>
@@ -330,7 +353,6 @@ function isodt($dt) { return date('c', strtotime($dt)); }
                             </div>
                         </div>
 
-                        <!-- Footer -->
                         <?php if ($status === 'In Progress'): ?>
                             <div class="vm-card-footer vm-card-footer-inprogress">
                                 <div class="vm-inprogress-indicator">
@@ -374,7 +396,6 @@ function isodt($dt) { return date('c', strtotime($dt)); }
                                         Completed on time
                                     </div>
                                 <?php endif; ?>
-                                <!-- Feature 3: relative time -->
                                 <span class="vm-relative-time"
                                       data-updated="<?php echo $updatedIso; ?>"
                                       title="<?php echo fmtDt($sched['updated_at']); ?>">
@@ -404,13 +425,10 @@ function isodt($dt) { return date('c', strtotime($dt)); }
                 </div>
 
             <?php endif; ?>
-
         </div>
     </main>
 
-    <!-- ══════════════════════════════════
-         MOBILE BOTTOM SHEET (Feature 6)
-         ══════════════════════════════════ -->
+    <!-- MOBILE BOTTOM SHEET -->
     <div class="vm-sheet-overlay" id="vmSheetOverlay" onclick="vmCloseFilterSheet()"></div>
     <div class="vm-bottom-sheet" id="vmBottomSheet" role="dialog" aria-modal="true" aria-label="Filter options">
         <div class="vm-sheet-handle"></div>

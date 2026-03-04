@@ -2,7 +2,6 @@
 /**
  * G-Portal Public Viewer Page
  * Public-facing system directory for employees
- * 
  * Access: No authentication required
  */
 
@@ -17,11 +16,7 @@ while ($row = $result->fetch_assoc()) {
 $conn->close();
 
 $statusPriority = [
-    'online' => 1,
-    'maintenance' => 2,
-    'down' => 3,
-    'offline' => 4,
-    'archived' => 5
+    'online' => 1, 'maintenance' => 2, 'down' => 3, 'offline' => 4, 'archived' => 5
 ];
 
 usort($systems, function($a, $b) use ($statusPriority) {
@@ -31,11 +26,8 @@ usort($systems, function($a, $b) use ($statusPriority) {
 });
 
 $statusLabels = [
-    'online'      => 'Online',
-    'offline'     => 'Offline',
-    'maintenance' => 'Maintenance',
-    'down'        => 'Down',
-    'archived'    => 'Archived'
+    'online' => 'Online', 'offline' => 'Offline',
+    'maintenance' => 'Maintenance', 'down' => 'Down', 'archived' => 'Archived'
 ];
 
 $totalSystems = count($systems);
@@ -53,9 +45,7 @@ $totalSystems = count($systems);
     <header class="viewer-header">
         <div class="header-content">
             <h1>G-Portal</h1>
-
             <div class="header-right">
-                <!-- Notification Bell -->
                 <div class="notification-bell">
                     <button class="bell-button" onclick="toggleNotifications()" title="Notifications">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -64,11 +54,13 @@ $totalSystems = count($systems);
                         </svg>
                         <span id="notificationBadge" class="notification-badge" style="display: none;"></span>
                     </button>
-
                     <div id="notificationDropdown" class="notification-dropdown">
                         <div class="notification-header">
                             <h3>Recent Updates</h3>
-                            <span id="notificationCount" class="notification-count">0</span>
+                            <div class="notification-header-actions">
+                                <button id="markAllReadBtn" onclick="markAllRead()">Mark all read</button>
+                                <span id="notificationCount" class="notification-count">0</span>
+                            </div>
                         </div>
                         <div id="notificationList" class="notification-list">
                             <div class="notification-loading">
@@ -80,13 +72,7 @@ $totalSystems = count($systems);
                         </div>
                     </div>
                 </div>
-
-                <!-- Login button: hidden by default, slides in on toggle -->
-                <a href="../index.php?show=login" class="login-button-slide" id="loginButton">
-                    Admin Login
-                </a>
-
-                <!-- Arrow toggle: stationary, only rotates -->
+                <a href="../index.php?show=login" class="login-button-slide" id="loginButton">Admin Login</a>
                 <button class="arrow-toggle" id="arrowToggle" onclick="toggleLogin()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>
@@ -109,14 +95,8 @@ $totalSystems = count($systems);
 
                 <div class="search-section">
                     <div class="search-wrapper-viewer">
-                        <input
-                            type="text"
-                            id="viewerSearchBox"
-                            class="search-box-viewer"
-                            placeholder="Search systems..."
-                            onkeyup="searchSystemsViewer()"
-                            aria-label="Search systems"
-                        >
+                        <input type="text" id="viewerSearchBox" class="search-box-viewer"
+                               placeholder="Search systems..." onkeyup="searchSystemsViewer()" aria-label="Search systems">
 
                         <div class="filter-container-viewer">
                             <button type="button" class="btn-filter-viewer" onclick="toggleFilterViewer(event)" aria-label="Filter by status">
@@ -125,47 +105,45 @@ $totalSystems = count($systems);
                                 </svg>
                                 Status Filter
                             </button>
-
                             <div class="filter-dropdown-viewer">
-                                <button type="button" onclick="filterSystemsViewer('all')" class="filter-item active" data-filter="all">
-                                    <span class="filter-dot filter-all"></span>All Systems
-                                </button>
-                                <button type="button" onclick="filterSystemsViewer('online')" class="filter-item" data-filter="online">
-                                    <span class="filter-dot filter-online"></span>Online
-                                </button>
-                                <button type="button" onclick="filterSystemsViewer('maintenance')" class="filter-item" data-filter="maintenance">
-                                    <span class="filter-dot filter-maintenance"></span>Maintenance
-                                </button>
-                                <button type="button" onclick="filterSystemsViewer('down')" class="filter-item" data-filter="down">
-                                    <span class="filter-dot filter-down"></span>Down
-                                </button>
-                                <button type="button" onclick="filterSystemsViewer('offline')" class="filter-item" data-filter="offline">
-                                    <span class="filter-dot filter-offline"></span>Offline
-                                </button>
-                                <button type="button" onclick="filterSystemsViewer('archived')" class="filter-item" data-filter="archived">
-                                    <span class="filter-dot filter-archived"></span>Archived
-                                </button>
+                                <button type="button" onclick="filterSystemsViewer('all')" class="filter-item active" data-filter="all"><span class="filter-dot filter-all"></span>All Systems</button>
+                                <button type="button" onclick="filterSystemsViewer('online')" class="filter-item" data-filter="online"><span class="filter-dot filter-online"></span>Online</button>
+                                <button type="button" onclick="filterSystemsViewer('maintenance')" class="filter-item" data-filter="maintenance"><span class="filter-dot filter-maintenance"></span>Maintenance</button>
+                                <button type="button" onclick="filterSystemsViewer('down')" class="filter-item" data-filter="down"><span class="filter-dot filter-down"></span>Down</button>
+                                <button type="button" onclick="filterSystemsViewer('offline')" class="filter-item" data-filter="offline"><span class="filter-dot filter-offline"></span>Offline</button>
+                                <button type="button" onclick="filterSystemsViewer('archived')" class="filter-item" data-filter="archived"><span class="filter-dot filter-archived"></span>Archived</button>
                             </div>
                         </div>
 
-                        <!-- Maintenance Schedule Button — with calendar icon -->
-                        <a href="viewer_maintenance.php" class="btn-maintenance-viewer">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                            Maintenance Schedule
-                        </a>
+                        <!-- Maintenance button with thought-cloud popover -->
+                        <div class="maint-btn-wrapper" id="maintBtnWrapper">
+                            <a href="viewer_maintenance.php" class="btn-maintenance-viewer" id="maintBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                Maintenance Schedule
+                            </a>
+
+                            <!-- Thought-cloud popover (populated by JS) -->
+                            <div class="maint-popover" id="maintPopover" style="display: none;">
+                                <div class="maint-popover-inner" id="maintPopoverInner">
+                                    <!-- Rows injected by fetchMaintenanceBadges() -->
+                                </div>
+                                <!-- Thought-cloud tail bubbles -->
+                                <span class="maint-popover-tail maint-popover-tail--lg"></span>
+                                <span class="maint-popover-tail maint-popover-tail--sm"></span>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="active-filters-container" id="activeFilters" style="display: none;">
                         <div class="active-filters-content">
                             <span class="filter-results-text" id="filterResultsText">Showing all systems</span>
-                            <button class="btn-clear-filters" onclick="clearAllFilters()" id="clearFiltersBtn" style="display: none;">
-                                Clear filters
-                            </button>
+                            <button class="btn-clear-filters" onclick="clearAllFilters()" id="clearFiltersBtn" style="display: none;">Clear filters</button>
                         </div>
                     </div>
                 </div>
@@ -223,16 +201,6 @@ $totalSystems = count($systems);
 
                             <span class="system-domain-viewer"><?php echo htmlspecialchars($system['domain']); ?></span>
 
-                            <?php if (!empty($system['updated_at'])): ?>
-                                <div class="last-updated-viewer">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <polyline points="12 6 12 12 16 14"></polyline>
-                                    </svg>
-                                    Updated: <?php echo date('M d, Y', strtotime($system['updated_at'])); ?>
-                                </div>
-                            <?php endif; ?>
-
                             <?php if (!empty($system['description'])): ?>
                                 <p class="system-description-viewer"><?php echo htmlspecialchars($system['description']); ?></p>
                             <?php endif; ?>
@@ -258,7 +226,6 @@ $totalSystems = count($systems);
 
     <script>
         const TOTAL_SYSTEMS = <?php echo $totalSystems; ?>;
-
         function toggleLogin() {
             const loginButton = document.getElementById('loginButton');
             const arrowToggle = document.getElementById('arrowToggle');

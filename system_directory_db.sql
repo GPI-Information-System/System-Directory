@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 28, 2026 at 07:44 AM
+-- Generation Time: Mar 04, 2026 at 06:39 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -42,7 +42,7 @@ CREATE TABLE `email_recipients` (
 --
 
 INSERT INTO `email_recipients` (`id`, `email`, `name`, `added_by`, `last_used`, `use_count`, `created_at`) VALUES
-(1, 'test@company.com', NULL, NULL, '2026-02-28 06:29:47', 11, '2026-02-28 02:47:05');
+(1, 'test@company.com', NULL, NULL, '2026-03-04 04:09:34', 22, '2026-02-28 02:47:05');
 
 -- --------------------------------------------------------
 
@@ -98,7 +98,30 @@ INSERT INTO `maintenance_schedules` (`id`, `system_id`, `title`, `description`, 
 (55, 10, 'TESTING', '', '2026-02-28 14:17:00', '2026-02-28 16:16:00', 'Done', 1, '2026-02-28 06:17:02', '2026-02-28 06:17:48', NULL, 1),
 (56, 19, 'TESTING', '', '2026-02-28 14:30:00', '2026-02-28 16:29:00', 'Done', 1, '2026-02-28 06:29:47', '2026-02-28 06:30:51', NULL, 1),
 (57, 18, 'TESTING', '', '2026-02-28 14:30:00', '2026-02-28 16:29:00', 'Done', 1, '2026-02-28 06:29:47', '2026-02-28 06:31:00', NULL, 1),
-(58, 10, 'TESTING', '', '2026-02-28 14:30:00', '2026-02-28 16:29:00', 'Done', 1, '2026-02-28 06:29:47', '2026-02-28 06:31:11', NULL, 1);
+(58, 10, 'TESTING', '', '2026-02-28 14:30:00', '2026-02-28 16:29:00', 'Done', 1, '2026-02-28 06:29:47', '2026-02-28 06:31:11', NULL, 1),
+(59, 10, 'testing maint', '', '2026-02-28 14:53:00', '2026-02-28 16:51:00', 'Done', 1, '2026-02-28 06:52:20', '2026-03-01 23:30:45', 139185, 1),
+(60, 10, 'tesrt', '', '2026-03-02 08:28:00', '2026-03-02 08:29:00', 'Done', 1, '2026-03-02 00:27:37', '2026-03-02 00:35:22', 382, 1),
+(61, 19, 'tesrt', '', '2026-03-02 08:28:00', '2026-03-02 08:29:00', 'Done', 1, '2026-03-02 00:27:37', '2026-03-02 00:32:11', 191, 1),
+(62, 18, 'tesrt', '', '2026-03-02 08:28:00', '2026-03-02 08:29:00', 'Done', 1, '2026-03-02 00:27:37', '2026-03-02 00:44:50', 950, 1),
+(63, 19, 'test', '', '2026-03-02 12:23:00', '2026-03-02 14:21:00', 'In Progress', 1, '2026-03-02 04:22:12', '2026-03-02 23:13:02', NULL, 1),
+(64, 18, 'test', '', '2026-03-02 12:23:00', '2026-03-02 14:21:00', 'In Progress', 1, '2026-03-02 04:22:12', '2026-03-02 23:13:05', NULL, 1),
+(65, 10, 'test', '', '2026-03-02 12:23:00', '2026-03-02 14:21:00', 'In Progress', 1, '2026-03-02 04:22:12', '2026-03-02 23:13:16', NULL, 1),
+(66, 10, 'test', '', '2026-03-03 09:24:00', '2026-03-03 11:23:00', 'Done', 1, '2026-03-03 01:23:48', '2026-03-03 02:12:43', NULL, 1),
+(67, 10, 'test', '', '2026-03-03 10:34:00', '2026-03-03 12:33:00', 'Done', 2, '2026-03-03 02:33:31', '2026-03-03 23:35:04', 68524, 1),
+(68, 21, 'test', '', '2026-03-03 10:34:00', '2026-03-03 12:33:00', 'Done', 2, '2026-03-03 02:33:31', '2026-03-03 23:35:11', 68531, 1),
+(69, 19, 'test', '', '2026-03-03 10:34:00', '2026-03-03 12:33:00', 'Done', 2, '2026-03-03 02:33:31', '2026-03-03 23:35:21', 68541, 1),
+(70, 10, 'test', '', '2026-03-04 12:07:00', '2026-03-04 14:07:00', 'Done', 1, '2026-03-04 04:07:04', '2026-03-04 04:08:37', NULL, 1),
+(71, 21, 'test', '', '2026-03-04 12:10:00', '2026-03-04 14:09:00', 'Done', 1, '2026-03-04 04:09:34', '2026-03-04 04:17:34', NULL, 1),
+(72, 19, 'test', '', '2026-03-04 12:10:00', '2026-03-04 14:09:00', 'Done', 1, '2026-03-04 04:09:34', '2026-03-04 04:17:50', NULL, 1),
+(73, 10, 'test', '', '2026-03-04 12:10:00', '2026-03-04 14:09:00', 'Done', 1, '2026-03-04 04:09:34', '2026-03-04 04:18:03', NULL, 1),
+(74, 22, 'test', '', '2026-03-04 12:39:00', '2026-03-04 14:37:00', 'Done', 1, '2026-03-04 04:38:03', '2026-03-04 04:57:22', NULL, 1),
+(75, 10, 'test', '', '2026-03-04 12:39:00', '2026-03-04 14:37:00', 'Done', 1, '2026-03-04 04:38:03', '2026-03-04 04:57:42', NULL, 1),
+(76, 22, 'test', '', '2026-03-04 12:59:00', '2026-03-04 14:58:00', 'Done', 1, '2026-03-04 04:58:31', '2026-03-04 05:25:52', NULL, 1),
+(77, 10, 'test', '', '2026-03-04 12:59:00', '2026-03-04 14:58:00', 'Done', 1, '2026-03-04 04:58:31', '2026-03-04 05:25:59', NULL, 1),
+(78, 22, 'test', '', '2026-03-04 13:27:00', '2026-03-04 15:26:00', 'Done', 1, '2026-03-04 05:26:11', '2026-03-04 05:33:06', NULL, 1),
+(79, 10, 'test', '', '2026-03-04 13:27:00', '2026-03-04 15:26:00', 'Done', 1, '2026-03-04 05:26:12', '2026-03-04 05:33:23', NULL, 1),
+(80, 22, 'test', '', '2026-03-04 13:34:00', '2026-03-04 15:33:00', 'In Progress', 1, '2026-03-04 05:33:37', '2026-03-04 05:34:09', NULL, 0),
+(81, 10, 'test', '', '2026-03-04 13:34:00', '2026-03-04 15:33:00', 'In Progress', 1, '2026-03-04 05:33:37', '2026-03-04 05:34:09', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -310,7 +333,72 @@ INSERT INTO `status_logs` (`id`, `system_id`, `old_status`, `new_status`, `chang
 (192, 18, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-02-28 06:31:00'),
 (193, 10, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-02-28 06:31:11'),
 (194, 18, 'online', 'down', 1, 'Auto-detected: DNS resolution failed - Could not resolve host', '2026-02-28 06:33:13'),
-(195, 19, 'online', 'down', 1, 'Auto-detected: HTTP 403 error', '2026-02-28 06:33:15');
+(195, 19, 'online', 'down', 1, 'Auto-detected: HTTP 403 error', '2026-02-28 06:33:15'),
+(196, 10, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"testing maint\" started.', '2026-02-28 06:53:23'),
+(197, 10, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-01 23:30:45'),
+(198, 10, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"tesrt\" started.', '2026-03-02 00:28:09'),
+(199, 19, 'down', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"tesrt\" started.', '2026-03-02 00:28:09'),
+(200, 18, 'down', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"tesrt\" started.', '2026-03-02 00:28:09'),
+(201, 19, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-02 00:32:11'),
+(202, 19, 'online', 'down', 1, 'Auto-detected: HTTP 403 error', '2026-03-02 00:32:14'),
+(203, 10, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-02 00:35:22'),
+(205, 18, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-02 00:44:50'),
+(206, 18, 'online', 'down', 1, 'Auto-detected: DNS resolution failed - Could not resolve host', '2026-03-02 00:45:54'),
+(207, 10, 'online', 'down', 1, 'Auto-detected: Connection timeout - Server did not respond in time', '2026-03-02 04:01:19'),
+(208, 10, 'down', 'online', 1, '', '2026-03-02 04:07:09'),
+(209, 19, 'down', 'online', 1, '', '2026-03-02 04:09:12'),
+(210, 19, 'online', 'down', 1, 'Auto-detected: HTTP 403 error', '2026-03-02 04:11:16'),
+(211, 19, 'down', 'online', 1, '', '2026-03-02 04:21:47'),
+(212, 18, 'down', 'online', 1, '', '2026-03-02 04:21:53'),
+(213, 18, 'online', 'down', 1, 'Auto-detected: DNS resolution failed - Could not resolve host', '2026-03-02 04:22:14'),
+(214, 19, 'online', 'down', 1, 'Auto-detected: HTTP 403 error', '2026-03-02 04:22:15'),
+(215, 19, 'down', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-02 04:23:16'),
+(216, 18, 'down', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-02 04:23:16'),
+(217, 10, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-02 04:23:16'),
+(218, 19, 'maintenance', 'online', 1, '', '2026-03-02 23:48:51'),
+(219, 18, 'maintenance', 'online', 1, '', '2026-03-02 23:48:57'),
+(220, 10, 'maintenance', 'online', 1, '', '2026-03-02 23:49:08'),
+(221, 18, 'online', 'down', 1, 'Auto-detected: DNS resolution failed - Could not resolve host', '2026-03-02 23:51:09'),
+(222, 19, 'online', 'down', 1, 'Auto-detected: HTTP 403 error', '2026-03-02 23:51:11'),
+(223, 21, 'online', 'down', 1, 'Auto-detected: DNS resolution failed - Could not resolve host', '2026-03-03 00:54:13'),
+(224, 10, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-03 01:24:19'),
+(225, 10, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-03 02:12:43'),
+(226, 10, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-03 02:34:02'),
+(227, 21, 'down', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-03 02:34:02'),
+(228, 19, 'down', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-03 02:34:02'),
+(229, 10, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-03 23:35:04'),
+(230, 21, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-03 23:35:11'),
+(231, 19, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-03 23:35:21'),
+(232, 19, 'online', 'down', 1, 'Auto-detected: HTTP 403 error', '2026-03-03 23:37:05'),
+(233, 21, 'online', 'down', 1, 'Auto-detected: DNS resolution failed - Could not resolve host', '2026-03-03 23:37:05'),
+(234, 10, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-04 04:07:06'),
+(235, 10, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-04 04:08:37'),
+(236, 21, 'down', 'online', 1, '', '2026-03-04 04:09:03'),
+(237, 19, 'down', 'online', 1, '', '2026-03-04 04:09:11'),
+(238, 21, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-04 04:10:28'),
+(239, 19, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-04 04:10:28'),
+(240, 10, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-04 04:10:28'),
+(241, 21, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-04 04:17:34'),
+(242, 19, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-04 04:17:50'),
+(243, 10, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-04 04:18:03'),
+(244, 19, 'online', 'down', 1, 'Auto-detected: HTTP 403 error', '2026-03-04 04:20:11'),
+(245, 21, 'online', 'down', 1, 'Auto-detected: DNS resolution failed - Could not resolve host', '2026-03-04 04:20:12'),
+(246, 22, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-04 04:39:06'),
+(247, 10, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-04 04:39:06'),
+(248, 22, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-04 04:57:22'),
+(249, 22, 'online', 'down', 1, 'Auto-detected: Connection timeout - Server did not respond in time', '2026-03-04 04:57:31'),
+(250, 10, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-04 04:57:42'),
+(251, 22, 'down', 'online', 1, '', '2026-03-04 04:58:18'),
+(252, 22, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-04 04:59:03'),
+(253, 10, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-04 04:59:03'),
+(254, 22, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-04 05:25:52'),
+(255, 10, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-04 05:25:59'),
+(256, 22, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-04 05:27:13'),
+(257, 10, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-04 05:27:13'),
+(258, 22, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-04 05:33:06'),
+(259, 10, 'maintenance', 'online', 1, 'Maintenance completed. System is ready to use.', '2026-03-04 05:33:23'),
+(260, 22, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-04 05:34:09'),
+(261, 10, 'online', 'maintenance', 1, 'Auto-maintenance: Scheduled maintenance \"test\" started.', '2026-03-04 05:34:09');
 
 -- --------------------------------------------------------
 
@@ -340,15 +428,16 @@ INSERT INTO `systems` (`id`, `name`, `domain`, `logo`, `description`, `contact_n
 (3, 'Customer Portal', 'customers.company.com', NULL, 'Customer relationship management and support system', '123', 'down', '2026-02-05 07:16:47', '2026-02-09 23:38:27', 0),
 (4, 'Inventory System', 'inventory.company.com', NULL, 'Warehouse and inventory tracking system.', '123', 'archived', '2026-02-05 07:16:47', '2026-02-09 23:38:34', 0),
 (6, 'Test Add System', 'testadd.com', 'uploads/logos/logo_69857e5582a34.png', NULL, '123', 'down', '2026-02-06 02:41:28', '2026-02-18 01:50:39', 0),
-(9, 'TESTTSSwww', 'TESTTT.COM', 'uploads/logos/logo_69857e4db4a17.png', 'TESTTTDESCWEQQWEQEQ', '672342', 'offline', '2026-02-06 05:28:19', '2026-02-10 00:40:39', 0),
-(10, 'Canteen System!@#!!#!@#!123sssadadaaasaasdadaasdadaasdADAqeqqeqewqqeqwqwqweq', 'youtube.com', 'uploads/logos/logo_698a72264af69.png', 'qweqe3231321112318907!@#!#!!@#!!@#!@#!#', '1234', 'online', '2026-02-08 23:31:13', '2026-02-28 06:31:11', 0),
+(10, 'Canteen System!@#!!#!@#!123sssadadaaasaasdadaasdadaasdADAqeqqeqewqqeqwqwqweq', 'youtube.com', 'uploads/logos/logo_698a72264af69.png', 'qweqe3231321112318907!@#!#!!@#!!@#!@#!#', '1234 -testing', 'maintenance', '2026-02-08 23:31:13', '2026-03-04 05:34:09', 0),
 (11, 'Test system down 123', 'Testagainupdateddomain.com.ph', NULL, 'testing desc update', '5555', 'down', '2026-02-10 00:02:12', '2026-02-26 01:17:37', 0),
 (12, 'TESTchangenote 2', 'TESTMAINTE.COM', NULL, 'TWETWRWWEWR', '11231', 'down', '2026-02-10 01:00:43', '2026-02-25 00:44:04', 0),
 (15, 'testing Online 1 2 3', 'testind add morehan 2.2.2.2.2', NULL, 'testing 2.2.2.2.2', '123', 'down', '2026-02-12 02:47:27', '2026-02-27 23:09:36', 0),
 (16, 'testing system online', 'reddiiiit.com.ph', NULL, 'testing only', '123', 'down', '2026-02-12 02:48:42', '2026-02-28 05:52:46', 0),
 (17, 'testing online 4.4.4.4', '4.4.4.4.4', NULL, 'testing 4.4.4.4.4', '123', 'down', '2026-02-12 02:49:10', '2026-02-28 05:15:04', 0),
-(18, 'TEST456', 'TEST456@.COM', 'uploads/logos/system_18_1772257844.png', 'TESTING456', '123222', 'down', '2026-02-28 05:48:53', '2026-02-28 06:33:13', 0),
-(19, 'TESTING 789', 'TESTINGSYSTEM.COM', 'uploads/logos/logo_69a28432bd685.png', 'TESTING', '3333', 'down', '2026-02-28 05:59:14', '2026-02-28 06:33:15', 0);
+(18, 'TEST456', 'TEST456@.COM', 'uploads/logos/system_18_1772257844.png', 'TESTING456', '123222', 'down', '2026-02-28 05:48:53', '2026-03-02 23:51:09', 0),
+(19, 'TESTING 789', 'TESTINGSYSTEM.COM', 'uploads/logos/logo_69a28432bd685.png', 'TESTING', '3333 - testingverylongnametest', 'down', '2026-02-28 05:59:14', '2026-03-04 04:20:11', 0),
+(21, 'testing 888', '8888testing.gpi.com', 'uploads/logos/logo_69a630bc0a3c8.png', 'testing888', '123-eerwewwrwer', 'down', '2026-03-03 00:52:12', '2026-03-04 04:20:12', 0),
+(22, 'march4system', 'march4system.com.ph', 'uploads/logos/logo_69a7b142af29d.png', '', '12322 - look for batman', 'maintenance', '2026-03-04 04:12:50', '2026-03-04 05:34:09', 0);
 
 -- --------------------------------------------------------
 
@@ -404,7 +493,6 @@ ALTER TABLE `maintenance_schedules`
 --
 ALTER TABLE `status_logs`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `system_id` (`system_id`),
   ADD KEY `changed_by` (`changed_by`),
   ADD KEY `changed_at` (`changed_at`),
   ADD KEY `idx_system_date` (`system_id`,`changed_at`),
@@ -440,25 +528,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `email_recipients`
 --
 ALTER TABLE `email_recipients`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `maintenance_schedules`
 --
 ALTER TABLE `maintenance_schedules`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=82;
 
 --
 -- AUTO_INCREMENT for table `status_logs`
 --
 ALTER TABLE `status_logs`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=196;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=262;
 
 --
 -- AUTO_INCREMENT for table `systems`
 --
 ALTER TABLE `systems`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `users`
