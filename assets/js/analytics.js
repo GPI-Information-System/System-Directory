@@ -13,9 +13,9 @@ let currentHistoryDays = 30;
 // Patch logs pagination
 let allStatusLogs = [];
 let currentPage   = 1;
-let itemsPerPage  = 5; // Changed from 10 to 5
+let itemsPerPage  = 5;
 
-// Log data map — avoids quote-escaping issues in onclick handlers
+// Log data map
 let logDataMap = {};
 
 // Completed maintenance pagination
@@ -28,7 +28,7 @@ let currentMaintDays    = 30;
 // INITIALIZATION
 // ============================================================
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadStatusHistory(30);
     loadUptimeData();
     loadStatusTrends();
@@ -116,9 +116,10 @@ function renderUptimeChart(data, systemId) {
             datasets: [{
                 label: 'Uptime %',
                 data: uptimePercentages,
-                backgroundColor: 'rgba(30, 58, 138, 0.8)',
-                borderColor: 'rgba(30, 58, 138, 1)',
-                borderWidth: 1
+                backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                borderColor: 'rgba(16, 185, 129, 1)',
+                borderWidth: 1,
+                borderRadius: 4,
             }]
         },
         options: {
@@ -127,17 +128,26 @@ function renderUptimeChart(data, systemId) {
             plugins: {
                 title: {
                     display: true,
-                    text: systemId > 0 ? 'Daily Uptime Percentage' : 'Overall System Uptime',
-                    font: { size: 16, weight: 'bold' }
+                    text: systemId > 0 ? 'Daily Uptime Percentage' : 'Overall System Uptime (Last 30 Days)',
+                    font: { size: 15, weight: '600' },
+                    color: '#1a1f36',
+                    padding: { bottom: 16 }
                 },
-                legend: { display: false }
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` ${ctx.parsed.y}% uptime`
+                    }
+                }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 130,
-                    ticks: { callback: value => value + '%' }
-                }
+                    max: 110,
+                    ticks: { callback: value => value + '%' },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: { grid: { display: false } }
             }
         }
     });
@@ -173,7 +183,7 @@ function updateUptimeStats(stats) {
 }
 
 // ============================================================
-// SECTION 2: STATUS CHANGE HISTORY (PATCH LOGS) — 5 per page
+// SECTION 2: STATUS CHANGE HISTORY (PATCH LOGS)
 // ============================================================
 
 function loadStatusHistory(days) {
@@ -187,7 +197,7 @@ function loadStatusHistory(days) {
     const tbody = document.getElementById('statusHistoryBody');
     tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">Loading...</td></tr>';
 
-    logDataMap = {}; // Reset map on new load
+    logDataMap = {};
     fetch(`../backend/get_analytics_data.php?action=status_history&days=${days}`)
         .then(r => r.json())
         .then(data => {
@@ -211,11 +221,10 @@ function renderStatusHistory() {
         return;
     }
 
-    const totalPages = Math.ceil(allStatusLogs.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
+    const totalPages   = Math.ceil(allStatusLogs.length / itemsPerPage);
+    const startIndex   = (currentPage - 1) * itemsPerPage;
     const logsToDisplay = allStatusLogs.slice(startIndex, startIndex + itemsPerPage);
 
-    // Store log data in a map so onclick can safely retrieve it without escaping issues
     logsToDisplay.forEach(log => { logDataMap[log.id] = log; });
 
     tbody.innerHTML = logsToDisplay.map(log => {
@@ -262,10 +271,10 @@ function renderStatusHistory() {
 function updatePaginationInfo() {
     const el = document.getElementById('paginationInfo');
     if (!el) return;
-    const total      = allStatusLogs.length;
-    const startItem  = total === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
-    const endItem    = Math.min(currentPage * itemsPerPage, total);
-    el.textContent   = `Showing ${startItem}-${endItem} of ${total} entries`;
+    const total     = allStatusLogs.length;
+    const startItem = total === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+    const endItem   = Math.min(currentPage * itemsPerPage, total);
+    el.textContent  = `Showing ${startItem}-${endItem} of ${total} entries`;
 }
 
 function changePage(pageNumber) {
@@ -315,9 +324,9 @@ function renderCompletedMaintenance() {
         return;
     }
 
-    const totalPages   = Math.ceil(allCompletedMaint.length / maintItemsPerPage);
-    const startIndex   = (maintCurrentPage - 1) * maintItemsPerPage;
-    const toDisplay    = allCompletedMaint.slice(startIndex, startIndex + maintItemsPerPage);
+    const totalPages = Math.ceil(allCompletedMaint.length / maintItemsPerPage);
+    const startIndex = (maintCurrentPage - 1) * maintItemsPerPage;
+    const toDisplay  = allCompletedMaint.slice(startIndex, startIndex + maintItemsPerPage);
 
     tbody.innerHTML = toDisplay.map(m => {
         const exceeded = m.exceeded_duration
@@ -375,39 +384,27 @@ function renderPaginationControls(totalPages, activePage, containerId, changePag
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    if (totalPages <= 1) {
-        container.innerHTML = '';
-        return;
-    }
+    if (totalPages <= 1) { container.innerHTML = ''; return; }
 
     let html = '';
 
-    // Previous
     html += `<button class="pagination-btn pagination-prev" onclick="${changePageFn.name}(${activePage - 1})" ${activePage === 1 ? 'disabled' : ''}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
         Previous
     </button>`;
 
     html += '<div class="pagination-numbers">';
-
-    // Page 1
     html += `<button class="pagination-number ${activePage === 1 ? 'active' : ''}" onclick="${changePageFn.name}(1)">1</button>`;
-
     if (activePage > 3) html += '<span class="pagination-dots">...</span>';
-
     for (let i = Math.max(2, activePage - 1); i <= Math.min(totalPages - 1, activePage + 1); i++) {
         html += `<button class="pagination-number ${activePage === i ? 'active' : ''}" onclick="${changePageFn.name}(${i})">${i}</button>`;
     }
-
     if (activePage < totalPages - 2) html += '<span class="pagination-dots">...</span>';
-
     if (totalPages > 1) {
         html += `<button class="pagination-number ${activePage === totalPages ? 'active' : ''}" onclick="${changePageFn.name}(${totalPages})">${totalPages}</button>`;
     }
-
     html += '</div>';
 
-    // Next
     html += `<button class="pagination-btn pagination-next" onclick="${changePageFn.name}(${activePage + 1})" ${activePage === totalPages ? 'disabled' : ''}>
         Next
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -460,32 +457,127 @@ function loadMonthlyReport() {
         });
 }
 
+// Monthly report log pagination state
+let reportLogData      = [];
+let reportLogPage      = 1;
+const reportLogPerPage = 5;
+
+function changeReportLogPage(page) {
+    const total = Math.ceil(reportLogData.length / reportLogPerPage);
+    if (page < 1 || page > total) return;
+    reportLogPage = page;
+    renderReportLogTable();
+}
+
+function renderReportLogTable() {
+    const tbody     = document.getElementById('reportLogTbody');
+    const paginInfo = document.getElementById('reportLogPaginInfo');
+    const paginCtrl = document.getElementById('reportLogPaginCtrl');
+    if (!tbody) return;
+
+    const total      = reportLogData.length;
+    const totalPages = Math.ceil(total / reportLogPerPage);
+    const start      = (reportLogPage - 1) * reportLogPerPage;
+    const slice      = reportLogData.slice(start, start + reportLogPerPage);
+
+    tbody.innerHTML = slice.map(change => `
+        <tr>
+            <td>${formatDateTime(change.changed_at)}</td>
+            <td>
+                <span class="status-badge ${change.old_status}">${capitalize(change.old_status)}</span>
+                <span class="arrow">→</span>
+                <span class="status-badge ${change.new_status}">${capitalize(change.new_status)}</span>
+            </td>
+            <td>${escapeHtml(change.changed_by)}</td>
+            <td>${change.change_note ? escapeHtml(change.change_note) : '<em>—</em>'}</td>
+        </tr>`).join('');
+
+    if (paginInfo) {
+        const s = total === 0 ? 0 : start + 1;
+        const e = Math.min(start + reportLogPerPage, total);
+        paginInfo.textContent = `Showing ${s}–${e} of ${total} entries`;
+    }
+    if (paginCtrl) renderPaginationControls(totalPages, reportLogPage, 'reportLogPaginCtrl', changeReportLogPage);
+}
+
 function renderMonthlyReport(reportData) {
     const container = document.getElementById('monthlyReportContainer');
     const monthName = new Date(reportData.month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
+    // Reverse so latest is first, store for pagination
+    reportLogData = [...(reportData.status_changes || [])].reverse();
+    reportLogPage = 1;
+
+    // Build daily breakdown HTML
+    let dailyHtml = '';
+    if (reportData.daily_breakdown && reportData.daily_breakdown.length > 0) {
+        const statusOrder  = ['online', 'maintenance', 'down', 'offline', 'archived'];
+        const statusColors = {
+            online: '#10b981', maintenance: '#f59e0b',
+            down: '#ef4444', offline: '#6b7280', archived: '#9ca3af'
+        };
+
+        dailyHtml = `
+            <div class="report-section">
+                <h5>Daily Status Breakdown</h5>
+                <div class="daily-breakdown-table-wrapper">
+                    <table class="daily-breakdown-table">
+                        <thead>
+                            <tr>
+                                <th class="db-col-date">Date</th>
+                                <th class="db-col-status">Status Activity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${reportData.daily_breakdown.map(day => {
+                                const pills = statusOrder
+                                    .filter(st => day.statuses[st])
+                                    .map(st => `
+                                        <span class="db-pill db-pill--${st}">
+                                            <span class="db-pill-dot" style="background:${statusColors[st]}"></span>
+                                            ${capitalize(st)}: ${day.statuses[st].formatted}
+                                        </span>`)
+                                    .join('');
+                                return `
+                                    <tr>
+                                        <td class="db-col-date">
+                                            <span class="db-date-label">${day.label}</span>
+                                        </td>
+                                        <td class="db-col-status">
+                                            <div class="db-pills">${pills}</div>
+                                        </td>
+                                    </tr>`;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+    }
+
     container.innerHTML = `
         <div class="report-content" id="reportContent">
             <div class="report-header">
-                <h4>${escapeHtml(reportData.system.name)} - Monthly Report</h4>
+                <h4>${escapeHtml(reportData.system.name)} — Monthly Report</h4>
                 <p class="report-period">${monthName}</p>
             </div>
+
             <div class="report-stats">
-                <div class="report-stat-card">
+                <div class="report-stat-card report-stat-card--uptime">
                     <div class="label">Uptime Percentage</div>
                     <div class="value">${reportData.uptime_percentage}%</div>
                 </div>
-                <div class="report-stat-card">
+                <div class="report-stat-card report-stat-card--changes">
                     <div class="label">Status Changes</div>
                     <div class="value">${reportData.status_changes_count}</div>
                 </div>
-                <div class="report-stat-card">
+                <div class="report-stat-card report-stat-card--downtime">
                     <div class="label">Downtime Incidents</div>
                     <div class="value">${reportData.downtime_incidents}</div>
                 </div>
             </div>
+
             <div class="report-section">
-                <h5>Time Spent in Each Status</h5>
+                <h5>Total Time in Each Status</h5>
                 <div class="time-breakdown">
                     ${Object.keys(reportData.time_in_status).map(status => `
                         <div class="time-breakdown-item">
@@ -497,11 +589,14 @@ function renderMonthlyReport(reportData) {
                         </div>`).join('')}
                 </div>
             </div>
+
+            ${dailyHtml}
+
             ${reportData.status_changes.length > 0 ? `
                 <div class="report-section">
                     <h5>Status Change Log</h5>
                     <div class="table-container">
-                        <table class="data-table">
+                        <table class="data-table report-log-table">
                             <thead>
                                 <tr>
                                     <th>Date & Time</th>
@@ -510,23 +605,20 @@ function renderMonthlyReport(reportData) {
                                     <th>Note</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                ${reportData.status_changes.map(change => `
-                                    <tr>
-                                        <td>${formatDateTime(change.changed_at)}</td>
-                                        <td>
-                                            <span class="status-badge ${change.old_status}">${capitalize(change.old_status)}</span>
-                                            → 
-                                            <span class="status-badge ${change.new_status}">${capitalize(change.new_status)}</span>
-                                        </td>
-                                        <td>${escapeHtml(change.changed_by)}</td>
-                                        <td>${change.change_note ? escapeHtml(change.change_note) : '<em>No note</em>'}</td>
-                                    </tr>`).join('')}
-                            </tbody>
+                            <tbody id="reportLogTbody"></tbody>
                         </table>
+                        <div class="pagination-container">
+                            <div class="pagination-info" id="reportLogPaginInfo"></div>
+                            <div class="pagination-controls" id="reportLogPaginCtrl"></div>
+                        </div>
                     </div>
                 </div>` : ''}
         </div>`;
+
+    // Render log table rows after DOM is ready
+    if (reportData.status_changes.length > 0) {
+        renderReportLogTable();
+    }
 }
 
 // ============================================================
@@ -544,44 +636,72 @@ function loadStatusTrends() {
 
 function renderStatusTrendsChart(logs) {
     const ctx = document.getElementById('statusTrendsChart').getContext('2d');
+
+    // Count per status per day
+    const statusList  = ['online', 'offline', 'maintenance', 'down'];
     const dailyCounts = {};
+
     logs.forEach(log => {
         const date = log.changed_at.split(' ')[0];
-        dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+        if (!dailyCounts[date]) {
+            dailyCounts[date] = { online: 0, offline: 0, maintenance: 0, down: 0 };
+        }
+        if (dailyCounts[date][log.new_status] !== undefined) {
+            dailyCounts[date][log.new_status]++;
+        }
     });
-    const dates  = Object.keys(dailyCounts).sort();
-    const counts = dates.map(d => dailyCounts[d]);
+
+    const dates = Object.keys(dailyCounts).sort();
+
+    const colors = {
+        online:      { bg: 'rgba(16, 185, 129, 0.75)',  border: 'rgba(16, 185, 129, 1)' },
+        offline:     { bg: 'rgba(107, 114, 128, 0.75)', border: 'rgba(107, 114, 128, 1)' },
+        maintenance: { bg: 'rgba(245, 158, 11, 0.75)',  border: 'rgba(245, 158, 11, 1)' },
+        down:        { bg: 'rgba(239, 68, 68, 0.75)',   border: 'rgba(239, 68, 68, 1)' },
+    };
+
+    const datasets = statusList.map(st => ({
+        label: capitalize(st),
+        data: dates.map(d => dailyCounts[d][st] || 0),
+        backgroundColor: colors[st].bg,
+        borderColor: colors[st].border,
+        borderWidth: 1,
+        borderRadius: 3,
+    }));
 
     if (statusTrendsChart) statusTrendsChart.destroy();
 
     statusTrendsChart = new Chart(ctx, {
         type: 'bar',
-        data: {
-            labels: dates,
-            datasets: [{
-                label: 'Status Changes',
-                data: counts,
-                backgroundColor: 'rgba(30, 58, 138, 0.8)',
-                borderColor: 'rgba(30, 58, 138, 1)',
-                borderWidth: 1
-            }]
-        },
+        data: { labels: dates, datasets },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                title: { display: true, text: 'Status Changes Over Time (Last 30 Days)', font: { size: 16, weight: 'bold' } },
-                legend: { display: false }
+                title: {
+                    display: true,
+                    text: 'Status Changes by Type — Last 30 Days',
+                    font: { size: 15, weight: '600' },
+                    color: '#1a1f36',
+                    padding: { bottom: 16 }
+                },
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: { usePointStyle: true, padding: 20, font: { size: 13 } }
+                },
+                tooltip: { mode: 'index', intersect: false }
             },
             scales: {
-                y: { beginAtZero: true, suggestedMax: 20, ticks: { stepSize: 1 } }
+                x: { stacked: false, grid: { display: false } },
+                y: { beginAtZero: true, stacked: false, ticks: { stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.05)' } }
             }
         }
     });
 }
 
 // ============================================================
-// PDF EXPORT
+// PDF EXPORT — text-based, clean A4 layout
 // ============================================================
 
 function exportReportToPDF() {
@@ -589,42 +709,317 @@ function exportReportToPDF() {
     if (!reportContent) { alert('No report to export.'); return; }
 
     const exportBtn  = document.getElementById('exportPdfBtn');
-    const origText   = exportBtn.innerHTML;
-    exportBtn.innerHTML = 'Generating...';
+    const origHTML   = exportBtn.innerHTML;
+    exportBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg> Generating...';
     exportBtn.disabled  = true;
 
-    html2canvas(reportContent, { scale: 2, useCORS: true, logging: false }).then(canvas => {
-        const imgData   = canvas.toDataURL('image/png');
+    try {
         const { jsPDF } = window.jspdf;
-        const pdf       = new jsPDF('p', 'mm', 'a4');
-        const imgWidth  = 210;
-        const pageHeight = 297;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft  = imgHeight;
-        let position    = 0;
-
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-        }
+        const pdf = new jsPDF('p', 'mm', 'a4');
 
         const systemName = document.getElementById('reportSystemSelect').selectedOptions[0].text;
         const month      = document.getElementById('reportMonthSelect').value;
+        const monthName  = new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+        const marginL = 20;
+        const marginR = 20;
+        const pageW   = 210;
+        const pageH   = 297;
+        const contentW = pageW - marginL - marginR;
+        let y = 20;
+
+        // ── Header ──────────────────────────────────────────
+        pdf.setFillColor(22, 38, 96);
+        pdf.rect(0, 0, pageW, 36, 'F');
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(16);
+        pdf.text('G-Portal', marginL, 14);
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text('Analytics & Reports', marginL, 22);
+        pdf.setFontSize(9);
+        pdf.text(`Generated: ${new Date().toLocaleString()}`, marginL, 30);
+        y = 46;
+
+        // ── Report Title ────────────────────────────────────
+        pdf.setTextColor(15, 23, 42);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(16);
+
+        // Wrap long system names so they don't overflow the page
+        const maxTitleWidth = contentW;
+        const titleLines    = pdf.splitTextToSize(systemName, maxTitleWidth);
+        titleLines.forEach(line => {
+            pdf.text(line, marginL, y);
+            y += 8;
+        });
+
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(12);
+        pdf.setTextColor(107, 114, 128);
+        pdf.text(`Monthly Report — ${monthName}`, marginL, y);
+        y += 12;
+
+        // ── Divider ─────────────────────────────────────────
+        pdf.setDrawColor(229, 231, 235);
+        pdf.setLineWidth(0.5);
+        pdf.line(marginL, y, pageW - marginR, y);
+        y += 10;
+
+        // ── Summary Cards ────────────────────────────────────
+        const uptimeVal  = document.querySelector('.report-stat-card--uptime  .value')?.textContent || '--';
+        const changesVal = document.querySelector('.report-stat-card--changes  .value')?.textContent || '--';
+        const downtimeVal= document.querySelector('.report-stat-card--downtime .value')?.textContent || '--';
+
+        const cardW    = (contentW - 8) / 3;
+        const cardData = [
+            { label: 'Uptime',            value: uptimeVal,   color: [16, 185, 129] },
+            { label: 'Status Changes',    value: changesVal,  color: [59, 130, 246] },
+            { label: 'Downtime Incidents',value: downtimeVal, color: [239, 68, 68]  },
+        ];
+
+        cardData.forEach((card, i) => {
+            const x = marginL + i * (cardW + 4);
+            pdf.setFillColor(249, 250, 251);
+            pdf.setDrawColor(229, 231, 235);
+            pdf.setLineWidth(0.3);
+            pdf.roundedRect(x, y, cardW, 22, 3, 3, 'FD');
+
+            // Accent bar
+            pdf.setFillColor(...card.color);
+            pdf.roundedRect(x, y, 3, 22, 1, 1, 'F');
+
+            pdf.setTextColor(107, 114, 128);
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(8);
+            pdf.text(card.label, x + 7, y + 7);
+
+            pdf.setTextColor(15, 23, 42);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(18);
+            pdf.text(card.value, x + 7, y + 17);
+        });
+        y += 30;
+
+        // ── Total Time in Status ─────────────────────────────
+        pdf.setTextColor(15, 23, 42);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(12);
+        pdf.text('Total Time in Each Status', marginL, y);
+        y += 8;
+
+        const statusItems = document.querySelectorAll('.time-breakdown-item');
+        const statusColors = {
+            online: [16, 185, 129], offline: [107, 114, 128],
+            maintenance: [245, 158, 11], down: [239, 68, 68], archived: [156, 163, 175]
+        };
+
+        statusItems.forEach(item => {
+            const label = item.querySelector('.status-label')?.textContent.trim() || '';
+            const value = item.querySelector('.time-value')?.textContent.trim() || '';
+            const statusKey = label.toLowerCase();
+
+            pdf.setFillColor(249, 250, 251);
+            pdf.setDrawColor(229, 231, 235);
+            pdf.setLineWidth(0.3);
+            pdf.roundedRect(marginL, y, contentW, 10, 2, 2, 'FD');
+
+            const dotColor = statusColors[statusKey] || [156, 163, 175];
+            pdf.setFillColor(...dotColor);
+            pdf.circle(marginL + 7, y + 5, 2, 'F');
+
+            pdf.setTextColor(30, 41, 59);
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(10);
+            pdf.text(label, marginL + 13, y + 6.5);
+
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(value, pageW - marginR - 2, y + 6.5, { align: 'right' });
+
+            y += 12;
+        });
+
+        y += 4;
+
+        // ── Daily Breakdown ───────────────────────────────────
+        const dailyRows = document.querySelectorAll('.daily-breakdown-table tbody tr');
+        if (dailyRows.length > 0) {
+            if (y > pageH - 60) { pdf.addPage(); y = 20; }
+
+            pdf.setDrawColor(229, 231, 235);
+            pdf.line(marginL, y, pageW - marginR, y);
+            y += 8;
+
+            pdf.setTextColor(15, 23, 42);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(12);
+            pdf.text('Daily Status Breakdown', marginL, y);
+            y += 8;
+
+            const dbCols = [
+                { x: 0,  w: 34 },               // Date
+                { x: 34, w: contentW - 34 },     // Status Activity
+            ];
+            const dbHeaderH = 9;
+
+            // Header with black border
+            pdf.setFillColor(230, 235, 245);
+            pdf.setDrawColor(0, 0, 0);
+            pdf.setLineWidth(0.4);
+            dbCols.forEach(col => {
+                pdf.rect(marginL + col.x, y, col.w, dbHeaderH, 'FD');
+            });
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(8);
+            pdf.setTextColor(30, 41, 59);
+            pdf.text('DATE',            marginL + dbCols[0].x + 2, y + 6);
+            pdf.text('STATUS ACTIVITY', marginL + dbCols[1].x + 2, y + 6);
+            y += dbHeaderH;
+
+            dailyRows.forEach((row, idx) => {
+                const dateLabel = row.querySelector('.db-date-label')?.textContent.trim() || '';
+                const pills     = row.querySelectorAll('.db-pill');
+                const rowH      = 9;
+                const fillColor = idx % 2 === 0 ? [255, 255, 255] : [248, 250, 252];
+
+                // Draw bordered cells
+                pdf.setDrawColor(0, 0, 0);
+                pdf.setLineWidth(0.4);
+                dbCols.forEach(col => {
+                    pdf.setFillColor(...fillColor);
+                    pdf.rect(marginL + col.x, y, col.w, rowH, 'FD');
+                });
+
+                // Date label
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(9);
+                pdf.setTextColor(30, 41, 59);
+                pdf.text(dateLabel, marginL + dbCols[0].x + 2, y + 6);
+
+                // Status pills inline
+                let pillX = marginL + dbCols[1].x + 3;
+                pills.forEach(pill => {
+                    const text      = pill.textContent.trim().replace(/\s+/g, ' ');
+                    const statusKey = [...pill.classList].find(c => c.startsWith('db-pill--'))?.replace('db-pill--', '') || 'online';
+                    const dotColor  = statusColors[statusKey] || [156, 163, 175];
+
+                    pdf.setFillColor(...dotColor);
+                    pdf.circle(pillX + 1.5, y + 4.5, 1.5, 'F');
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setFontSize(8.5);
+                    pdf.setTextColor(51, 65, 85);
+                    pdf.text(text, pillX + 5, y + 6);
+                    pillX += pdf.getTextWidth(text) + 11;
+                });
+
+                y += rowH;
+                if (y > pageH - 20) { pdf.addPage(); y = 20; }
+            });
+        }
+
+        // ── Status Change Log ─────────────────────────────────
+        if (reportLogData.length > 0) {
+            if (y > pageH - 60) { pdf.addPage(); y = 20; }
+
+            pdf.setDrawColor(229, 231, 235);
+            pdf.line(marginL, y, pageW - marginR, y);
+            y += 8;
+
+            pdf.setTextColor(15, 23, 42);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(12);
+            pdf.text('Status Change Log', marginL, y);
+            y += 8;
+
+            // Column definitions: x offset and width (all in mm from marginL)
+            const cols = [
+                { x: 0,   w: 46  },  // Date & Time
+                { x: 46,  w: 40  },  // Change
+                { x: 86,  w: 30  },  // Changed By
+                { x: 116, w: contentW - 116 },  // Note
+            ];
+            const headerH = 9;
+
+            // ── Header row with black border ──────────────────
+            pdf.setFillColor(230, 235, 245);
+            pdf.setDrawColor(0, 0, 0);
+            pdf.setLineWidth(0.4);
+
+            cols.forEach(col => {
+                pdf.rect(marginL + col.x, y, col.w, headerH, 'FD');
+            });
+
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(8);
+            pdf.setTextColor(30, 41, 59);
+            pdf.text('DATE & TIME', marginL + cols[0].x + 2, y + 6);
+            pdf.text('CHANGE',      marginL + cols[1].x + 2, y + 6);
+            pdf.text('CHANGED BY',  marginL + cols[2].x + 2, y + 6);
+            pdf.text('NOTE',        marginL + cols[3].x + 2, y + 6);
+            y += headerH;
+
+            // ── Data rows with black borders ──────────────────
+            reportLogData.forEach((change, idx) => {
+                const dateText   = formatDateTimeForPDF(change.changed_at);
+                const changeText = `${capitalize(change.old_status)} -> ${capitalize(change.new_status)}`;
+                const byText     = (change.changed_by || '').substring(0, 16);
+                const noteText   = (change.change_note || '-');
+
+                // Calculate row height based on wrapped note
+                const noteMaxW  = cols[3].w - 4;
+                const noteLines = pdf.splitTextToSize(noteText, noteMaxW);
+                const rowH      = Math.max(9, noteLines.length * 5 + 4);
+
+                // Alternating row background + black border per cell
+                const fillColor = idx % 2 === 0 ? [255, 255, 255] : [248, 250, 252];
+                pdf.setLineWidth(0.4);
+                pdf.setDrawColor(0, 0, 0);
+
+                cols.forEach(col => {
+                    pdf.setFillColor(...fillColor);
+                    pdf.rect(marginL + col.x, y, col.w, rowH, 'FD');
+                });
+
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(8.5);
+                pdf.setTextColor(51, 65, 85);
+
+                const textY = y + 6;
+                pdf.text(dateText.substring(0, 22),    marginL + cols[0].x + 2, textY);
+                pdf.text(changeText.substring(0, 22),  marginL + cols[1].x + 2, textY);
+                pdf.text(byText,                       marginL + cols[2].x + 2, textY);
+                pdf.text(noteLines,                    marginL + cols[3].x + 2, textY);
+
+                y += rowH;
+                if (y > pageH - 20) { pdf.addPage(); y = 20; }
+            });
+        }
+
+        // ── Footer on all pages ───────────────────────────────
+        const totalPages = pdf.internal.getNumberOfPages();
+        for (let p = 1; p <= totalPages; p++) {
+            pdf.setPage(p);
+            pdf.setFillColor(249, 250, 251);
+            pdf.rect(0, pageH - 12, pageW, 12, 'F');
+            pdf.setDrawColor(229, 231, 235);
+            pdf.line(0, pageH - 12, pageW, pageH - 12);
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(8);
+            pdf.setTextColor(107, 114, 128);
+            pdf.text('G-Portal Analytics Report', marginL, pageH - 5);
+            pdf.text(`Page ${p} of ${totalPages}`, pageW - marginR, pageH - 5, { align: 'right' });
+        }
+
         pdf.save(`${systemName}-Report-${month}.pdf`);
 
-        exportBtn.innerHTML = origText;
-        exportBtn.disabled  = false;
-    }).catch(err => {
+    } catch (err) {
         console.error('PDF error:', err);
-        alert('Error generating PDF.');
-        exportBtn.innerHTML = origText;
-        exportBtn.disabled  = false;
-    });
+        alert('Error generating PDF: ' + err.message);
+    }
+
+    exportBtn.innerHTML = origHTML;
+    exportBtn.disabled  = false;
 }
 
 // ============================================================
@@ -635,29 +1030,21 @@ function openViewDetailsModal(id) {
     const log = logDataMap[id];
     if (!log) return;
 
-    const systemName = log.system_name;
-    const datetime   = log.changed_at;
-    const oldStatus  = log.old_status;
-    const newStatus  = log.new_status;
-    const changedBy  = log.changed_by;
-    const note       = log.change_note || '';
+    document.getElementById('vdSystemName').textContent = log.system_name;
+    document.getElementById('vdSystem').textContent     = log.system_name;
+    document.getElementById('vdDateTime').textContent   = formatDateTime(log.changed_at);
+    document.getElementById('vdChangedBy').textContent  = log.changed_by;
 
-    document.getElementById('vdSystemName').textContent = systemName;
-    document.getElementById('vdSystem').textContent     = systemName;
-    document.getElementById('vdDateTime').textContent   = formatDateTime(datetime);
-    document.getElementById('vdChangedBy').textContent  = changedBy;
-
-    // Status change badges
     document.getElementById('vdStatusChange').innerHTML = `
-        <span class="status-badge ${oldStatus}">${capitalize(oldStatus)}</span>
+        <span class="status-badge ${log.old_status}">${capitalize(log.old_status)}</span>
         <span style="margin: 0 6px; color: #9ca3af; font-weight: 600;">→</span>
-        <span class="status-badge ${newStatus}">${capitalize(newStatus)}</span>
+        <span class="status-badge ${log.new_status}">${capitalize(log.new_status)}</span>
     `;
 
-    // Note — show full text, support line breaks
     const noteEl = document.getElementById('vdNote');
-    if (note && note.trim()) {
-        noteEl.textContent = note; // safe — no XSS
+    const note   = log.change_note || '';
+    if (note.trim()) {
+        noteEl.textContent = note;
         noteEl.style.whiteSpace = 'pre-wrap';
         noteEl.classList.remove('vd-note-empty');
     } else {
@@ -678,7 +1065,6 @@ function closeViewDetailsModal() {
 
 let currentEditLogId = null;
 
-// Safe wrapper — retrieves data from logDataMap instead of inline params
 function openEditNoteModal_byId(id) {
     const log = logDataMap[id];
     if (!log) return;
@@ -737,22 +1123,18 @@ function showSuccessMessage(message) {
     setTimeout(() => { msgDiv.style.animation = 'slideOut 0.3s ease'; setTimeout(() => msgDiv.remove(), 300); }, 3000);
 }
 
-window.addEventListener('click', function(event) {
-    if (event.target === document.getElementById('editNoteModal')) closeEditNoteModal();
+window.addEventListener('click', function (event) {
+    if (event.target === document.getElementById('editNoteModal'))   closeEditNoteModal();
     if (event.target === document.getElementById('viewDetailsModal')) closeViewDetailsModal();
 });
 
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closeEditNoteModal();
-        closeViewDetailsModal();
-    }
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') { closeEditNoteModal(); closeViewDetailsModal(); }
 });
 
-// Animations
 const style = document.createElement('style');
 style.textContent = `
-    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideIn  { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
 `;
 document.head.appendChild(style);
@@ -768,8 +1150,19 @@ function formatDateTime(datetime) {
     });
 }
 
+// Plain text date for PDF (avoids locale issues in jsPDF)
+function formatDateTimeForPDF(datetime) {
+    const d = new Date(datetime);
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const h = d.getHours();
+    const m = String(d.getMinutes()).padStart(2, '0');
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12  = h % 12 || 12;
+    return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}, ${h12}:${m} ${ampm}`;
+}
+
 function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+    return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
 }
 
 function escapeHtml(text) {

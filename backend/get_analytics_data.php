@@ -82,9 +82,7 @@ switch ($action) {
         break;
 
     // ============================================================
-    // Completed Maintenance Table (NEW)
-    // Shows all maintenance_schedules with status = 'Done'
-    // Includes exceeded_duration = actual end - scheduled end (seconds)
+    // Completed Maintenance Table
     // ============================================================
     case 'completed_maintenance':
         $days = intval($_GET['days'] ?? 30);
@@ -99,9 +97,6 @@ switch ($action) {
                 ms.updated_at,
                 s.name  AS system_name,
                 u.username AS done_by,
-                /* exceeded_duration: seconds past the scheduled end time.
-                   We use updated_at as the actual completion timestamp.
-                   If completed BEFORE end_datetime, value is 0 or negative → show 'Within schedule' */
                 GREATEST(0, TIMESTAMPDIFF(SECOND, ms.end_datetime, ms.updated_at)) AS exceeded_duration
             FROM maintenance_schedules ms
             JOIN systems s ON ms.system_id = s.id
@@ -162,7 +157,7 @@ switch ($action) {
         break;
 
     // ============================================================
-    // Monthly Report
+    // Monthly Report — with per-day breakdown
     // ============================================================
     case 'monthly_report':
         $systemId = intval($_GET['system_id'] ?? 0);
@@ -202,11 +197,11 @@ switch ($action) {
 
         // Calculate time in each status
         $timeInStatus = ['online' => 0, 'offline' => 0, 'maintenance' => 0, 'down' => 0, 'archived' => 0];
-        $firstDay    = $month . '-01 00:00:00';
-        $lastDay     = date('Y-m-t 23:59:59', strtotime($firstDay));
-        $currentTime = min(time(), strtotime($lastDay));
-        $totalSec    = $currentTime - strtotime($firstDay);
-        $onlineSec   = 0;
+        $firstDay     = $month . '-01 00:00:00';
+        $lastDay      = date('Y-m-t 23:59:59', strtotime($firstDay));
+        $currentTime  = min(time(), strtotime($lastDay));
+        $totalSec     = $currentTime - strtotime($firstDay);
+        $onlineSec    = 0;
         $downtimeIncidents = 0;
 
         if (count($statusChanges) === 0) {
@@ -214,8 +209,8 @@ switch ($action) {
             $timeInStatus[$cs] = $totalSec;
             if ($cs === 'online') $onlineSec = $totalSec;
         } else {
-            $cs             = $systemInfo['status'] ?? 'online';
             $lastChangeTime = strtotime($firstDay);
+            $cs = $statusChanges[0]['old_status'] ?? ($systemInfo['status'] ?? 'online');
 
             foreach ($statusChanges as $change) {
                 $changeTime = strtotime($change['changed_at']);
@@ -238,6 +233,85 @@ switch ($action) {
 
         $uptimePct = $totalSec > 0 ? ($onlineSec / $totalSec) * 100 : 0;
 
+        // ── Per-day breakdown ──────────────────────────────────
+        // Build a map of all days in the month, each with time per status
+        $daysInMonth  = (int) date('t', strtotime($firstDay));
+        $dailyBreakdown = [];
+
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $dayStr = sprintf('%s-%02d', $month, $d);
+            $dailyBreakdown[$dayStr] = [
+                'online'      => 0,
+                'offline'     => 0,
+                'maintenance' => 0,
+                'down'        => 0,
+                'archived'    => 0,
+            ];
+        }
+
+        // Walk through status changes and assign seconds per day
+        if (count($statusChanges) === 0) {
+            // Entire month in current status
+            $cs2 = $systemInfo['status'] ?? 'online';
+            foreach ($dailyBreakdown as $dayStr => &$dayData) {
+                $dayStart = strtotime($dayStr . ' 00:00:00');
+                $dayEnd   = min(strtotime($dayStr . ' 23:59:59'), $currentTime);
+                if ($dayEnd > $dayStart && isset($dayData[$cs2])) {
+                    $dayData[$cs2] += max(0, $dayEnd - $dayStart);
+                }
+            }
+            unset($dayData);
+        } else {
+            // Build a timeline: [timestamp => status]
+            $timeline = [];
+            $cs2 = $statusChanges[0]['old_status'] ?? ($systemInfo['status'] ?? 'online');
+            $timeline[] = ['time' => strtotime($firstDay), 'status' => $cs2];
+            foreach ($statusChanges as $change) {
+                $timeline[] = ['time' => strtotime($change['changed_at']), 'status' => $change['new_status']];
+            }
+            $timeline[] = ['time' => $currentTime, 'status' => '__end__'];
+
+            for ($i = 0; $i < count($timeline) - 1; $i++) {
+                $segStart  = $timeline[$i]['time'];
+                $segEnd    = $timeline[$i + 1]['time'];
+                $segStatus = $timeline[$i]['status'];
+                if (!isset($timeInStatus[$segStatus])) continue;
+
+                // Distribute this segment across the days it spans
+                $cursor = $segStart;
+                while ($cursor < $segEnd) {
+                    $dayStr   = date('Y-m-d', $cursor);
+                    $dayEnd2  = min(strtotime(date('Y-m-d', $cursor) . ' 23:59:59'), $segEnd);
+                    $duration = max(0, $dayEnd2 - $cursor);
+                    if (isset($dailyBreakdown[$dayStr][$segStatus])) {
+                        $dailyBreakdown[$dayStr][$segStatus] += $duration;
+                    }
+                    $cursor = strtotime(date('Y-m-d', $cursor) . ' 00:00:00') + 86400;
+                }
+            }
+        }
+
+        // Format daily breakdown for output — only include statuses with >0 seconds
+        $dailyBreakdownFormatted = [];
+        foreach ($dailyBreakdown as $dayStr => $dayData) {
+            $hasActivity = false;
+            $statuses    = [];
+            foreach ($dayData as $st => $sec) {
+                if ($sec > 0) {
+                    $hasActivity = true;
+                    $statuses[$st] = ['seconds' => $sec, 'formatted' => formatDuration($sec)];
+                }
+            }
+            if ($hasActivity) {
+                $dailyBreakdownFormatted[] = [
+                    'date'     => $dayStr,
+                    'label'    => date('M j', strtotime($dayStr)),
+                    'statuses' => $statuses,
+                ];
+            }
+        }
+
+        // Format totals
         foreach ($timeInStatus as $s => $sec) {
             $timeInStatus[$s] = ['seconds' => $sec, 'formatted' => formatDuration($sec)];
         }
@@ -251,6 +325,7 @@ switch ($action) {
                 'status_changes_count' => count($statusChanges),
                 'status_changes'       => $statusChanges,
                 'time_in_status'       => $timeInStatus,
+                'daily_breakdown'      => $dailyBreakdownFormatted,
                 'downtime_incidents'   => $downtimeIncidents
             ]
         ]);
@@ -262,10 +337,12 @@ switch ($action) {
 }
 
 function formatDuration($seconds) {
-    if ($seconds < 60)    return $seconds . ' seconds';
-    if ($seconds < 3600)  { $m = floor($seconds/60); return $m . ' minute' . ($m!=1?'s':''); }
-    if ($seconds < 86400) { $h = floor($seconds/3600); $m = floor(($seconds%3600)/60); return $h.'h'.($m>0?', '.$m.'m':''); }
-    $d = floor($seconds/86400); $h = floor(($seconds%86400)/3600);
-    return $d . ' day' . ($d!=1?'s':'') . ($h>0?', '.$h.'h':'');
+    if ($seconds <= 0)    return '0 seconds';
+    if ($seconds < 60)    return $seconds . ' second' . ($seconds != 1 ? 's' : '');
+    if ($seconds < 3600)  { $m = floor($seconds/60); return $m . ' minute' . ($m != 1 ? 's' : ''); }
+    if ($seconds < 86400) { $h = floor($seconds/3600); $m = floor(($seconds % 3600) / 60); return $h . 'h' . ($m > 0 ? ' ' . $m . 'm' : ''); }
+    $d = floor($seconds / 86400);
+    $h = floor(($seconds % 86400) / 3600);
+    return $d . ' day' . ($d != 1 ? 's' : '') . ($h > 0 ? ', ' . $h . 'h' : '');
 }
 ?>
