@@ -2322,34 +2322,111 @@ nav {
   left: -80px;
 }
 
-.brand-mark {
+/* ============================================================
+   LOGIN PAGE — BRAND TOP BAR (replaces old brand-mark/viewer-link layout)
+   ============================================================ */
+
+/* Top bar: brand name left, viewer link right */
+.brand-top-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
   position: relative;
   z-index: 1;
 }
 
-.brand-icon {
-  width: 38px;
-  height: 38px;
-  background: rgba(208, 230, 253, 0.15);
-  border: 1px solid rgba(208, 230, 253, 0.25);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.brand-icon svg {
-  color: var(--white);
-}
-
+/* Larger brand name, no icon */
 .brand-name {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 26px !important;
+  font-weight: 800 !important;
+  color: var(--white) !important;
+  letter-spacing: -0.5px;
+}
+
+/* Viewer link — now sits top-right inside brand-top-bar */
+.viewer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: rgba(208, 230, 253, 0.75);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  transition: color var(--transition), gap var(--transition);
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.viewer-link:hover {
   color: var(--white);
-  letter-spacing: -0.3px;
+  gap: 10px;
+}
+
+.viewer-link svg {
+  transition: transform var(--transition);
+  flex-shrink: 0;
+}
+
+.viewer-link:hover svg {
+  transform: translateX(3px);
+}
+
+/* Hide the old standalone brand-mark if it ever appears */
+.brand-mark {
+  display: contents;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 900px) {
+  .brand-top-bar {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+  .brand-name {
+    font-size: 22px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-name {
+    font-size: 20px !important;
+  }
+  .viewer-link {
+    font-size: 12px;
+  }
+}
+
+/* Viewer link inside right panel — above login title */
+.login-form-wrapper .viewer-link--right {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--primary-color) !important;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 28px;
+  transition: color var(--transition), gap var(--transition);
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.login-form-wrapper .viewer-link--right:hover {
+  color: var(--primary-dark) !important;
+  gap: 10px;
+}
+
+.login-form-wrapper .viewer-link--right svg {
+  transition: transform var(--transition);
+  flex-shrink: 0;
+  color: var(--primary-color) !important;
+}
+
+.login-form-wrapper .viewer-link--right:hover svg {
+  transform: translateX(-3px);
+  color: var(--primary-dark) !important;
 }
 
 .left-content {

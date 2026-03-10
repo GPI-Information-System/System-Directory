@@ -65,19 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 <div class="login-split">
 
-    <!-- ═══════════════════════════
+    <!-- ===============================
          LEFT PANEL
-         ═══════════════════════════ -->
+         =============================== -->
     <div class="login-left">
 
-        <!-- Brand mark -->
-        <div class="brand-mark">
-            <div class="brand-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect>
-                    <rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
-                </svg>
-            </div>
+        <!-- Top bar: Brand name only -->
+        <div class="brand-top-bar">
             <span class="brand-name">G-Portal</span>
         </div>
 
@@ -89,13 +83,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <h1 class="left-heading">
-                One place for<br>
-                <span>all your</span><br>
-                company systems.
+                Glory's<br>
+                <span>system status,</span><br>
+                all in one place.
             </h1>
 
             <p class="left-description">
-                G-Portal is your company's central hub for tracking, monitoring, and managing all internal systems — giving every employee instant visibility into what's running and what's not.
+                G-Portal lets you monitor, manage, and track all internal systems in real time.
             </p>
 
             <div class="feature-list">
@@ -120,19 +114,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <!-- Viewer link -->
-        <a href="pages/viewer.php" class="viewer-link">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-            View Systems Directory
-        </a>
+        <!-- Bottom spacer to keep layout balanced -->
+        <div></div>
 
     </div>
 
-    <!-- ═══════════════════════════
+    <!-- ===============================
          RIGHT PANEL
-         ═══════════════════════════ -->
+         =============================== -->
     <div class="login-right">
         <div class="login-form-wrapper">
+
+            <a href="pages/viewer.php" class="viewer-link viewer-link--right">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                View Systems Directory
+            </a>
 
             <div class="form-header">
                 <h2>G-Portal Login</h2>
