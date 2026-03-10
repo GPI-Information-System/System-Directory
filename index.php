@@ -76,16 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <!-- Centre content -->
-        <div class="left-content">
-            <div class="left-eyebrow">
-                <span></span>
-                System Directory
-            </div>
-
+        <div class="left-content">           
             <h1 class="left-heading">
-                Glory's<br>
-                <span>system status,</span><br>
-                all in one place.
+                Monitor & <br>
+                <span>Manage all Glory's systems</span><br>
+                in one place.
             </h1>
 
             <p class="left-description">
