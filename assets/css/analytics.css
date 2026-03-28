@@ -1182,3 +1182,304 @@
   .view-details-modal-header,
   .view-details-modal-footer { padding: 14px 16px; }
 }
+
+/* ============================================================
+   ACTUAL END TIME — Completed Maintenance column
+   ============================================================ */
+
+/* Column width */
+#completedMaintenanceTable .col-actual-end { width: 160px; }
+
+/* Actual end time display */
+.actual-end-time {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #0f172a;
+}
+
+/* Dash when actual end not recorded */
+.actual-end-unknown {
+    color: #cbd5e1;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Early finish badge — green pill shown next to actual end */
+.early-finish-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 6px;
+    padding: 2px 7px;
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* ============================================================
+   COMPLETED MAINTENANCE — Search Box
+   ============================================================ */
+
+.maint-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.maint-search-icon {
+    position: absolute;
+    left: 10px;
+    color: #94a3b8;
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+.maint-search-input {
+    padding: 8px 34px 8px 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: #0f172a;
+    background: #ffffff;
+    width: 240px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+}
+
+.maint-search-input:focus {
+    outline: none;
+    border-color: #162660;
+    box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.1);
+}
+
+.maint-search-input::placeholder { color: #94a3b8; }
+
+.maint-search-clear {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border-radius: 4px;
+    transition: all 0.15s;
+}
+
+.maint-search-clear:hover { color: #0f172a; background: #f1f5f9; }
+
+/* Filter note in pagination — "(X total)" */
+.maint-filter-note {
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+@media (max-width: 768px) {
+    .maint-search-input { width: 100%; }
+    .maint-search-wrap  { width: 100%; }
+}
+
+/* ============================================================
+   PATCH LOGS + MONTHLY REPORT — Search Boxes
+   Reuses .maint-search-* classes for consistency
+   ============================================================ */
+
+/* Log search and monthly report system search use same wrap style */
+.log-search-wrap,
+.report-system-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.log-search-wrap .maint-search-icon,
+.report-system-search-wrap .maint-search-icon {
+    position: absolute;
+    left: 10px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.log-search-input,
+.report-system-search-input {
+    padding: 8px 34px 8px 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: #0f172a;
+    background: #ffffff;
+    width: 240px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+}
+
+.log-search-input:focus,
+.report-system-search-input:focus {
+    outline: none;
+    border-color: #162660;
+    box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.1);
+}
+
+.log-search-input::placeholder,
+.report-system-search-input::placeholder { color: #94a3b8; }
+
+.log-search-clear,
+.report-system-search-clear {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border-radius: 4px;
+    transition: all 0.15s;
+}
+
+.log-search-clear:hover,
+.report-system-search-clear:hover { color: #0f172a; background: #f1f5f9; }
+
+@media (max-width: 768px) {
+    .log-search-input,
+    .report-system-search-input { width: 100%; }
+    .log-search-wrap,
+    .report-system-search-wrap  { width: 100%; }
+}
+
+/* ============================================================
+   MONTHLY REPORT — Combined Search + Dropdown
+   ============================================================ */
+
+.report-system-combo {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.report-system-search-input {
+    width: 220px;
+    padding: 8px 34px 8px 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: #0f172a;
+    background: #ffffff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.report-system-search-input:focus {
+    outline: none;
+    border-color: #162660;
+    box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.1);
+    border-radius: 8px 8px 0 0;
+}
+
+.report-system-search-input::placeholder { color: #94a3b8; }
+
+/* Dropdown list */
+.report-system-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #162660;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 8px 24px rgba(22, 38, 96, 0.12);
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 500;
+}
+
+.report-system-dropdown::-webkit-scrollbar { width: 4px; }
+.report-system-dropdown::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+.report-system-option {
+    padding: 10px 14px;
+    font-size: 13.5px;
+    color: #334155;
+    cursor: pointer;
+    transition: background 0.12s ease;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.report-system-option:last-child { border-bottom: none; }
+
+.report-system-option:hover {
+    background: #eff6ff;
+    color: #162660;
+}
+
+.report-system-option.selected {
+    background: #162660;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.report-no-results {
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #94a3b8;
+    text-align: center;
+    font-style: italic;
+}
+
+/* Clear button inside search wrap */
+.report-system-search-wrap .report-system-search-clear {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border-radius: 4px;
+    transition: all 0.15s;
+}
+
+.report-system-search-wrap .report-system-search-clear:hover {
+    color: #0f172a;
+    background: #f1f5f9;
+}
+
+@media (max-width: 768px) {
+    .report-system-search-input { width: 100%; }
+    .report-system-combo { width: 100%; }
+}
+
+/* ============================================================
+   STATUS CHANGE COUNT BADGE — Monthly Report
+   ============================================================ */
+.status-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    padding: 2px 8px;
+    background: #e0e7ff;
+    color: #3730a3;
+    border: 1px solid #c7d2fe;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+}

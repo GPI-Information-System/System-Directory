@@ -1,24 +1,31 @@
 <?php
 /**
  * G-Portal — System Error Landing Page
- * 
+ *
  * Usage:
- *   error.php?type=503&domain=youtube.com
- *   error.php?type=404&domain=youtube.com
- *   error.php?type=500&domain=youtube.com
- *   error.php?type=403&domain=youtube.com
- *   error.php?type=maintenance&system_id=5
- *   error.php?type=down&domain=youtube.com
- * 
- * Place this file at: system-directory/pages/error.php
+ *   error_page.php?type=503&domain=youtube.com
+ *   error_page.php?type=404&domain=youtube.com
+ *   error_page.php?type=500&domain=youtube.com
+ *   error_page.php?type=403&domain=youtube.com
+ *   error_page.php?type=maintenance&system_id=5
+ *   error_page.php?type=down&domain=youtube.com
+ *
+ * Place this file at: system-directory/pages/error_page.php
  * The viewer page link points to: viewer.php
  */
 
 require_once '../config/database.php';
 
-$type     = trim($_GET['type']      ?? '503');
-$domain   = trim($_GET['domain']    ?? '');
+$type     = trim($_GET['type']       ?? '503');
+$domain   = trim($_GET['domain']     ?? '');
 $systemId = intval($_GET['system_id'] ?? 0);
+
+// ── Where to send the "Go to G-Portal" button ──────────────────
+// If accessed from dashboard (admin), go back to dashboard.
+// Otherwise go to the public viewer.
+$from     = trim($_GET['from'] ?? 'viewer');
+$backUrl  = ($from === 'dashboard') ? 'dashboard.php' : 'viewer.php';
+$backLabel = ($from === 'dashboard') ? 'Go to Dashboard' : 'Go to G-Portal';
 
 // ── Fetch system info from DB if domain or system_id provided ──
 $systemInfo      = null;
@@ -292,8 +299,14 @@ function fmtDt($dt) {
             <h2 class="right-heading">View System Status<br>on G-Portal</h2>
             <p class="right-sub">Check real-time status, maintenance schedules, and system health across all services.</p>
 
-            <a href="viewer.php" class="cta-btn">
-                Go to G-Portal
+            <!-- =====================================================
+                 CTA BUTTON
+                 $backUrl  = dashboard.php (if from=dashboard)
+                             viewer.php    (default / from=viewer)
+                 $backLabel = "Go to Dashboard" or "Go to G-Portal"
+                 ===================================================== -->
+            <a href="<?= htmlspecialchars($backUrl) ?>" class="cta-btn">
+                <?= htmlspecialchars($backLabel) ?>
                 <span class="cta-btn-arrow">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                         <line x1="5" y1="12" x2="19" y2="12"></line>

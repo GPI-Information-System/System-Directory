@@ -1,10 +1,6 @@
 /* ============================================================
    NOTIFICATION BELL JAVASCRIPT — ENHANCED
-   - Unread / read state with localStorage tracking
-   - Exact timestamp + relative time display
-   - Contact number hint for Down/Offline systems
-   - Mark all as read button
-   - Improved empty state & arrow icon on status change
+   Updated: JP translation support
    ============================================================ */
 
 let notificationCheckInterval = null;
@@ -12,13 +8,38 @@ let lastNotificationCount      = 0;
 let allNotifications           = [];
 
 // ============================================================
-// READ STATE — persisted in localStorage
+// JP TRANSLATIONS FOR NOTIFICATIONS
 // ============================================================
+const NOTIF_JP = {
+    header:      '最新情報',
+    markAllRead: '全て既読にする',
+    allCaughtUp: '全て確認済み！',
+    noChanges:   '過去24時間のステータス変更はありません',
+    contact:     '支援のために {number} にお問い合わせください',
+    status: {
+        'online':      'オンライン',
+        'offline':     'オフライン',
+        'maintenance': 'メンテナンス',
+        'down':        'ダウン',
+        'archived':    'アーカイブ済み',
+    }
+};
 
+function isJpMode() {
+    return localStorage.getItem('gportal_jp_mode') === 'true';
+}
+
+function notifStatusLabel(status) {
+    if (isJpMode()) return NOTIF_JP.status[status] || capitalize(status);
+    return capitalize(status);
+}
+
+// ============================================================
+// READ STATE
+// ============================================================
 function getReadIds() {
-    try {
-        return new Set(JSON.parse(localStorage.getItem('gportal_read_notifs') || '[]'));
-    } catch { return new Set(); }
+    try { return new Set(JSON.parse(localStorage.getItem('gportal_read_notifs') || '[]')); }
+    catch { return new Set(); }
 }
 
 function saveReadIds(set) {
@@ -42,7 +63,6 @@ function markAllRead() {
 // ============================================================
 // INITIALIZATION
 // ============================================================
-
 document.addEventListener('DOMContentLoaded', function () {
     initializeNotifications();
 });
@@ -50,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function () {
 function initializeNotifications() {
     loadNotifications();
     notificationCheckInterval = setInterval(loadNotifications, 30000);
-
     document.addEventListener('click', function (event) {
         const bellContainer = document.querySelector('.notification-bell');
         const dropdown      = document.getElementById('notificationDropdown');
@@ -63,9 +82,8 @@ function initializeNotifications() {
 // ============================================================
 // TOGGLE DROPDOWN
 // ============================================================
-
 function toggleNotifications() {
-    const dropdown = document.getElementById('notificationDropdown');
+    const dropdown  = document.getElementById('notificationDropdown');
     const isShowing = dropdown.classList.contains('show');
     if (isShowing) {
         dropdown.classList.remove('show');
@@ -78,13 +96,12 @@ function toggleNotifications() {
 // ============================================================
 // LOAD NOTIFICATIONS
 // ============================================================
-
 function loadNotifications() {
     fetch('../backend/get_notifications.php?hours=24')
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                allNotifications = data.notifications || [];
+                allNotifications  = data.notifications || [];
                 const readIds     = getReadIds();
                 const unreadCount = allNotifications.filter(n => !readIds.has(n.id)).length;
                 updateNotificationBadge(unreadCount);
@@ -98,11 +115,9 @@ function loadNotifications() {
 // ============================================================
 // UPDATE BADGE
 // ============================================================
-
 function updateNotificationBadge(count) {
     const badge   = document.getElementById('notificationBadge');
     const countEl = document.getElementById('notificationCount');
-
     if (count > 0) {
         badge.style.display = 'flex';
         badge.textContent   = count > 9 ? '9+' : count;
@@ -115,16 +130,21 @@ function updateNotificationBadge(count) {
 // ============================================================
 // RENDER NOTIFICATIONS
 // ============================================================
-
 function renderNotifications(notifications) {
     const container = document.getElementById('notificationList');
     const readIds   = getReadIds();
+    const jp        = isJpMode();
 
-    // Mark all read button visibility
+    // Header text
+    const headerEl = document.querySelector('.notification-header h3');
+    if (headerEl) headerEl.textContent = jp ? NOTIF_JP.header : 'Recent Updates';
+
+    // Mark all read button
     const markAllBtn = document.getElementById('markAllReadBtn');
     if (markAllBtn) {
         const hasUnread = notifications && notifications.some(n => !readIds.has(n.id));
         markAllBtn.style.display = hasUnread ? 'block' : 'none';
+        markAllBtn.textContent   = jp ? NOTIF_JP.markAllRead : 'Mark all read';
     }
 
     if (!notifications || notifications.length === 0) {
@@ -134,8 +154,8 @@ function renderNotifications(notifications) {
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                     <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                 </svg>
-                <p>All caught up!</p>
-                <span>No status changes in the last 24 hours</span>
+                <p>${jp ? NOTIF_JP.allCaughtUp : 'All caught up!'}</p>
+                <span>${jp ? NOTIF_JP.noChanges : 'No status changes in the last 24 hours'}</span>
             </div>
         `;
         return;
@@ -147,13 +167,17 @@ function renderNotifications(notifications) {
         const exactTime    = formatExactTime(notif.changed_at);
         const relTime      = getTimeAgo(notif.changed_at);
 
-        // Contact hint — only for down/offline and if contact_number exists
+        // Contact hint
+        const contactText = jp
+            ? NOTIF_JP.contact.replace('{number}', `<strong>${escapeHtml(notif.contact_number)}</strong>`)
+            : `Contact <strong>${escapeHtml(notif.contact_number)}</strong> for assistance`;
+
         const contactHint = (isActionable && notif.contact_number)
             ? `<div class="notification-contact-hint">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                     </svg>
-                    Contact <strong>${escapeHtml(notif.contact_number)}</strong> for assistance
+                    ${contactText}
                </div>`
             : '';
 
@@ -166,12 +190,12 @@ function renderNotifications(notifications) {
                     <div class="notification-time" title="${exactTime}">${relTime}</div>
                 </div>
                 <div class="notification-status-change">
-                    <span class="notification-status-badge ${notif.old_status}">${capitalize(notif.old_status)}</span>
+                    <span class="notification-status-badge ${notif.old_status}">${notifStatusLabel(notif.old_status)}</span>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                         <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
-                    <span class="notification-status-badge ${notif.new_status}">${capitalize(notif.new_status)}</span>
+                    <span class="notification-status-badge ${notif.new_status}">${notifStatusLabel(notif.new_status)}</span>
                 </div>
                 ${contactHint}
                 <div class="notification-meta">
@@ -189,15 +213,12 @@ function renderNotifications(notifications) {
 // ============================================================
 // HANDLE NOTIFICATION CLICK
 // ============================================================
-
 function handleNotificationClick(systemId, notifId) {
     markAsRead(notifId);
-
     const readIds     = getReadIds();
     const unreadCount = allNotifications.filter(n => !readIds.has(n.id)).length;
     updateNotificationBadge(unreadCount);
     renderNotifications(allNotifications);
-
     document.getElementById('notificationDropdown').classList.remove('show');
 
     const systemCard = document.querySelector(`[data-system-id="${systemId}"]`);
@@ -216,7 +237,6 @@ function handleNotificationClick(systemId, notifId) {
 // ============================================================
 // UTILITY FUNCTIONS
 // ============================================================
-
 function formatExactTime(datetime) {
     const d = new Date(datetime);
     return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) +
@@ -228,7 +248,6 @@ function getTimeAgo(datetime) {
     const now     = new Date();
     const then    = new Date(datetime);
     const seconds = Math.floor((now - then) / 1000);
-
     if (seconds < 60)  return 'Just now';
     const minutes = Math.floor(seconds / 60);
     if (minutes < 60)  return `${minutes}m ago`;

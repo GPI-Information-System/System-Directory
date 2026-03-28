@@ -1,4 +1,21 @@
 <?php
+// ============================================================
+// G-Portal — Session Configuration
+// Uses a local sessions/ folder inside the project to avoid
+// C:\xampp\tmp permission issues on restricted machines.
+// ============================================================
+
+// Define session save path inside the project
+$sessionPath = __DIR__ . '/../sessions';
+
+// Create the sessions folder if it doesn't exist
+if (!file_exists($sessionPath)) {
+    mkdir($sessionPath, 0777, true);
+}
+
+// Tell PHP to use our local sessions folder
+session_save_path($sessionPath);
+
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -30,9 +47,9 @@ function requireLogin() {
 // Get current user info
 function getCurrentUser() {
     return [
-        'id' => $_SESSION['user_id'] ?? null,
+        'id'       => $_SESSION['user_id'] ?? null,
         'username' => $_SESSION['username'] ?? null,
-        'role' => $_SESSION['role'] ?? null
+        'role'     => $_SESSION['role'] ?? null
     ];
 }
 ?>

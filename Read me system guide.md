@@ -1,77 +1,58 @@
 
 
-system-directory/
-│
+Folder Structure
+System-Directory/
 ├── assets/
 │   ├── css/
-│   │   ├── style.css                    # Dashboard & Login UI styles
-│   │   ├── viewer.css                   # Viewer page UI styles
-│   │   ├── analytics.css                # Analytics page styles
-│   │   ├── notifications.css            # Notification bell widget styles
-│   │   ├── maintenance.css              # Maintenance scheduling UI styles
-│   │   └── error_page.css               # Error landing page styles
-│   │
+│   │   ├── style.css          — Main dashboard styles
+│   │   ├── maintenance.css    — Maintenance modal styles
+│   │   ├── analytics.css      — Analytics page styles
+│   │   └── users.css          — User management styles
 │   └── js/
-│       ├── main.js                      # Login & admin JavaScript functionality
-│       ├── viewer_maitenance.js         # Viewer Maintenance Schedule page JS functionality
-│       ├── analytics.js                 # Charts, reports, PDF export, edit note
-│       ├── notifications.js             # Bell widget, recent updates, auto-refresh
-│       └── maintenance.js               # Calendar, maintenance modal, bulk scheduling,
-│                                        # conflict detection, email tag input
-│
+│       ├── main.js            — Dashboard logic, chart, filters, CRUD
+│       ├── maintenance.js     — Calendar, maintenance modal, bulk scheduling
+│       ├── health_check.js    — Polling logic (every 10s), toast notifications
+│       ├── analytics.js       — Analytics page JS (search, pagination, charts)
+│       ├── viewer.js          — Viewer page JS (JP translation, filters, popover)
+│       ├── viewer_maintenance.js — Maintenance viewer JS (JP translation, filters, countdown)
+│       ├── notifications.js   — Notification bell and panel
+│       └── users.js           — User management CRUD
 ├── backend/
 │   ├── logs/
-│   │   ├── emails.log                   # IT alert email log (system down/offline)
-│   │   ├── maintenance_emails.log       # Maintenance notification email log
-│   │   └── health_check.log             # Automated health check log
-│   │
-│   ├── maintenance/
-│   │   ├── save_maintenance.php         # Create, update maintenance schedules
-│   │   │                                # + email notification trigger
-│   │   ├── get_maintenance.php          # API: calendar, day, system, single queries
-│   │   ├── delete_maintenance.php       # Soft delete maintenance schedules
-│   │   ├── check_maintenance_schedule.php  # Check active schedule conflicts
-│   │   ├── send_maintenance_email.php   # Email function for maintenance notifications
-│   │   │                                # (created / updated / cancelled triggers)
-│   │   └── email_recipients_api.php     # Autocomplete API for email recipients
-│   │
-│   ├── add_system.php                   # Add systems (Super Admin only)
-│   ├── edit_system.php                  # Edit systems + log changes + email alerts
-│   ├── delete_system.php                # Delete systems (Super Admin only)
-│   ├── logout.php                       # User logout
-│   ├── get_analytics_data.php           # API for charts, uptime, reports
-│   ├── update_log_note.php              # Edit notes on existing status logs
-│   ├── get_notifications.php            # API for recent status changes (bell widget)
-│   ├── send_email_notification.php      # Email function for critical status alerts
-│   ├── trigger_maintenance_check.php    # Automated maintenance status checker
-│   ├── trigger_health_check.php         # Automated system health checker
-│   └── check_systems_health.php        # Health check logic
-│
+│   │   ├── health_check.log   — Auto-rotating health check log (max 500 lines)
+│   │   ├── emails.log         — Auto-rotating email log (max 500 lines)
+│   │   └── maintenance_emails.log
+│   ├── add_system.php
+│   ├── edit_system.php
+│   ├── delete_system.php
+│   ├── add_user.php
+│   ├── edit_user.php
+│   ├── delete_user.php
+│   ├── save_maintenance.php
+│   ├── trigger_health_check.php   — Main health check engine (badge + domain fallback)
+│   ├── check_systems_health.php   — Cron version of health check
+│   ├── get_analytics_data.php     — Analytics data endpoints
+│   ├── get_notifications.php      — Notification bell data
+│   ├── get_systems_status.php     — Live status for cards
+│   ├── send_email_notification.php — Email alerts (PHPMailer or file log)
+│   ├── update_log_note.php
+│   └── logout.php
 ├── config/
-│   ├── database.php                     # Database connection (XAMPP/phpMyAdmin)
-│   ├── session.php                      # Session & role management
-│   └── email_config.php                 # SMTP settings for email notifications
-│
+│   ├── database.php           — DB connection, helper functions
+│   ├── session.php            — Session management, role helpers
+│   └── email_config.php       — SMTP configuration
 ├── pages/
-│   ├── dashboard.php                    # Super Admin & Admin dashboard
-│   │                                    # + maintenance scheduling modals
-│   │                                    # + bulk scheduling with conflict detection
-│   │                                    # + email notification toggle & tag input
-│   ├── analytics.php                    # Analytics & reporting dashboard
-│   ├── viewer.php                       # Employee/viewer page (public access)
-│   └── error_page.php                   # Custom error landing page
-│                                        # (404, 403, 500, 503, maintenance, down)
-│
+│   ├── dashboard.php          — Admin dashboard (system cards, calendar, chart)
+│   ├── analytics.php          — Analytics & Reports page
+│   ├── viewer.php             — Public viewer page (no login)
+│   ├── viewer_maintenance.php — Public maintenance schedule viewer
+│   └── users.php              — User management page (Super Admin only)
+├── sessions/                  — PHP session storage (local folder)
 ├── uploads/
-│   └── logos/                           # System logo uploads storage
-│
-├── .htaccess                            # Apache custom error page routing
-├── index.php                            # Login page (main entry point)
-├── database_setup.sql                   # Database creation script
-├── email_recipients_table.sql           # email_recipients table for autocomplete
-├── README.md                            # Complete installation guide
-├── QUICKSTART.md                        # 5-minute quick start guide
-└── system_directory_db.sql              # Full database export with sample data
+│   └── logos/                 — Uploaded system logos
+├── vendor/                    — PHPMailer (composer)
+└── index.php                  — Login page
+
 
 
 
@@ -137,3 +118,32 @@ localhost:8080/system-directory/pages/error_page.php?type=500 - Internal Server 
 localhost:8080/system-directory/pages/error_page.php?type=403 - Access Denied
 localhost:8080/system-directory/pages/error_page.php?type=maintenance&domain=youtube.com - System Under Maintenance
 localhost:8080/system-directory/pages/error_page.php?type=down&domain=youtube.com - System Down
+
+
+/FOR DATA CLEARING IN DB/
+
+SET FOREIGN_KEY_CHECKS = 0;
+DELETE FROM maintenance_schedules;
+DELETE FROM status_logs;
+DELETE FROM systems;
+ALTER TABLE maintenance_schedules AUTO_INCREMENT = 1;
+ALTER TABLE status_logs AUTO_INCREMENT = 1;
+ALTER TABLE systems AUTO_INCREMENT = 1;
+SET FOREIGN_KEY_CHECKS = 1;
+
+
+
+
+
+/DATA CLEAR ON ANALYTICS PAGE ONLY/
+-- Clear all status change logs
+TRUNCATE TABLE status_logs;
+
+-- Clear all maintenance schedules
+TRUNCATE TABLE maintenance_schedules;
+
+-- Only reset 'maintenance' systems back to 'online'
+-- (since their schedules are now deleted, they'd be stuck in maintenance)
+-- Down/offline/archived systems are left untouched
+UPDATE systems SET status = 'online', updated_at = NOW()
+WHERE status = 'maintenance';

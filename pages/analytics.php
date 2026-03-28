@@ -71,6 +71,14 @@ $conn->close();
                             Analytics
                         </a>
                     </li>
+                    <?php if (isSuperAdmin()): ?>
+                    <li>
+                        <a href="users.php">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            User Management
+                        </a>
+                    </li>
+                    <?php endif; ?>
                 </ul>
                 <div class="user-profile">
                     <div class="user-avatar-large">
@@ -112,12 +120,44 @@ $conn->close();
                             <button class="toggle-btn active" data-view="overall" onclick="switchUptimeView('overall')">Overall</button>
                             <button class="toggle-btn" data-view="per-system" onclick="switchUptimeView('per-system')">Per System</button>
                         </div>
-                        <select id="uptimeSystemSelect" class="select-system" style="display: none;" onchange="loadUptimeData()">
-                            <option value="">Select a system...</option>
-                            <?php foreach ($systems as $system): ?>
-                                <option value="<?php echo $system['id']; ?>"><?php echo htmlspecialchars($system['name']); ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                        <!-- Combined search + dropdown for Per System view -->
+                        <div class="report-system-combo" id="uptimeSystemCombo" style="display:none;">
+                            <div class="report-system-search-wrap">
+                                <svg class="maint-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                <input type="text" id="uptimeSystemSearch" class="report-system-search-input"
+                                       placeholder="Search system..."
+                                       oninput="filterUptimeSystems(this.value)"
+                                       onfocus="showUptimeDropdown()"
+                                       autocomplete="off">
+                                <button class="report-system-search-clear" id="uptimeSystemClearBtn"
+                                        onclick="clearUptimeSystemSearch()" title="Clear" style="display:none;">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="report-system-dropdown" id="uptimeSystemDropdown" style="display:none;">
+                                <?php foreach ($systems as $system): ?>
+                                <div class="report-system-option"
+                                     data-id="<?php echo $system['id']; ?>"
+                                     data-name="<?php echo htmlspecialchars($system['name']); ?>"
+                                     onclick="selectUptimeSystem(<?php echo $system['id']; ?>, '<?php echo addslashes(htmlspecialchars($system['name'])); ?>')">
+                                    <?php echo htmlspecialchars($system['name']); ?>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <!-- Hidden select keeps existing JS working -->
+                            <select id="uptimeSystemSelect" style="display:none;" onchange="loadUptimeData()">
+                                <option value="">Select a system...</option>
+                                <?php foreach ($systems as $system): ?>
+                                    <option value="<?php echo $system['id']; ?>"><?php echo htmlspecialchars($system['name']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="chart-container">
@@ -146,6 +186,21 @@ $conn->close();
                 <div class="section-header">
                     <h3>Status Change History (Patch Logs)</h3>
                     <div class="section-controls">
+                        <div class="log-search-wrap">
+                            <svg class="maint-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" id="logSearchInput" class="log-search-input"
+                                   placeholder="Search system, status, note..."
+                                   oninput="onLogSearch(this)">
+                            <button class="log-search-clear" onclick="clearLogSearch()" title="Clear search">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
                         <div class="toggle-group">
                             <button class="toggle-btn active" data-days="30" onclick="loadStatusHistory(30)">Last 30 Days</button>
                             <button class="toggle-btn" data-days="0" onclick="loadStatusHistory(0)">All Time</button>
@@ -181,6 +236,21 @@ $conn->close();
                 <div class="section-header">
                     <h3>Completed Maintenance</h3>
                     <div class="section-controls">
+                        <div class="maint-search-wrap">
+                            <svg class="maint-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" id="maintSearchInput" class="maint-search-input"
+                                   placeholder="Search by system or title..."
+                                   oninput="onMaintSearch(this)">
+                            <button class="maint-search-clear" onclick="clearMaintSearch()" title="Clear search">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
                         <div class="toggle-group">
                             <button class="toggle-btn active" data-mdays="30" onclick="loadCompletedMaintenance(30)">Last 30 Days</button>
                             <button class="toggle-btn" data-mdays="0" onclick="loadCompletedMaintenance(0)">All Time</button>
@@ -193,14 +263,15 @@ $conn->close();
                             <tr>
                                 <th class="col-system">System</th>
                                 <th class="col-title">Title</th>
-                                <th class="col-date">Start</th>
-                                <th class="col-date">End</th>
-                                <th class="col-exceeded">Exceeded Duration</th>
+                                <th class="col-date">Scheduled Start</th>
+                                <th class="col-date">Scheduled End</th>
+                                <th class="col-actual-end">Actual End</th>
+                                <th class="col-exceeded">Exceeded</th>
                                 <th class="col-by">Done By</th>
                             </tr>
                         </thead>
                         <tbody id="completedMaintenanceBody">
-                            <tr><td colspan="6" class="loading-cell">Loading...</td></tr>
+                            <tr><td colspan="7" class="loading-cell">Loading...</td></tr>
                         </tbody>
                     </table>
                     <div class="pagination-container">
@@ -217,12 +288,45 @@ $conn->close();
                 <div class="section-header">
                     <h3>Monthly System Reports</h3>
                     <div class="section-controls">
-                        <select id="reportSystemSelect" class="select-system" onchange="loadMonthlyReport()">
-                            <option value="">Select a system...</option>
-                            <?php foreach ($systems as $system): ?>
-                                <option value="<?php echo $system['id']; ?>"><?php echo htmlspecialchars($system['name']); ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                        <!-- Combined search + dropdown selector -->
+                        <div class="report-system-combo" id="reportSystemCombo">
+                            <div class="report-system-search-wrap">
+                                <svg class="maint-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                <input type="text" id="reportSystemSearch" class="report-system-search-input"
+                                       placeholder="Search system..."
+                                       oninput="filterReportSystems(this.value)"
+                                       onfocus="showReportDropdown()"
+                                       autocomplete="off">
+                                <button class="report-system-search-clear" id="reportSystemClearBtn"
+                                        onclick="clearReportSystemSearch()" title="Clear" style="display:none;">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                            <!-- Hidden dropdown list -->
+                            <div class="report-system-dropdown" id="reportSystemDropdown" style="display:none;">
+                                <?php foreach ($systems as $system): ?>
+                                <div class="report-system-option"
+                                     data-id="<?php echo $system['id']; ?>"
+                                     data-name="<?php echo htmlspecialchars($system['name']); ?>"
+                                     onclick="selectReportSystem(<?php echo $system['id']; ?>, '<?php echo addslashes(htmlspecialchars($system['name'])); ?>')">
+                                    <?php echo htmlspecialchars($system['name']); ?>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <!-- Hidden select keeps existing JS working -->
+                            <select id="reportSystemSelect" style="display:none;" onchange="loadMonthlyReport()">
+                                <option value="">Select a system...</option>
+                                <?php foreach ($systems as $system): ?>
+                                    <option value="<?php echo $system['id']; ?>"><?php echo htmlspecialchars($system['name']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                         <input type="month" id="reportMonthSelect" class="month-picker"
                                value="<?php echo date('Y-m'); ?>"
                                max="<?php echo date('Y-m'); ?>"

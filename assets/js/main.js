@@ -18,13 +18,13 @@ function toggleDropdown(event, cardId) {
 
 function closeAllDropdowns() {
     document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+    document.querySelectorAll('.filter-dropdown-menu').forEach(menu => menu.classList.remove('show'));
 }
 
 // ── Open Add System Modal ──
 function openAddModal() {
     document.getElementById('addModal').classList.add('show');
     document.getElementById('addSystemForm').reset();
-    // Reset char counter and logo preview
     const nameInput = document.getElementById('systemName');
     if (nameInput) updateCharCounter(nameInput, 'addNameCounter', 100);
     const addBox = document.getElementById('addLogoPreviewBox');
@@ -37,32 +37,55 @@ function closeAddModal() {
 }
 
 // ── Open Edit System Modal ──
-function openEditModal(id, name, domain, description, status, contactNumber, excludeHealthCheck = 0) {
+function openEditModal(id, name, domain, badgeUrl, description, status, contactNumber, excludeHealthCheck = 0, logoPath = '', category = 'Direct', japaneseDomain = '', japaneseDescription = '') {
     currentEditId = id;
+
+    // FIX Issue 2: Always read the LIVE status from the card's data-status attribute.
+    // The PHP-passed `status` param is baked in at page load and won't reflect
+    // AJAX-driven changes (e.g. auto-maintenance switch by health_check.js).
+    // The card's data-status is kept current by health_check.js updateCard().
+    const card = document.querySelector('.system-card[data-system-id="' + id + '"]');
+    const liveStatus = card ? (card.dataset.status || status) : status;
+
     document.getElementById('editModal').classList.add('show');
-    document.getElementById('editSystemName').value = name;
-    document.getElementById('editSystemDomain').value = domain;
+    document.getElementById('editSystemName').value         = name;
+    const editCatSel = document.getElementById('editSystemCategory');
+    if (editCatSel) editCatSel.value = category || 'Direct';
+    const editJpDomain = document.getElementById('editSystemJapaneseDomain');
+    if (editJpDomain) editJpDomain.value = japaneseDomain || '';
+    const editJpDesc = document.getElementById('editSystemJapaneseDescription');
+    if (editJpDesc) editJpDesc.value = japaneseDescription || '';
+    document.getElementById('editSystemDomain').value      = domain;
+    document.getElementById('editSystemBadgeUrl').value    = badgeUrl || '';
     document.getElementById('editSystemDescription').value = description;
-    document.getElementById('editSystemStatus').value = status || 'online';
-    document.getElementById('editSystemContact').value = contactNumber || '123';
+    document.getElementById('editSystemStatus').value      = liveStatus || 'online';
+    document.getElementById('editSystemContact').value     = contactNumber || '123';
     document.getElementById('editExcludeHealthCheck').checked = excludeHealthCheck == 1;
 
-    // Init status dot
     const statusSelect = document.getElementById('editSystemStatus');
     const statusDot = document.getElementById('editStatusDot');
     if (statusSelect && statusDot) {
         statusDot.style.background = STATUS_DOT_COLORS[statusSelect.value] || '#9CA3AF';
     }
 
-    // Init char counter
     const nameInput = document.getElementById('editSystemName');
     if (nameInput) updateCharCounter(nameInput, 'editNameCounter', 100);
 
-    // Reset logo preview
-    const editBox = document.getElementById('editLogoPreviewBox');
-    if (editBox) editBox.classList.remove('visible');
+    const editBox   = document.getElementById('editLogoPreviewBox');
+    const editThumb = document.getElementById('editLogoThumb');
+    const editFname = document.getElementById('editLogoFilename');
+    const editFsize = document.getElementById('editLogoFilesize');
     const editInput = document.getElementById('editSystemLogo');
-    if (editInput) editInput.value = '';
+
+    if (logoPath && editBox && editThumb) {
+        editThumb.src = logoPath;
+        if (editFname) editFname.textContent = logoPath.split('/').pop();
+        if (editFsize) editFsize.textContent = 'Current logo';
+        editBox.classList.add('visible');
+    } else {
+        if (editBox)   editBox.classList.remove('visible');
+        if (editInput) editInput.value = '';
+    }
 }
 
 function closeEditModal() {
@@ -76,13 +99,21 @@ function addSystem(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
     if (!formData.get('contact_number')) { formData.set('contact_number', '123'); }
+    clearModalError('addModal');
     fetch('../backend/add_system.php', { method: 'POST', body: formData })
-        .then(response => response.json())
-        .then(data => {
+        .then(response => response.text())
+        .then(text => {
+            if (!text || text.trim() === '') {
+                showModalError('addModal', 'Logo file is too large. Maximum allowed size is 5 MB. Please resize or compress your image and try again.');
+                return;
+            }
+            let data;
+            try { data = JSON.parse(text); }
+            catch(e) { showModalError('addModal', 'An unexpected error occurred. Please try again.'); return; }
             if (data.success) { closeAddModal(); location.reload(); }
-            else { alert(data.message || 'Error adding system'); }
+            else { showModalError('addModal', data.message || 'An error occurred. Please try again.'); }
         })
-        .catch(error => { console.error('Error:', error); alert('Error adding system'); });
+        .catch(error => { console.error('Error:', error); showModalError('addModal', 'A connection error occurred. Please check your network and try again.'); });
 }
 
 // ── Edit System ──
@@ -91,13 +122,21 @@ function editSystem(event) {
     const formData = new FormData(event.target);
     formData.append('id', currentEditId);
     if (!formData.get('contact_number')) { formData.set('contact_number', '123'); }
+    clearModalError('editModal');
     fetch('../backend/edit_system.php', { method: 'POST', body: formData })
-        .then(response => response.json())
-        .then(data => {
+        .then(response => response.text())
+        .then(text => {
+            if (!text || text.trim() === '') {
+                showModalError('editModal', 'Logo file is too large. Maximum allowed size is 5 MB. Please resize or compress your image and try again.');
+                return;
+            }
+            let data;
+            try { data = JSON.parse(text); }
+            catch(e) { showModalError('editModal', 'An unexpected error occurred. Please try again.'); return; }
             if (data.success) { closeEditModal(); location.reload(); }
-            else { alert(data.message || 'Error updating system'); }
+            else { showModalError('editModal', data.message || 'An error occurred. Please try again.'); }
         })
-        .catch(error => { console.error('Error:', error); alert('Error updating system'); });
+        .catch(error => { console.error('Error:', error); showModalError('editModal', 'A connection error occurred. Please check your network and try again.'); });
 }
 
 // ── Delete System ──
@@ -116,9 +155,9 @@ function confirmDelete() {
         .then(response => response.json())
         .then(data => {
             if (data.success) { closeDeleteModal(); location.reload(); }
-            else { alert(data.message || 'Error deleting system'); }
+            else { showModalError('deleteModal', data.message || 'An error occurred. Please try again.'); }
         })
-        .catch(error => { console.error('Error:', error); alert('Error deleting system'); });
+        .catch(error => { console.error('Error:', error); showModalError('deleteModal', 'A network error occurred. Please try again.'); });
 }
 
 function closeDeleteModal() {
@@ -140,14 +179,26 @@ function searchSystems() {
 }
 
 function openDomain(domain) {
-    if (domain) {
-        let url = domain;
-        if (!domain.startsWith('http://') && !domain.startsWith('https://')) { url = 'https://' + domain; }
-        window.open(url, '_blank');
+    if (!domain) return;
+    let cardStatus = 'online';
+    document.querySelectorAll('.system-card').forEach(card => {
+        const domainEl = card.querySelector('.card-domain');
+        if (domainEl && domainEl.textContent.trim() === domain) {
+            cardStatus = card.getAttribute('data-status') || 'online';
+        }
+    });
+    if (cardStatus === 'maintenance' || cardStatus === 'down' || cardStatus === 'offline') {
+        const errorUrl = '../pages/error_page.php?type=' + encodeURIComponent(cardStatus)
+                       + '&domain=' + encodeURIComponent(domain)
+                       + '&from=dashboard';
+        window.location.href = errorUrl;
+        return;
     }
+    let url = domain;
+    if (!domain.startsWith('http://') && !domain.startsWith('https://')) { url = 'https://' + domain; }
+    window.open(url, '_blank');
 }
 
-// Close modal when clicking outside
 window.onclick = function(event) {
     const addModal    = document.getElementById('addModal');
     const editModal   = document.getElementById('editModal');
@@ -158,6 +209,77 @@ window.onclick = function(event) {
 }
 
 // ── Filter ──
+
+// ── Show/hide Clear Filters button ──
+function updateClearFiltersBtn() {
+    const btn = document.getElementById('btnClearFilters');
+    if (!btn) return;
+    const statusActive   = document.querySelector('[data-filter].active')?.dataset.filter !== 'all';
+    const categoryActive = document.querySelector('[data-cat].active')?.dataset.cat !== 'all';
+    btn.style.display = (statusActive || categoryActive) ? 'flex' : 'none';
+}
+
+// ── Clear all filters at once ──
+function clearAllFilters() {
+    filterSystems('all');
+    filterByCategory('all');
+    const btn = document.getElementById('btnClearFilters');
+    if (btn) btn.style.display = 'none';
+}
+
+function toggleCategoryDropdown(event) {
+    event.stopPropagation();
+    const menu = document.getElementById('categoryFilterMenu');
+    // Close status filter if open
+    const statusMenu = document.querySelector('.filter-dropdown-menu.show:not(#categoryFilterMenu)');
+    if (statusMenu) statusMenu.classList.remove('show');
+    menu.classList.toggle('show');
+}
+
+function filterByCategory(category) {
+    // Update button label
+    const catBtn = document.querySelector('.btn-filter[onclick="toggleCategoryDropdown(event)"]');
+    if (catBtn) {
+        const labelMap = {
+            'all': 'Category', 'Direct': 'Direct', 'Indirect': 'Indirect', 'Support': 'Support'
+        };
+        const label = labelMap[category] || 'Category';
+        const isFiltered = category !== 'all';
+        catBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" y1="6" x2="20" y2="6"></line>
+                            <line x1="4" y1="12" x2="20" y2="12"></line>
+                            <line x1="4" y1="18" x2="20" y2="18"></line>
+                            <circle cx="9" cy="6" r="2.5" fill="currentColor" stroke="none"></circle>
+                            <circle cx="15" cy="12" r="2.5" fill="currentColor" stroke="none"></circle>
+                            <circle cx="9" cy="18" r="2.5" fill="currentColor" stroke="none"></circle>
+                        </svg>
+            ${label}
+        `;
+        catBtn.classList.toggle('btn-filter-active', isFiltered);
+    }
+
+    // Update active state on category buttons
+    document.querySelectorAll('[data-cat]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.cat === category);
+    });
+
+    // Close dropdown
+    document.getElementById('categoryFilterMenu').classList.remove('show');
+
+    updateClearFiltersBtn();
+
+    // Show/hide category groups
+    const groups = document.querySelectorAll('.category-group');
+    groups.forEach(group => {
+        if (category === 'all') {
+            group.style.display = '';
+        } else {
+            group.style.display = group.dataset.category === category ? '' : 'none';
+        }
+    });
+}
+
 function toggleFilterDropdown(event) {
     event.stopPropagation();
     const dropdown = event.currentTarget.nextElementSibling;
@@ -171,6 +293,30 @@ function toggleFilterDropdown(event) {
 }
 
 function filterSystems(status) {
+    // Update button label
+    const filterBtn = document.querySelector('.btn-filter[onclick="toggleFilterDropdown(event)"]');
+    if (filterBtn) {
+        const labelMap = {
+            'all': 'Status Filter', 'online': 'Online', 'offline': 'Offline',
+            'maintenance': 'Maintenance', 'down': 'Down', 'archived': 'Archived'
+        };
+        const label = labelMap[status] || 'Status Filter';
+        const isFiltered = status !== 'all';
+        filterBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" y1="6" x2="20" y2="6"></line>
+                            <line x1="4" y1="12" x2="20" y2="12"></line>
+                            <line x1="4" y1="18" x2="20" y2="18"></line>
+                            <circle cx="9" cy="6" r="2.5" fill="currentColor" stroke="none"></circle>
+                            <circle cx="15" cy="12" r="2.5" fill="currentColor" stroke="none"></circle>
+                            <circle cx="9" cy="18" r="2.5" fill="currentColor" stroke="none"></circle>
+                        </svg>
+            ${label}
+        `;
+        filterBtn.classList.toggle('btn-filter-active', isFiltered);
+    }
+    updateClearFiltersBtn();
+
     const cards = document.querySelectorAll('.system-card');
     document.querySelectorAll('.filter-option').forEach(option => {
         option.classList.remove('active');
@@ -204,6 +350,16 @@ function loadDashboardChart() {
         .then(response => response.json())
         .then(data => { if (data.success) renderDashboardChart(data.data); })
         .catch(error => console.error('Error loading dashboard chart:', error));
+}
+
+// ── Auto-refresh chart + calendar when status changes detected ──
+function refreshDashboardWidgets() {
+    // Refresh the status chart
+    loadDashboardChart();
+    // Refresh the calendar (defined in maintenance.js)
+    if (typeof loadCalendarSchedules === 'function') {
+        loadCalendarSchedules();
+    }
 }
 
 function renderDashboardChart(data) {
@@ -258,12 +414,10 @@ function initializeResponsiveMenu() {
 document.addEventListener('DOMContentLoaded', function() { initializeResponsiveMenu(); });
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initializeResponsiveMenu); } else { initializeResponsiveMenu(); }
 
-
 /* ============================================================
    MODAL ENHANCEMENTS
    ============================================================ */
 
-// ── Status dot color map ──
 const STATUS_DOT_COLORS = {
     online:      '#10B981',
     offline:     '#6B7280',
@@ -272,14 +426,12 @@ const STATUS_DOT_COLORS = {
     archived:    '#9CA3AF'
 };
 
-// ── Update status dot color on select change ──
 function updateStatusDot(selectEl, dotId) {
     const dot = document.getElementById(dotId);
     if (!dot) return;
     dot.style.background = STATUS_DOT_COLORS[selectEl.value] || '#9CA3AF';
 }
 
-// ── Character counter ──
 function updateCharCounter(inputEl, counterId, maxLen) {
     const counter = document.getElementById(counterId);
     if (!counter) return;
@@ -290,7 +442,6 @@ function updateCharCounter(inputEl, counterId, maxLen) {
     else if (len >= maxLen * 0.8) counter.classList.add('warn');
 }
 
-// ── Handle logo file upload ──
 function handleLogoUpload(inputEl, previewBoxId, thumbId, filenameId, filesizeId) {
     const file = inputEl.files[0];
     const box  = document.getElementById(previewBoxId);
@@ -305,7 +456,6 @@ function handleLogoUpload(inputEl, previewBoxId, thumbId, filenameId, filesizeId
     reader.readAsDataURL(file);
 }
 
-// ── Remove logo selection ──
 function removeLogo(inputId, previewBoxId) {
     const input = document.getElementById(inputId);
     const box   = document.getElementById(previewBoxId);
@@ -313,14 +463,12 @@ function removeLogo(inputId, previewBoxId) {
     if (box)   box.classList.remove('visible');
 }
 
-// ── Format file size ──
 function formatFileSize(bytes) {
     if (bytes < 1024)        return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
-// ── Legacy previewLogo() kept for backward compatibility ──
 function previewLogo(input, previewId) {
     const preview = document.getElementById(previewId);
     const file    = input.files[0];
@@ -328,5 +476,212 @@ function previewLogo(input, previewId) {
         const reader = new FileReader();
         reader.onload = function(e) { preview.src = e.target.result; preview.style.display = 'block'; };
         reader.readAsDataURL(file);
+    }
+}
+
+/* ============================================================
+   MODAL ERROR HELPERS
+   ============================================================ */
+
+function showModalError(modalId, message) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    let banner = modal.querySelector('.modal-error-banner');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.className = 'modal-error-banner';
+        const modalBody = modal.querySelector('.modal-body');
+        const target    = modalBody || modal.querySelector('.modal-content');
+        if (target) target.insertBefore(banner, target.firstChild);
+    }
+    banner.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>${message}</span>
+    `;
+    banner.style.display = 'flex';
+    banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function clearModalError(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    const banner = modal.querySelector('.modal-error-banner');
+    if (banner) banner.style.display = 'none';
+}
+
+/* ============================================================
+   FIX Issue 1 — Mark as Online from Maintenance Modal
+   ============================================================ */
+
+/**
+ * Called by openMaintenanceModal() in maintenance.js.
+ * Shows the "Mark as Online" banner if the system is currently
+ * in maintenance status (set by AJAX health/maintenance check).
+ */
+function updateMarkOnlineBanner(systemId) {
+    const banner = document.getElementById('markOnlineBanner');
+    if (!banner) return;
+
+    const card = document.querySelector('.system-card[data-system-id="' + systemId + '"]');
+    const liveStatus = card ? card.dataset.status : 'online';
+
+    if (liveStatus === 'maintenance') {
+        banner.style.display = 'block';
+    } else {
+        banner.style.display = 'none';
+    }
+}
+
+/**
+ * Sends an AJAX request to set the system status back to 'online'.
+ * Called when admin clicks "Mark as Online" in the maintenance modal.
+ */
+function markSystemOnline() {
+    const systemId = document.getElementById('maintenanceSystemId').value;
+    if (!systemId) return;
+
+    const btn = document.querySelector('.btn-mark-online');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner" style="width:13px;height:13px;border-width:2px;display:inline-block;margin-right:6px;vertical-align:middle;"></span> Setting Online...';
+    }
+
+    // STEP 1: Find the active maintenance schedule ID for this system
+    // We fetch it first so we can mark it as Done via save_maintenance.php
+    // save_maintenance.php with status=Done + change_to_online=yes handles:
+    //   - Sets maintenance_schedules.status = 'Done'
+    //   - Sets maintenance_schedules.deleted_from_calendar = 1 (stops maintenance check)
+    //   - Sets systems.status = 'online'
+    // This prevents the 10s maintenance check from switching it back.
+
+    fetch('../backend/maintenance/get_maintenance.php?action=system&system_id=' + systemId)
+        .then(r => r.json())
+        .then(data => {
+            const btnIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+            // Find the active schedule (Scheduled or In Progress)
+            const activeSchedule = (data.data || []).find(s =>
+                s.status === 'In Progress' || s.status === 'Scheduled'
+            );
+
+            if (!activeSchedule) {
+                // No active schedule found — just update system status directly
+                _markSystemOnlineDirect(systemId, btn, btnIcon);
+                return;
+            }
+
+            // STEP 2: Mark schedule as Done + change_to_online=yes
+            const formData = new FormData();
+            formData.append('action',           'update');
+            formData.append('id',               activeSchedule.id);
+            formData.append('system_id',        systemId);
+            formData.append('title',            activeSchedule.title);
+            formData.append('description',      activeSchedule.description || '');
+            formData.append('start_datetime',   activeSchedule.start_datetime);
+            formData.append('end_datetime',     activeSchedule.end_datetime);
+            formData.append('status',           'Done');
+            formData.append('change_to_online', 'yes');
+
+            fetch('../backend/maintenance/save_maintenance.php', { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        _onMarkOnlineSuccess(systemId);
+                    } else {
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = btnIcon + ' Mark as Online';
+                        }
+                        if (typeof showToast === 'function') {
+                            showToast(result.message || 'Failed to update schedule.', 'error');
+                        }
+                    }
+                })
+                .catch(() => {
+                    if (btn) { btn.disabled = false; btn.innerHTML = btnIcon + ' Mark as Online'; }
+                    if (typeof showToast === 'function') showToast('Network error. Please try again.', 'error');
+                });
+        })
+        .catch(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Mark as Online';
+            }
+            if (typeof showToast === 'function') showToast('Network error. Please try again.', 'error');
+        });
+}
+
+// Fallback: directly update system status if no active schedule found
+function _markSystemOnlineDirect(systemId, btn, btnIcon) {
+    const card   = document.querySelector('.system-card[data-system-id="' + systemId + '"]');
+    const name   = card ? card.querySelector('.card-title')?.textContent.trim()  : '';
+    const domain = card ? card.querySelector('.card-domain')?.textContent.trim() : '';
+
+    const formData = new FormData();
+    formData.append('id',          systemId);
+    formData.append('name',        name);
+    formData.append('domain',      domain);
+    formData.append('status',      'online');
+    formData.append('change_note', 'Manually set to Online after maintenance.');
+
+    fetch('../backend/edit_system.php', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                _onMarkOnlineSuccess(systemId);
+            } else {
+                if (btn) { btn.disabled = false; btn.innerHTML = btnIcon + ' Mark as Online'; }
+                if (typeof showToast === 'function') showToast(data.message || 'Failed to update status.', 'error');
+            }
+        })
+        .catch(() => {
+            if (btn) { btn.disabled = false; btn.innerHTML = btnIcon + ' Mark as Online'; }
+            if (typeof showToast === 'function') showToast('Network error. Please try again.', 'error');
+        });
+}
+
+// Shared success handler: update card UI + close modal + reload calendar
+function _onMarkOnlineSuccess(systemId) {
+    // Update card in-place
+    const card = document.querySelector('.system-card[data-system-id="' + systemId + '"]');
+    if (card) {
+        card.dataset.status = 'online';
+        const badge = card.querySelector('.card-status-badge');
+        if (badge) {
+            badge.outerHTML = '<div class="card-status-badge status-online"><span class="status-indicator"></span>Online</div>';
+        }
+        const contactMsg = card.querySelector('.system-contact-message');
+        if (contactMsg) contactMsg.remove();
+    }
+
+    // Hide the banner
+    const banner = document.getElementById('markOnlineBanner');
+    if (banner) banner.style.display = 'none';
+
+    // Show success toast
+    if (typeof showToast === 'function') {
+        showToast('System is now Online!', 'success');
+    }
+
+    // Refresh calendar so the completed schedule is removed
+    if (typeof loadCalendarSchedules === 'function') {
+        loadCalendarSchedules();
+    }
+
+    // Reload side panel if it is currently open
+    if (typeof MaintenanceApp !== 'undefined' && MaintenanceApp.sidePanelDate) {
+        if (typeof loadSidePanelSchedules === 'function') {
+            loadSidePanelSchedules(MaintenanceApp.sidePanelDate);
+        }
+    }
+
+    // Close maintenance modal
+    if (typeof closeMaintenanceModal === 'function') {
+        closeMaintenanceModal();
     }
 }

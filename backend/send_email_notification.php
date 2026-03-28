@@ -1,81 +1,93 @@
 <?php
 /**
- * EMAIL NOTIFICATION FUNCTION
- * Hybrid version - works with or without PHPMailer
- * 
- * - If PHPMailer is available: Sends real emails via SMTP
- * - If PHPMailer is NOT available: Logs to file (emails.log)
- * 
- * Philippine timezone
- * 
- * DEPLOYMENT CHECKLIST:
- * 1. Pull from GitHub
- * 2. Run: composer require phpmailer/phpmailer
- * 3. Configure SMTP in config/email_config.php
- * 4. Done! Automatically switches to real emails!
+ * G-Portal — Email Notification
+ * Sends alerts to all Super Admins when a system goes Down or Offline.
+ * Uses PHPMailer with Office 365 SMTP.
  */
 
 require_once __DIR__ . '/../config/email_config.php';
 require_once __DIR__ . '/../config/database.php';
 
-// Load PHPMailer if available
 if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     require_once __DIR__ . '/../vendor/autoload.php';
 }
 
-/**
- * Send email notification for critical status changes
- */
+// ── Log rotation settings ──────────────────────────────────
+define('EMAIL_LOG_FILE',       __DIR__ . '/logs/emails.log');
+define('EMAIL_LOG_MAX_LINES',  500);
+define('EMAIL_LOG_KEEP_LINES', 400);
+
+// ============================================================
+// MAIN ENTRY POINT
+// Called by trigger_health_check.php when status changes to
+// 'down' or 'offline'.
+// ============================================================
 function sendStatusChangeEmail($systemId, $systemName, $oldStatus, $newStatus, $domain, $changedBy, $note = '') {
-    // Only trigger for these statuses
+
+   // ── Master toggle check ──────────────────────────────────
+if (!defined('EMAIL_NOTIFICATIONS_ENABLED') || !EMAIL_NOTIFICATIONS_ENABLED) {
+    // Still log to file using real recipients so you can verify who would receive it
+    $recipients = getSuperAdminEmails();
+    $text       = buildTextEmail($systemName, $oldStatus, $newStatus, $domain, $changedBy, $note);
+    if (!empty($recipients)) {
+        foreach ($recipients as $recipient) {
+            logEmailToFile($recipient['email'], $recipient['name'], 
+                '[G-Portal — DISABLED] System ' . $newStatus . ': ' . $systemName,
+                '', $text);
+        }
+    } else {
+        logEmailToFile('no-superadmin-email', 'No Super Admin email set',
+            '[G-Portal — DISABLED] System ' . $newStatus . ': ' . $systemName,
+            '', $text);
+    }
+    return false;
+}
+
+    // ── Only send for Down / Offline ─────────────────────────
     $triggerStatuses = defined('EMAIL_TRIGGER_STATUSES') ? EMAIL_TRIGGER_STATUSES : ['down', 'offline'];
-    if (!in_array($newStatus, $triggerStatuses)) {
-        return false;
-    }
+    if (!in_array($newStatus, $triggerStatuses)) return false;
 
-    // Get admin email recipients from DB
-    $recipients = getAdminEmails();
+    // ── Fetch Super Admin recipients from DB ─────────────────
+    $recipients = getSuperAdminEmails();
     if (empty($recipients)) {
-        error_log("G-Portal: No admin emails configured — cannot send notification");
+        error_log("G-Portal Email: No Super Admin emails found in users table");
         return false;
     }
 
-    // Build subject and body
     $prefix  = defined('EMAIL_SUBJECT_PREFIX') ? EMAIL_SUBJECT_PREFIX : '[G-Portal Alert]';
     $subject = "$prefix System $newStatus: $systemName";
-    $htmlBody = buildEmailTemplate($systemName, $oldStatus, $newStatus, $domain, $changedBy, $note);
-    $textBody = buildTextEmail($systemName, $oldStatus, $newStatus, $domain, $changedBy, $note);
+    $html    = buildEmailTemplate($systemName, $oldStatus, $newStatus, $domain, $changedBy, $note);
+    $text    = buildTextEmail($systemName, $oldStatus, $newStatus, $domain, $changedBy, $note);
 
-    // Send to each recipient
     $success = true;
     foreach ($recipients as $recipient) {
-        $sent = sendEmail($recipient['email'], $recipient['name'], $subject, $htmlBody, $textBody);
+        $sent = sendEmail($recipient['email'], $recipient['name'], $subject, $html, $text);
         if (!$sent) {
             $success = false;
-            error_log("G-Portal: Failed to send email to {$recipient['email']}");
+            error_log("G-Portal Email: Failed to send to {$recipient['email']}");
         }
     }
-
     return $success;
 }
 
-/**
- * Get admin email addresses from database
- */
-function getAdminEmails() {
+// ============================================================
+// FETCH RECIPIENTS
+// Always fetches Super Admins only, regardless of
+// EMAIL_RECIPIENTS setting — as required.
+// ============================================================
+function getSuperAdminEmails() {
     $conn = getDBConnection();
 
-    $recipientType = defined('EMAIL_RECIPIENTS') ? EMAIL_RECIPIENTS : 'all_admins';
-
-    if ($recipientType === 'super_admin_only') {
-        $sql = "SELECT email, username FROM users WHERE role = 'Super Admin' AND email IS NOT NULL AND email != ''";
-    } else {
-        $sql = "SELECT email, username FROM users WHERE role IN ('Super Admin', 'Admin') AND email IS NOT NULL AND email != ''";
-    }
+    // FIX: Always query Super Admin role only
+    $sql = "SELECT email, username
+            FROM users
+            WHERE role = 'Super Admin'
+              AND email IS NOT NULL
+              AND email != ''
+            ORDER BY id ASC";
 
     $result     = $conn->query($sql);
     $recipients = [];
-
     if ($result) {
         while ($row = $result->fetch_assoc()) {
             $recipients[] = [
@@ -84,99 +96,114 @@ function getAdminEmails() {
             ];
         }
     }
-
+    $conn->close();
     return $recipients;
 }
 
-/**
- * Send email — auto-selects PHPMailer or file logging
- */
+// Keep old function name for compatibility
+function getAdminEmails() {
+    return getSuperAdminEmails();
+}
+
+// ============================================================
+// SEND ROUTER
+// Uses PHPMailer if available, otherwise falls back to log
+// ============================================================
 function sendEmail($to, $toName, $subject, $htmlBody, $textBody) {
     if (class_exists('PHPMailer\PHPMailer\PHPMailer')) {
         return sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody);
-    } else {
-        return logEmailToFile($to, $toName, $subject, $htmlBody, $textBody);
     }
+    // PHPMailer not installed — log only
+    error_log("G-Portal Email: PHPMailer not found — logging only");
+    return logEmailToFile($to, $toName, $subject, $htmlBody, $textBody);
 }
 
-/**
- * Send email via PHPMailer (production)
- */
+// ============================================================
+// PHPMAILER — OFFICE 365 SMTP
+// FIX: Uses EMAIL_FROM_ADDRESS and EMAIL_FROM_NAME constants
+//      (previously was using SMTP_FROM_EMAIL which was undefined)
+// ============================================================
 function sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody) {
     try {
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
 
-        // Debug output (log to PHP error log)
+        // ── Debug output ──────────────────────────────────────
         $debugLevel = defined('SMTP_DEBUG') ? SMTP_DEBUG : 0;
         if ($debugLevel > 0) {
-            $mail->SMTPDebug  = $debugLevel;
+            $mail->SMTPDebug   = $debugLevel;
             $mail->Debugoutput = function($str, $level) {
                 error_log("PHPMailer [$level]: $str");
             };
         }
 
-        // SMTP configuration
+        // ── SMTP server settings ──────────────────────────────
         $mail->isSMTP();
-        $mail->Host = defined('SMTP_HOST') ? SMTP_HOST : 'localhost';
-        $mail->Port = defined('SMTP_PORT') ? SMTP_PORT : 587;
+        $mail->Host       = defined('SMTP_HOST') ? SMTP_HOST : 'smtp.office365.com';
+        $mail->Port       = defined('SMTP_PORT') ? SMTP_PORT : 587;
+        $mail->SMTPAuth   = true;
+        $mail->Username   = defined('SMTP_USERNAME') ? SMTP_USERNAME : '';
+        $mail->Password   = defined('SMTP_PASSWORD') ? SMTP_PASSWORD : '';
+        $mail->SMTPSecure = defined('SMTP_ENCRYPTION') ? SMTP_ENCRYPTION : 'tls';
 
-        // Authentication
-        $smtpUser = defined('SMTP_USERNAME') ? SMTP_USERNAME : '';
-        $smtpPass = defined('SMTP_PASSWORD') ? SMTP_PASSWORD : '';
-        if (!empty($smtpUser) && !empty($smtpPass)) {
-            $mail->SMTPAuth = true;
-            $mail->Username = $smtpUser;
-            $mail->Password = $smtpPass;
+        // ── SSL options ───────────────────────────────────────
+        $verifySSL = defined('SMTP_VERIFY_SSL') ? SMTP_VERIFY_SSL : true;
+        if (!$verifySSL) {
+            $mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer'       => false,
+                    'verify_peer_name'  => false,
+                    'allow_self_signed' => true,
+                ]
+            ];
         }
 
-        // Encryption (tls / ssl / empty)
-        $encryption = defined('SMTP_ENCRYPTION') ? SMTP_ENCRYPTION : '';
-        if (!empty($encryption)) {
-            $mail->SMTPSecure = $encryption;
+        // ── Timeout ───────────────────────────────────────────
+        $mail->Timeout = defined('SMTP_TIMEOUT') ? SMTP_TIMEOUT : 30;
+
+        // ── Keep alive for multiple recipients ────────────────
+        if (defined('SMTP_KEEPALIVE') && SMTP_KEEPALIVE) {
+            $mail->SMTPKeepAlive = true;
         }
 
-        // From
-        $fromEmail = defined('EMAIL_FROM_ADDRESS') ? EMAIL_FROM_ADDRESS : 'noreply@gportal.local';
-        $fromName  = defined('EMAIL_FROM_NAME')    ? EMAIL_FROM_NAME    : 'G-Portal System Monitor';
+        // ── FIX: Use EMAIL_FROM_ADDRESS / EMAIL_FROM_NAME ─────
+        // Previously the code was looking for EMAIL_FROM_ADDRESS
+        // but email_config.php defined SMTP_FROM_EMAIL — now both
+        // constants are named consistently.
+        $fromEmail = defined('EMAIL_FROM_ADDRESS') ? EMAIL_FROM_ADDRESS : (defined('SMTP_USERNAME') ? SMTP_USERNAME : '');
+        $fromName  = defined('EMAIL_FROM_NAME')    ? EMAIL_FROM_NAME    : 'G-Portal System Alerts';
+
         $mail->setFrom($fromEmail, $fromName);
-
-        // Recipient
         $mail->addAddress($to, $toName);
-
-        // Charset
         $mail->CharSet = defined('EMAIL_CHARSET') ? EMAIL_CHARSET : 'UTF-8';
 
-        // Content
+        // ── Email content ─────────────────────────────────────
         $mail->isHTML(true);
         $mail->Subject = $subject;
         $mail->Body    = $htmlBody;
         $mail->AltBody = $textBody;
 
         $mail->send();
-        error_log("G-Portal: Email sent to $to via PHPMailer");
 
-        // Also log to file as backup record
+        error_log("G-Portal Email: Sent to $to via PHPMailer (Office 365)");
         logEmailToFile($to, $toName, $subject, $htmlBody, $textBody);
-
         return true;
 
     } catch (PHPMailer\PHPMailer\Exception $e) {
-        error_log("G-Portal: PHPMailer failed — {$mail->ErrorInfo}");
-        // Fallback to file log
-        return logEmailToFile($to, $toName, $subject, $htmlBody, $textBody);
+        error_log("G-Portal Email: PHPMailer FAILED — " . $e->getMessage());
+        logEmailToFile($to, $toName, $subject, $htmlBody, $textBody);
+        return false;
     }
 }
 
-/**
- * Log email to file (development / fallback)
- */
+// ============================================================
+// FILE LOGGER — fallback when emails can't be sent
+// Also called after successful send for audit trail
+// ============================================================
 function logEmailToFile($to, $toName, $subject, $htmlBody, $textBody) {
-    $logFile = __DIR__ . '/logs/emails.log';
+    $logFile = EMAIL_LOG_FILE;
     $logDir  = dirname($logFile);
 
-    if (!file_exists($logDir)) {
-        mkdir($logDir, 0777, true);
-    }
+    if (!file_exists($logDir)) mkdir($logDir, 0777, true);
 
     date_default_timezone_set('Asia/Manila');
 
@@ -188,19 +215,27 @@ function logEmailToFile($to, $toName, $subject, $htmlBody, $textBody) {
     $logEntry .= $textBody . "\n";
     $logEntry .= str_repeat('=', 80) . "\n";
 
-    $result = file_put_contents($logFile, $logEntry, FILE_APPEND);
-
-    if ($result === false) {
-        error_log("G-Portal: Could not write to email log: $logFile");
-        return false;
+    // ── Log rotation: trim to 400 lines when exceeding 500 ───
+    if (file_exists($logFile)) {
+        $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if (count($lines) > EMAIL_LOG_MAX_LINES) {
+            $trimmed = array_slice($lines, -EMAIL_LOG_KEEP_LINES);
+            file_put_contents($logFile, implode(PHP_EOL, $trimmed) . PHP_EOL);
+        }
     }
 
+    $result = file_put_contents($logFile, $logEntry, FILE_APPEND);
+    if ($result === false) {
+        error_log("G-Portal Email: Could not write to log: $logFile");
+        return false;
+    }
     return true;
 }
 
-/**
- * Build HTML email template
- */
+// ============================================================
+// EMAIL TEMPLATES
+// ============================================================
+
 function buildEmailTemplate($systemName, $oldStatus, $newStatus, $domain, $changedBy, $note) {
     $statusColors = [
         'down'        => '#ef4444',
@@ -208,7 +243,6 @@ function buildEmailTemplate($systemName, $oldStatus, $newStatus, $domain, $chang
         'maintenance' => '#f59e0b',
         'online'      => '#10b981'
     ];
-
     $newStatusColor = $statusColors[$newStatus] ?? '#6b7280';
     $oldStatusLabel = ucfirst($oldStatus);
     $newStatusLabel = ucfirst($newStatus);
@@ -216,17 +250,16 @@ function buildEmailTemplate($systemName, $oldStatus, $newStatus, $domain, $chang
     date_default_timezone_set('Asia/Manila');
     $timestamp = date('F j, Y \a\t g:i A');
 
-    // Strip emoji from note
-    $cleanNote = preg_replace('/[\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', '', $note);
-    $cleanNote = trim($cleanNote);
+    // Strip emojis from auto-detected notes
+    $cleanNote = trim(preg_replace('/[\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', '', $note));
 
     $noteRow = '';
     if (!empty($cleanNote)) {
         $noteRow = "
-                                <tr style=\"background-color: #f9fafb;\">
-                                    <td style=\"font-weight: bold; color: #6b7280; width: 40%; padding: 10px;\">Note:</td>
-                                    <td style=\"color: #1a1f36; padding: 10px;\">$cleanNote</td>
-                                </tr>";
+        <tr style=\"background-color: #f9fafb;\">
+            <td style=\"font-weight: bold; color: #6b7280; width: 40%; padding: 10px;\">Note:</td>
+            <td style=\"color: #1a1f36; padding: 10px;\">$cleanNote</td>
+        </tr>";
     }
 
     return <<<HTML
@@ -305,16 +338,9 @@ function buildEmailTemplate($systemName, $oldStatus, $newStatus, $domain, $chang
 HTML;
 }
 
-/**
- * Build plain text email
- */
 function buildTextEmail($systemName, $oldStatus, $newStatus, $domain, $changedBy, $note) {
     date_default_timezone_set('Asia/Manila');
-
-    // Strip emoji from note
-    $cleanNote = preg_replace('/[\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', '', $note);
-    $cleanNote = trim($cleanNote);
-
+    $cleanNote = trim(preg_replace('/[\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', '', $note));
     $text  = "G-PORTAL SYSTEM ALERT\n";
     $text .= str_repeat('=', 60) . "\n\n";
     $text .= "SYSTEM: $systemName\n";
@@ -324,16 +350,11 @@ function buildTextEmail($systemName, $oldStatus, $newStatus, $domain, $changedBy
     $text .= "Domain: $domain\n";
     $text .= "Changed By: $changedBy\n";
     $text .= "Time: " . date('F j, Y \a\t g:i A') . "\n";
-
-    if (!empty($cleanNote)) {
-        $text .= "Note: $cleanNote\n";
-    }
-
+    if (!empty($cleanNote)) $text .= "Note: $cleanNote\n";
     $text .= "\n" . str_repeat('-', 60) . "\n";
     $text .= "View system: https://$domain\n\n";
     $text .= "This is an automated notification from G-Portal.\n";
     $text .= "Please do not reply to this email.\n";
-
     return $text;
 }
 ?>

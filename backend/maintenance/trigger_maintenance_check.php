@@ -1,11 +1,19 @@
 <?php
 /**
- * G-Portal - Trigger Maintenance Check (Dashboard Load)
- * 
- * Lightweight endpoint called silently via AJAX when dashboard loads.
- * Runs the maintenance schedule check and returns results as JSON.
- * 
- * Access: Must be logged in
+ * G-Portal - Trigger Maintenance Check
+ *
+ * Called by AJAX every 10 seconds from BOTH:
+ *   - pages/dashboard.php (admin)
+ *   - pages/viewer.php    (public)
+ *
+ * FIXED: Removed isLoggedIn() requirement so maintenance switches
+ * happen even when no admin is logged in — as long as the viewer
+ * page is open in any browser.
+ *
+ * Public access is safe here because this endpoint only:
+ *   - READS maintenance_schedules
+ *   - UPDATES system status to 'maintenance' (scheduled action)
+ * No sensitive data is exposed in the response.
  */
 
 require_once '../../config/session.php';
@@ -14,13 +22,17 @@ require_once __DIR__ . '/check_maintenance_schedule.php';
 
 header('Content-Type: application/json');
 
-if (!isLoggedIn()) {
+// -------------------------------------------------------
+// Allow both logged-in admins AND public viewer
+// Maintenance must fire regardless of who has the page open
+// -------------------------------------------------------
+$isLoggedIn = function_exists('isLoggedIn') && isLoggedIn();
+$isViewer   = isset($_GET['source']) && $_GET['source'] === 'viewer';
+
+if (!$isLoggedIn && !$isViewer) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
 }
-
-// No throttle — JS polling (every 30s) handles frequency
-$now = time();
 
 try {
     $result = runMaintenanceScheduleCheck();
@@ -38,3 +50,4 @@ try {
         'message' => 'Check failed: ' . $e->getMessage()
     ]);
 }
+?>

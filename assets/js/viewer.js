@@ -1,229 +1,185 @@
 /* ================================
    VIEWER PAGE JAVASCRIPT
-   Enhanced with active filter tracking,
-   result counting, and 30s auto-refresh
+   Updated: Dynamic categories from DB + system name tooltip
    ================================ */
 
-let currentFilter     = 'all';
-let currentSearchTerm = '';
+let currentFilter         = 'all';
+let currentSearchTerm     = '';
+let currentCategoryFilter = 'all';
+
+const SLIDER_ICON_VIEWER = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="4" y1="6" x2="20" y2="6"></line>
+    <line x1="4" y1="12" x2="20" y2="12"></line>
+    <line x1="4" y1="18" x2="20" y2="18"></line>
+    <circle cx="9" cy="6" r="2.5" fill="currentColor" stroke="none"></circle>
+    <circle cx="15" cy="12" r="2.5" fill="currentColor" stroke="none"></circle>
+    <circle cx="9" cy="18" r="2.5" fill="currentColor" stroke="none"></circle>
+</svg>`;
 
 // ================================
-// AUTO-REFRESH EVERY 30 SECONDS
-// ================================
-let autoRefreshInterval = null;
-let refreshCountdown    = 30;
-let countdownInterval   = null;
-
-function startAutoRefresh() {
-    autoRefreshInterval = setInterval(function () {
-        location.reload();
-    }, 30000);
-
-    countdownInterval = setInterval(function () {
-        refreshCountdown--;
-        const indicator = document.getElementById('refreshCountdown');
-        if (indicator) indicator.textContent = refreshCountdown + 's';
-        if (refreshCountdown <= 0) refreshCountdown = 30;
-    }, 1000);
-}
-
-// ================================
-// MAINTENANCE THOUGHT-CLOUD POPOVER
+// MAINTENANCE POPOVER
 // ================================
 function fetchMaintenanceBadges() {
     fetch('../backend/maintenance/get_maintenance.php?action=counts')
-        .then(function (res) { return res.json(); })
-        .then(function (data) {
-            if (!data.success) return;
-            renderMaintenancePopover(data.in_progress, data.scheduled);
-        })
-        .catch(function () {
-            // Silently fail — popover just won't appear
-        });
+        .then(r => r.json())
+        .then(data => { if (data.success) renderMaintenancePopover(data.in_progress, data.scheduled); })
+        .catch(() => {});
 }
 
 function renderMaintenancePopover(inProgress, scheduled) {
     const popover = document.getElementById('maintPopover');
     const inner   = document.getElementById('maintPopoverInner');
-    const wrapper = document.getElementById('maintBtnWrapper');
-
-    if (!popover || !inner || !wrapper) return;
-
-    // Nothing active — hide popover
-    if (inProgress === 0 && scheduled === 0) {
-        popover.style.display = 'none';
-        return;
-    }
-
-    // Build popover rows
+    if (!popover || !inner) return;
+    if (inProgress === 0 && scheduled === 0) { popover.style.display = 'none'; return; }
     let html = '';
-
-    if (inProgress > 0) {
-        html += `
-            <div class="maint-popover-row maint-popover-row--ongoing">
-                <span class="maint-popover-dot maint-popover-dot--ongoing"></span>
-                <div class="maint-popover-text">
-                    <span class="maint-popover-count">${inProgress}</span>
-                    <span class="maint-popover-label">Ongoing Maintenance</span>
-                </div>
-            </div>`;
-    }
-
-    if (scheduled > 0) {
-        html += `
-            <div class="maint-popover-row maint-popover-row--scheduled">
-                <span class="maint-popover-dot maint-popover-dot--scheduled"></span>
-                <div class="maint-popover-text">
-                    <span class="maint-popover-count">${scheduled}</span>
-                    <span class="maint-popover-label">Scheduled Maintenance</span>
-                </div>
-            </div>`;
-    }
-
+    const jp = isJapanese;
+    if (inProgress > 0) html += `<div class="maint-popover-row maint-popover-row--ongoing"><span class="maint-popover-dot maint-popover-dot--ongoing"></span><div class="maint-popover-text"><span class="maint-popover-count">${inProgress}</span><span class="maint-popover-label">${jp ? 'メンテナンス中' : 'Ongoing Maintenance'}</span></div></div>`;
+    if (scheduled > 0) html += `<div class="maint-popover-row maint-popover-row--scheduled"><span class="maint-popover-dot maint-popover-dot--scheduled"></span><div class="maint-popover-text"><span class="maint-popover-count">${scheduled}</span><span class="maint-popover-label">${jp ? 'メンテナンス予定' : 'Scheduled Maintenance'}</span></div></div>`;
     inner.innerHTML = html;
-
-    // Always visible when data exists
     popover.style.display = 'block';
 }
 
 // ================================
-// FUNCTION: toggleFilterViewer
+// STATUS FILTER
 // ================================
 function toggleFilterViewer(event) {
     event.stopPropagation();
-    const dropdown = document.querySelector('.filter-dropdown-viewer');
+    const dropdown    = document.getElementById('statusDropdownViewer');
+    const catDropdown = document.getElementById('categoryDropdownViewer');
+    if (catDropdown) catDropdown.classList.remove('show');
     dropdown.classList.toggle('show');
-
     document.addEventListener('click', function closeDropdown(e) {
-        if (!dropdown.contains(e.target) && !event.target.closest('.btn-filter-viewer')) {
+        if (!dropdown.contains(e.target) && !event.target.closest('.filter-container-viewer')) {
             dropdown.classList.remove('show');
             document.removeEventListener('click', closeDropdown);
         }
     });
 }
 
-// ================================
-// FUNCTION: searchSystemsViewer
-// ================================
-function searchSystemsViewer() {
-    const searchBox = document.getElementById('viewerSearchBox');
-    const filter    = searchBox.value.toLowerCase();
-    currentSearchTerm = filter;
-    const cards = document.querySelectorAll('.system-card-viewer');
-
-    let visibleCount = 0;
-
-    cards.forEach(card => {
-        const name        = card.querySelector('.system-name-viewer').textContent.toLowerCase();
-        const domain      = card.querySelector('.system-domain-viewer').textContent.toLowerCase();
-        const description = card.querySelector('.system-description-viewer');
-        const descText    = description ? description.textContent.toLowerCase() : '';
-        const cardStatus  = card.getAttribute('data-status') || 'online';
-        const matchesSearch = name.includes(filter) || domain.includes(filter) || descText.includes(filter);
-
-        if (currentFilter === 'all' && cardStatus === 'archived') {
-            card.style.display = 'none';
-        } else if (currentFilter === 'archived') {
-            if (cardStatus === 'archived' && matchesSearch) {
-                card.style.display = 'flex';
-                card.style.opacity = '0.5';
-                card.style.pointerEvents = 'none';
-                card.style.cursor = 'not-allowed';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        } else {
-            const matchesFilter = currentFilter === 'all' || cardStatus === currentFilter;
-            if (matchesFilter && matchesSearch) {
-                card.style.display = 'flex';
-                card.style.opacity = '1';
-                card.style.pointerEvents = 'auto';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        }
-    });
-
-    updateFilterDisplay(visibleCount);
-    showEmptyState(visibleCount === 0, 'No systems match your search');
-}
-
-// ================================
-// FUNCTION: filterSystemsViewer
-// ================================
 function filterSystemsViewer(status) {
     currentFilter = status;
-    const cards       = document.querySelectorAll('.system-card-viewer');
-    const filterItems = document.querySelectorAll('.filter-item');
 
-    filterItems.forEach(item => {
-        item.classList.remove('active');
-        if (item.getAttribute('data-filter') === status) item.classList.add('active');
+    document.querySelectorAll('.filter-item[data-filter]').forEach(item => {
+        item.classList.toggle('active', item.dataset.filter === status);
     });
 
-    let visibleCount = 0;
+    const statusBtn = document.getElementById('statusFilterBtn');
+    if (statusBtn) {
+        const labelMap = { 'all': 'Status Filter', 'online': 'Online', 'offline': 'Offline', 'maintenance': 'Maintenance', 'down': 'Down', 'archived': 'Archived' };
+        statusBtn.innerHTML = SLIDER_ICON_VIEWER + (labelMap[status] || 'Status Filter');
+        statusBtn.classList.toggle('btn-filter-viewer-active', status !== 'all');
+    }
 
-    cards.forEach(card => {
-        const cardStatus    = card.getAttribute('data-status') || 'online';
-        const name          = card.querySelector('.system-name-viewer').textContent.toLowerCase();
-        const domain        = card.querySelector('.system-domain-viewer').textContent.toLowerCase();
-        const description   = card.querySelector('.system-description-viewer');
-        const descText      = description ? description.textContent.toLowerCase() : '';
-        const matchesSearch = !currentSearchTerm ||
-            name.includes(currentSearchTerm) ||
-            domain.includes(currentSearchTerm) ||
-            descText.includes(currentSearchTerm);
-
-        if (status === 'all') {
-            if (cardStatus === 'archived') {
-                card.style.display = 'none';
-            } else if (matchesSearch) {
-                card.style.display = 'flex';
-                card.style.opacity = '1';
-                card.style.pointerEvents = 'auto';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        } else if (status === 'archived') {
-            if (cardStatus === 'archived' && matchesSearch) {
-                card.style.display = 'flex';
-                card.style.opacity = '0.5';
-                card.style.pointerEvents = 'none';
-                card.style.cursor = 'not-allowed';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        } else {
-            if (cardStatus === status && matchesSearch) {
-                card.style.display = 'flex';
-                card.style.opacity = '1';
-                card.style.pointerEvents = 'auto';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        }
-    });
-
-    const dropdown = document.querySelector('.filter-dropdown-viewer');
+    const dropdown = document.getElementById('statusDropdownViewer');
     if (dropdown) dropdown.classList.remove('show');
 
-    updateFilterDisplay(visibleCount);
-
-    const statusLabels = {
-        'all': 'active systems', 'online': 'online systems',
-        'offline': 'offline systems', 'maintenance': 'systems under maintenance',
-        'down': 'down systems', 'archived': 'archived systems'
-    };
-    showEmptyState(visibleCount === 0, `No ${statusLabels[status] || 'systems'} found`);
+    applyAllFilters();
 }
 
 // ================================
-// FUNCTION: updateFilterDisplay
+// CATEGORY FILTER
+// FIX: Label map now built dynamically from DB_CATEGORIES
+// injected by PHP — so any new/renamed category works
+// automatically without touching this JS file.
+// ================================
+function toggleCategoryFilterViewer(event) {
+    event.stopPropagation();
+    const dropdown       = document.getElementById('categoryDropdownViewer');
+    const statusDropdown = document.getElementById('statusDropdownViewer');
+    if (statusDropdown) statusDropdown.classList.remove('show');
+    dropdown.classList.toggle('show');
+    document.addEventListener('click', function closeCatDropdown(e) {
+        if (!dropdown.contains(e.target) && !event.target.closest('.filter-container-viewer')) {
+            dropdown.classList.remove('show');
+            document.removeEventListener('click', closeCatDropdown);
+        }
+    });
+}
+
+function filterCategoryViewer(category) {
+    currentCategoryFilter = category;
+
+    document.querySelectorAll('[data-cat]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.cat === category);
+    });
+
+    const catBtn = document.getElementById('categoryFilterBtn');
+    if (catBtn) {
+        // FIX: Build label map dynamically from DB_CATEGORIES (injected by PHP)
+        // This means any new category added by Super Admin automatically
+        // appears correctly in the button label without code changes.
+        const labelMap = { 'all': 'Category' };
+        if (typeof DB_CATEGORIES !== 'undefined') {
+            DB_CATEGORIES.forEach(name => { labelMap[name] = name; });
+        }
+        catBtn.innerHTML = SLIDER_ICON_VIEWER + (labelMap[category] || category || 'Category');
+        catBtn.classList.toggle('btn-filter-viewer-active', category !== 'all');
+    }
+
+    const dropdown = document.getElementById('categoryDropdownViewer');
+    if (dropdown) dropdown.classList.remove('show');
+
+    applyAllFilters();
+}
+
+// ================================
+// SEARCH
+// ================================
+function searchSystemsViewer() {
+    currentSearchTerm = document.getElementById('viewerSearchBox').value.toLowerCase();
+    applyAllFilters();
+}
+
+// ================================
+// APPLY ALL FILTERS (combined)
+// ================================
+function applyAllFilters() {
+    const cards = document.querySelectorAll('.system-card-viewer');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+        const cardStatus   = card.getAttribute('data-status') || 'online';
+        const cardCategory = card.getAttribute('data-category') || '';
+        const name         = card.querySelector('.system-name-viewer')?.textContent.toLowerCase() || '';
+        const domain       = card.querySelector('.system-domain-viewer')?.textContent.toLowerCase() || '';
+        const descEl       = card.querySelector('.system-description-viewer');
+        const descText     = descEl ? descEl.textContent.toLowerCase() : '';
+
+        const matchesSearch   = !currentSearchTerm || name.includes(currentSearchTerm) || domain.includes(currentSearchTerm) || descText.includes(currentSearchTerm);
+        const matchesStatus   = currentFilter === 'all' || cardStatus === currentFilter;
+        const matchesCategory = currentCategoryFilter === 'all' || cardCategory === currentCategoryFilter;
+
+        // Always hide archived unless explicitly filtering for it
+        if (cardStatus === 'archived' && currentFilter !== 'archived') {
+            card.style.display = 'none';
+        } else if (matchesStatus && matchesCategory && matchesSearch) {
+            card.style.display = 'flex';
+            card.style.opacity = cardStatus === 'archived' ? '0.5' : '1';
+            card.style.pointerEvents = cardStatus === 'archived' ? 'none' : 'auto';
+            card.style.cursor = cardStatus === 'archived' ? 'not-allowed' : 'pointer';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Hide category group headers if all their cards are hidden
+    document.querySelectorAll('.viewer-category-group').forEach(group => {
+        if (currentCategoryFilter !== 'all' && group.dataset.category !== currentCategoryFilter) {
+            group.style.display = 'none';
+            return;
+        }
+        const hasVisible = Array.from(group.querySelectorAll('.system-card-viewer'))
+            .some(c => c.style.display !== 'none');
+        group.style.display = hasVisible ? '' : 'none';
+    });
+
+    updateFilterDisplay(visibleCount);
+    showEmptyState(visibleCount === 0, 'No systems match your filters');
+}
+
+// ================================
+// UPDATE FILTER DISPLAY
 // ================================
 function updateFilterDisplay(visibleCount) {
     const activeFiltersContainer = document.getElementById('activeFilters');
@@ -231,20 +187,19 @@ function updateFilterDisplay(visibleCount) {
     const clearFiltersBtn        = document.getElementById('clearFiltersBtn');
     const systemCount            = document.getElementById('systemCount');
 
-    const hasActiveFilters = currentFilter !== 'all' || currentSearchTerm !== '';
+    const hasActiveFilters = currentFilter !== 'all' || currentSearchTerm !== '' || currentCategoryFilter !== 'all';
 
     if (hasActiveFilters) {
         activeFiltersContainer.style.display = 'block';
-
         let filterText = `Showing ${visibleCount} of ${TOTAL_SYSTEMS}`;
         if (currentFilter !== 'all') {
             const labels = { online: 'online', offline: 'offline', maintenance: 'maintenance', down: 'down', archived: 'archived' };
             filterText += ` ${labels[currentFilter]}`;
         }
-        filterText += currentSearchTerm ? ' matching your search' : ' systems';
-
+        if (currentCategoryFilter !== 'all') filterText += ` · ${currentCategoryFilter}`;
+        filterText += currentSearchTerm ? ' matching search' : ' systems';
         filterResultsText.textContent = filterText;
-        clearFiltersBtn.style.display = 'block';
+        clearFiltersBtn.style.display = 'flex';
         systemCount.textContent = `(${visibleCount} of ${TOTAL_SYSTEMS})`;
     } else {
         activeFiltersContainer.style.display = 'none';
@@ -254,33 +209,36 @@ function updateFilterDisplay(visibleCount) {
 }
 
 // ================================
-// FUNCTION: clearAllFilters
+// CLEAR ALL FILTERS
 // ================================
 function clearAllFilters() {
-    const searchBox = document.getElementById('viewerSearchBox');
-    searchBox.value   = '';
-    currentSearchTerm = '';
-    currentFilter     = 'all';
+    document.getElementById('viewerSearchBox').value = '';
+    currentSearchTerm     = '';
+    currentFilter         = 'all';
+    currentCategoryFilter = 'all';
 
-    const filterItems = document.querySelectorAll('.filter-item');
-    filterItems.forEach(item => {
-        item.classList.remove('active');
-        if (item.getAttribute('data-filter') === 'all') item.classList.add('active');
-    });
+    // Reset status filter button
+    const statusBtn = document.getElementById('statusFilterBtn');
+    if (statusBtn) { statusBtn.innerHTML = SLIDER_ICON_VIEWER + 'Status Filter'; statusBtn.classList.remove('btn-filter-viewer-active'); }
 
+    // Reset category filter button
+    const catBtn = document.getElementById('categoryFilterBtn');
+    if (catBtn) { catBtn.innerHTML = SLIDER_ICON_VIEWER + 'Category'; catBtn.classList.remove('btn-filter-viewer-active'); }
+
+    // Reset all filter active states (handles dynamic categories too)
+    document.querySelectorAll('.filter-item[data-filter]').forEach(item => item.classList.toggle('active', item.dataset.filter === 'all'));
+    document.querySelectorAll('#categoryDropdownViewer .filter-item').forEach(item => item.classList.toggle('active', item.dataset.cat === 'all'));
+
+    // Show all category groups
+    document.querySelectorAll('.viewer-category-group').forEach(g => g.style.display = '');
+
+    // Show all non-archived cards
     const cards = document.querySelectorAll('.system-card-viewer');
     let activeCount = 0;
     cards.forEach(card => {
         const cardStatus = card.getAttribute('data-status') || 'online';
-        if (cardStatus === 'archived') {
-            card.style.display = 'none';
-        } else {
-            card.style.display = 'flex';
-            card.style.opacity = '1';
-            card.style.pointerEvents = 'auto';
-            card.style.cursor = 'pointer';
-            activeCount++;
-        }
+        if (cardStatus === 'archived') { card.style.display = 'none'; }
+        else { card.style.display = 'flex'; card.style.opacity = '1'; card.style.pointerEvents = 'auto'; card.style.cursor = 'pointer'; activeCount++; }
     });
 
     updateFilterDisplay(activeCount);
@@ -288,98 +246,367 @@ function clearAllFilters() {
 }
 
 // ================================
-// FUNCTION: showEmptyState
+// EMPTY STATE
 // ================================
 function showEmptyState(show, message = 'No systems found') {
-    const grid = document.querySelector('.systems-grid-viewer');
-    let emptyState = grid.querySelector('.filter-empty-state');
-
+    const container = document.getElementById('viewerSystemsContainer');
+    let emptyState  = container.querySelector('.filter-empty-state');
     if (show) {
         if (!emptyState) {
             emptyState = document.createElement('div');
             emptyState.className = 'empty-state-viewer filter-empty-state';
-            emptyState.style.gridColumn = '1 / -1';
-            emptyState.innerHTML = `
-                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                </svg>
-                <h3>No Systems Found</h3>
-                <p>${message}</p>
-            `;
-            grid.appendChild(emptyState);
-        } else {
-            emptyState.querySelector('p').textContent = message;
-        }
-    } else {
-        if (emptyState) emptyState.remove();
-    }
+            emptyState.innerHTML = `<svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg><h3>No Systems Found</h3><p>${message}</p>`;
+            container.appendChild(emptyState);
+        } else { emptyState.querySelector('p').textContent = message; }
+    } else { if (emptyState) emptyState.remove(); }
 }
 
 // ================================
-// FUNCTION: openDomainViewer
+// OPEN DOMAIN
 // ================================
 function openDomainViewer(domain) {
-    let url = domain;
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        url = 'https://' + url;
+    const cards = document.querySelectorAll('.system-card-viewer');
+    let cardStatus = 'online';
+    cards.forEach(card => {
+        const domainEl = card.querySelector('.system-domain-viewer');
+        if (domainEl && domainEl.textContent.trim() === domain) cardStatus = card.getAttribute('data-status') || 'online';
+    });
+    if (['maintenance', 'down', 'offline'].includes(cardStatus)) {
+        window.location.href = '../pages/error_page.php?type=' + encodeURIComponent(cardStatus) + '&domain=' + encodeURIComponent(domain);
+        return;
     }
-    window.open(url, '_blank');
+    window.open((!domain.startsWith('http') ? 'https://' : '') + domain, '_blank');
 }
 
 // ================================
 // KEYBOARD NAVIGATION
 // ================================
-document.addEventListener('keydown', function (e) {
+document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        const loginButton = document.querySelector('.login-button-slide');
-        const toggleBtn   = document.querySelector('.user-menu-toggle');
-        const filterMenu  = document.querySelector('.filter-dropdown-viewer');
-
-        if (loginButton && loginButton.classList.contains('show')) {
-            loginButton.classList.remove('show');
-            if (toggleBtn) toggleBtn.classList.remove('active');
-        }
-        if (filterMenu && filterMenu.classList.contains('show')) {
-            filterMenu.classList.remove('show');
-        }
-    }
-
-    if (e.key === 'Enter') {
-        const focusedCard = document.activeElement;
-        if (focusedCard && focusedCard.classList.contains('system-card-viewer')) {
-            const domainLink = focusedCard.querySelector('.system-domain-viewer');
-            if (domainLink) domainLink.click();
-        }
+        document.getElementById('statusDropdownViewer')?.classList.remove('show');
+        document.getElementById('categoryDropdownViewer')?.classList.remove('show');
+        const loginBtn = document.querySelector('.login-button-slide');
+        if (loginBtn?.classList.contains('show')) loginBtn.classList.remove('show');
     }
 });
 
 // ================================
-// INITIALIZE ON PAGE LOAD
+// INITIALIZE
 // ================================
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
     // Hide archived by default
-    const cards = document.querySelectorAll('.system-card-viewer');
     let activeCount = 0;
-    cards.forEach(card => {
-        const cardStatus = card.getAttribute('data-status') || 'online';
-        if (cardStatus === 'archived') {
-            card.style.display = 'none';
-        } else {
-            activeCount++;
+    document.querySelectorAll('.system-card-viewer').forEach(card => {
+        if ((card.getAttribute('data-status') || '') === 'archived') card.style.display = 'none';
+        else activeCount++;
+    });
+    updateFilterDisplay(activeCount);
+    fetchMaintenanceBadges();
+    initJapaneseToggle();
+});
+
+// ============================================================
+// JAPANESE TRANSLATION TOGGLE
+// ============================================================
+
+const JP_TRANSLATIONS = {
+    status: {
+        'Online':      'オンライン',
+        'Offline':     'オフライン',
+        'Maintenance': 'メンテナンス',
+        'Down':        'ダウン',
+        'Archived':    'アーカイブ済み',
+    },
+    category: {
+        'Direct Systems':   'ダイレクトシステム',
+        'Indirect Systems': 'インダイレクトシステム',
+        'Support Systems':  'サポートシステム',
+    },
+    contact: '支援のために {number} にお問い合わせください',
+    pageTitle:      'システムディレクトリ',
+    pageSubtitle:   '利用可能なすべてのシステムを参照',
+    maintenance:    'メンテナンススケジュール',
+    statusFilter:   'ステータスフィルター',
+    categoryFilter: 'カテゴリー',
+    statusLogs:     'ステータスログ',
+};
+
+let isJapanese = false;
+
+function initJapaneseToggle() {
+    isJapanese = localStorage.getItem('gportal_jp_mode') === 'true';
+    updateToggleUI();
+    if (isJapanese) applyJapaneseTranslation();
+}
+
+function setLanguage(lang) {
+    isJapanese = (lang === 'jp');
+    localStorage.setItem('gportal_jp_mode', isJapanese ? 'true' : 'false');
+    updateToggleUI();
+    if (isJapanese) applyJapaneseTranslation();
+    else revertToEnglish();
+    applyAllFilters();
+}
+
+function toggleJapanese() {
+    setLanguage(isJapanese ? 'en' : 'jp');
+}
+
+function updateToggleUI() {
+    const engBtn = document.getElementById('jpLangEng');
+    const jpBtn  = document.getElementById('jpLangJp');
+    if (!engBtn || !jpBtn) return;
+    engBtn.classList.toggle('active', !isJapanese);
+    jpBtn.classList.toggle('active', isJapanese);
+}
+
+function translateAllDescriptions() {
+    document.querySelectorAll('.system-card-viewer').forEach(card => {
+        const desc = card.querySelector('.system-description-viewer');
+        if (!desc) return;
+        if (!desc.getAttribute('data-en-desc')) {
+            desc.setAttribute('data-en-desc', desc.textContent.trim());
+        }
+        const jpDesc = card.getAttribute('data-japanese-description') || '';
+        if (jpDesc) desc.textContent = jpDesc;
+    });
+}
+
+function revertAllDescriptions() {
+    document.querySelectorAll('.system-card-viewer').forEach(card => {
+        const desc = card.querySelector('.system-description-viewer');
+        if (!desc) return;
+        const en = desc.getAttribute('data-en-desc');
+        if (en !== null) desc.textContent = en;
+    });
+}
+
+function applyJapaneseTranslation() {
+    // Page title, subtitle, buttons
+    const pageTitle = document.querySelector('.page-title');
+    if (pageTitle && !pageTitle.getAttribute('data-en')) {
+        pageTitle.setAttribute('data-en', pageTitle.textContent.trim());
+    }
+    if (pageTitle) pageTitle.textContent = JP_TRANSLATIONS.pageTitle;
+
+    const pageSubtitle = document.querySelector('.page-subtitle');
+    if (pageSubtitle) {
+        if (!pageSubtitle.getAttribute('data-en-text')) {
+            pageSubtitle.setAttribute('data-en-text', 'Browse all available systems');
+        }
+        pageSubtitle.childNodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                node.textContent = JP_TRANSLATIONS.pageSubtitle + ' ';
+            }
+        });
+    }
+
+    const maintBtn = document.querySelector('.btn-maintenance-viewer');
+    if (maintBtn && !maintBtn.getAttribute('data-en')) {
+        maintBtn.setAttribute('data-en', maintBtn.textContent.trim());
+    }
+    if (maintBtn) {
+        const svg = maintBtn.querySelector('svg');
+        maintBtn.innerHTML = '';
+        if (svg) maintBtn.appendChild(svg);
+        maintBtn.appendChild(document.createTextNode(' ' + JP_TRANSLATIONS.maintenance));
+    }
+
+    const statusFilterBtn = document.getElementById('statusFilterBtn');
+    if (statusFilterBtn) {
+        const currentText = statusFilterBtn.textContent.trim();
+        const statusLabelsJp = {
+            'Status Filter': 'ステータスフィルター',
+            'Online': 'オンライン', 'Offline': 'オフライン',
+            'Maintenance': 'メンテナンス', 'Down': 'ダウン', 'Archived': 'アーカイブ済み'
+        };
+        statusFilterBtn.setAttribute('data-en-label', currentText);
+        statusFilterBtn.innerHTML = SLIDER_ICON_VIEWER + (statusLabelsJp[currentText] || currentText);
+    }
+
+    const catBtn = document.getElementById('categoryFilterBtn');
+    if (catBtn) {
+        const currentText = catBtn.textContent.trim();
+        const catLabelsJp = {
+            'Category': 'カテゴリー',
+            'Direct': 'ダイレクト', 'Indirect': 'インダイレクト', 'Support': 'サポート'
+        };
+        catBtn.setAttribute('data-en-label', currentText);
+        catBtn.innerHTML = SLIDER_ICON_VIEWER + (catLabelsJp[currentText] || currentText);
+    }
+
+    const statusLogsBtn = document.querySelector('.btn-status-logs-viewer');
+    if (statusLogsBtn && !statusLogsBtn.getAttribute('data-en')) {
+        statusLogsBtn.setAttribute('data-en', statusLogsBtn.textContent.trim());
+    }
+    if (statusLogsBtn) {
+        const svg = statusLogsBtn.querySelector('svg');
+        statusLogsBtn.innerHTML = '';
+        if (svg) statusLogsBtn.appendChild(svg);
+        statusLogsBtn.appendChild(document.createTextNode(' ' + JP_TRANSLATIONS.statusLogs));
+    }
+
+    const searchBox = document.getElementById('viewerSearchBox');
+    if (searchBox) {
+        searchBox.setAttribute('data-en-placeholder', searchBox.placeholder);
+        searchBox.placeholder = 'システムを検索...';
+    }
+
+    const statusOptionMap = {
+        'All Systems': '全システム', 'Online': 'オンライン', 'Offline': 'オフライン',
+        'Maintenance': 'メンテナンス', 'Down': 'ダウン', 'Archived': 'アーカイブ済み',
+    };
+    document.querySelectorAll('#statusDropdownViewer .filter-item').forEach(item => {
+        const textNode = Array.from(item.childNodes).find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+        if (textNode) {
+            if (!item.getAttribute('data-en-text')) item.setAttribute('data-en-text', textNode.textContent.trim());
+            textNode.textContent = ' ' + (statusOptionMap[textNode.textContent.trim()] || textNode.textContent.trim());
         }
     });
 
-    updateFilterDisplay(activeCount);
+    // Category dropdown — translate known names, leave custom ones as-is
+    const categoryOptionMap = {
+        'All Categories':   '全カテゴリー',
+        'Direct Systems':   'ダイレクトシステム',
+        'Indirect Systems': 'インダイレクトシステム',
+        'Support Systems':  'サポートシステム',
+    };
+    document.querySelectorAll('#categoryDropdownViewer .filter-item').forEach(item => {
+        const textNode = Array.from(item.childNodes).find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+        if (textNode) {
+            if (!item.getAttribute('data-en-text')) item.setAttribute('data-en-text', textNode.textContent.trim());
+            textNode.textContent = ' ' + (categoryOptionMap[textNode.textContent.trim()] || textNode.textContent.trim());
+        }
+    });
 
-    // Fetch maintenance popover data
+    fetchMaintenanceBadges();
+    if (typeof renderNotifications === 'function') renderNotifications(allNotifications);
+
+    // Category headers
+    document.querySelectorAll('.viewer-category-title').forEach(el => {
+        const original = el.getAttribute('data-en') || el.textContent.trim();
+        el.setAttribute('data-en', original);
+        el.textContent = JP_TRANSLATIONS.category[original] || original;
+    });
+
+    // Cards
+    document.querySelectorAll('.system-card-viewer').forEach(card => {
+        const jpDomain   = card.getAttribute('data-japanese-domain') || '';
+        const mainDomain = card.querySelector('.system-domain-viewer');
+        if (mainDomain) {
+            if (!mainDomain.getAttribute('data-en-domain')) {
+                mainDomain.setAttribute('data-en-domain', mainDomain.textContent.trim());
+            }
+            if (jpDomain) mainDomain.textContent = jpDomain;
+        }
+
+        const badge = card.querySelector('.status-badge-viewer');
+        if (badge) {
+            const dot    = badge.querySelector('.status-indicator-viewer');
+            const enText = badge.getAttribute('data-en-status') || badge.textContent.trim();
+            badge.setAttribute('data-en-status', enText);
+            const jpText = JP_TRANSLATIONS.status[enText] || enText;
+            badge.innerHTML = '';
+            if (dot) badge.appendChild(dot.cloneNode(true));
+            badge.appendChild(document.createTextNode(jpText));
+        }
+
+        const desc = card.querySelector('.system-description-viewer');
+        if (desc) {
+            if (!desc.getAttribute('data-en-desc')) {
+                desc.setAttribute('data-en-desc', desc.textContent.trim());
+            }
+            const jpDesc = card.getAttribute('data-japanese-description') || '';
+            if (jpDesc) desc.textContent = jpDesc;
+        }
+
+        const contact = card.querySelector('.system-contact-message');
+        if (contact) {
+            const number = card.getAttribute('data-contact-number') || '123';
+            if (!contact.getAttribute('data-en-html')) {
+                contact.setAttribute('data-en-html', contact.innerHTML);
+            }
+            contact.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+                ${JP_TRANSLATIONS.contact.replace('{number}', `<span class="contact-number">${number}</span>`)}
+            `;
+        }
+    });
+}
+
+function revertToEnglish() {
+    revertAllDescriptions();
     fetchMaintenanceBadges();
 
-    // Start auto-refresh
-    startAutoRefresh();
-});
+    const pageTitle = document.querySelector('.page-title');
+    if (pageTitle) { const en = pageTitle.getAttribute('data-en'); if (en) pageTitle.textContent = en; }
 
-// Stop refresh intervals when page unloads
-window.addEventListener('beforeunload', function () {
-    if (autoRefreshInterval)  clearInterval(autoRefreshInterval);
-    if (countdownInterval)    clearInterval(countdownInterval);
-});
+    const pageSubtitle = document.querySelector('.page-subtitle');
+    if (pageSubtitle) {
+        pageSubtitle.childNodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                node.textContent = 'Browse all available systems ';
+            }
+        });
+    }
+
+    const maintBtn = document.querySelector('.btn-maintenance-viewer');
+    if (maintBtn) {
+        const en = maintBtn.getAttribute('data-en');
+        const svg = maintBtn.querySelector('svg');
+        if (en && svg) { maintBtn.innerHTML = ''; maintBtn.appendChild(svg); maintBtn.appendChild(document.createTextNode(' ' + en.trim())); }
+    }
+
+    const statusFilterBtn = document.getElementById('statusFilterBtn');
+    if (statusFilterBtn) {
+        const en = statusFilterBtn.getAttribute('data-en-label') || 'Status Filter';
+        statusFilterBtn.innerHTML = SLIDER_ICON_VIEWER + en;
+    }
+
+    const catBtn = document.getElementById('categoryFilterBtn');
+    if (catBtn) {
+        const en = catBtn.getAttribute('data-en-label') || 'Category';
+        catBtn.innerHTML = SLIDER_ICON_VIEWER + en;
+    }
+
+    const statusLogsBtn = document.querySelector('.btn-status-logs-viewer');
+    if (statusLogsBtn) {
+        const en = statusLogsBtn.getAttribute('data-en');
+        const svg = statusLogsBtn.querySelector('svg');
+        if (en && svg) { statusLogsBtn.innerHTML = ''; statusLogsBtn.appendChild(svg); statusLogsBtn.appendChild(document.createTextNode(' ' + en.trim())); }
+    }
+
+    const searchBox = document.getElementById('viewerSearchBox');
+    if (searchBox) { const en = searchBox.getAttribute('data-en-placeholder'); if (en) searchBox.placeholder = en; }
+
+    document.querySelectorAll('#statusDropdownViewer .filter-item').forEach(item => {
+        const textNode = Array.from(item.childNodes).find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+        if (textNode) { const en = item.getAttribute('data-en-text'); if (en) textNode.textContent = ' ' + en; }
+    });
+
+    document.querySelectorAll('#categoryDropdownViewer .filter-item').forEach(item => {
+        const textNode = Array.from(item.childNodes).find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+        if (textNode) { const en = item.getAttribute('data-en-text'); if (en) textNode.textContent = ' ' + en; }
+    });
+
+    document.querySelectorAll('.viewer-category-title').forEach(el => {
+        const en = el.getAttribute('data-en'); if (en) el.textContent = en;
+    });
+
+    document.querySelectorAll('.system-card-viewer').forEach(card => {
+        const mainDomain = card.querySelector('.system-domain-viewer');
+        if (mainDomain) { const en = mainDomain.getAttribute('data-en-domain'); if (en) mainDomain.textContent = en; }
+
+        const badge = card.querySelector('.status-badge-viewer');
+        if (badge) {
+            const dot    = badge.querySelector('.status-indicator-viewer');
+            const enText = badge.getAttribute('data-en-status');
+            if (enText) { badge.innerHTML = ''; if (dot) badge.appendChild(dot.cloneNode(true)); badge.appendChild(document.createTextNode(enText)); }
+        }
+
+        const contact = card.querySelector('.system-contact-message');
+        if (contact) { const enHtml = contact.getAttribute('data-en-html'); if (enHtml) contact.innerHTML = enHtml; }
+    });
+}

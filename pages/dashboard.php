@@ -6,17 +6,43 @@ requireLogin();
 $currentUser = getCurrentUser();
 
 $conn = getDBConnection();
+
+// Load categories dynamically from DB (sorted by sort_order)
+$catResult = $conn->query("SELECT id, name, sort_order FROM categories ORDER BY sort_order ASC, name ASC");
+$dbCategories = [];
+while ($catRow = $catResult->fetch_assoc()) {
+    $dbCategories[] = $catRow;
+}
+
+// Build category order map from DB
+$categoryOrder = [];
+foreach ($dbCategories as $i => $cat) {
+    $categoryOrder[$cat['name']] = $i + 1;
+}
+
 $result = $conn->query("SELECT * FROM systems ORDER BY created_at DESC");
 $systems = [];
 while ($row = $result->fetch_assoc()) { $systems[] = $row; }
 $conn->close();
 
 $statusPriority = ['online'=>1,'maintenance'=>2,'down'=>3,'offline'=>4,'archived'=>5];
-usort($systems, function($a,$b) use ($statusPriority) {
-    $pA = $statusPriority[$a['status']??'online'] ?? 999;
-    $pB = $statusPriority[$b['status']??'online'] ?? 999;
-    return $pA - $pB;
+
+usort($systems, function($a, $b) use ($categoryOrder, $statusPriority) {
+    $catA = $categoryOrder[$a['category'] ?? ''] ?? 99;
+    $catB = $categoryOrder[$b['category'] ?? ''] ?? 99;
+    if ($catA !== $catB) return $catA - $catB;
+    $pA = $statusPriority[$a['status'] ?? 'online'] ?? 999;
+    $pB = $statusPriority[$b['status'] ?? 'online'] ?? 999;
+    if ($pA !== $pB) return $pA - $pB;
+    return strcasecmp($a['name'] ?? '', $b['name'] ?? '');
 });
+
+// Group systems by category for rendering
+$groupedSystems = [];
+foreach ($systems as $system) {
+    $cat = $system['category'] ?? ($dbCategories[0]['name'] ?? 'Direct');
+    $groupedSystems[$cat][] = $system;
+}
 
 $canScheduleMaintenance = isSuperAdmin() || isAdmin();
 ?>
@@ -55,6 +81,14 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                         Analytics
                     </a>
                 </li>
+                <?php if (isSuperAdmin()): ?>
+                <li>
+                    <a href="users.php">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        User Management
+                    </a>
+                </li>
+                <?php endif; ?>
             </ul>
             <div class="user-profile">
                 <div class="user-avatar-large">
@@ -124,9 +158,11 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
             <div class="content-header"><h2>All Systems</h2></div>
             <div class="top-controls-row">
                 <input type="text" id="searchBox" class="search-box" placeholder="Search systems..." onkeyup="searchSystems()">
+
+                <!-- Status Filter -->
                 <div class="filter-dropdown-container">
                     <button type="button" class="btn-filter" onclick="toggleFilterDropdown(event)">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="18" x2="20" y2="18"></line><circle cx="9" cy="6" r="2.5" fill="currentColor" stroke="none"></circle><circle cx="15" cy="12" r="2.5" fill="currentColor" stroke="none"></circle><circle cx="9" cy="18" r="2.5" fill="currentColor" stroke="none"></circle></svg>
                         Status Filter
                     </button>
                     <div class="filter-dropdown-menu">
@@ -138,13 +174,57 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                         <button type="button" onclick="filterSystems('archived')" class="filter-option" data-filter="archived"><span class="filter-dot filter-archived"></span>Archived</button>
                     </div>
                 </div>
+
+                <!-- Category Filter — populated dynamically from DB -->
+                <div class="filter-dropdown-container">
+                    <button type="button" class="btn-filter" onclick="toggleCategoryDropdown(event)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="18" x2="20" y2="18"></line><circle cx="9" cy="6" r="2.5" fill="currentColor" stroke="none"></circle><circle cx="15" cy="12" r="2.5" fill="currentColor" stroke="none"></circle><circle cx="9" cy="18" r="2.5" fill="currentColor" stroke="none"></circle></svg>
+                        Category
+                    </button>
+                    <div class="filter-dropdown-menu" id="categoryFilterMenu">
+                        <button type="button" onclick="filterByCategory('all')" class="filter-option active" data-cat="all">
+                            <span class="filter-dot" style="background:var(--primary-light);"></span>All Categories
+                        </button>
+                        <?php foreach ($dbCategories as $dbCat): ?>
+                        <button type="button"
+                                onclick="filterByCategory('<?php echo htmlspecialchars($dbCat['name']); ?>')"
+                                class="filter-option"
+                                data-cat="<?php echo htmlspecialchars($dbCat['name']); ?>">
+                            <span class="filter-dot" style="background:var(--primary-color);"></span>
+                            <?php echo htmlspecialchars($dbCat['name']); ?>
+                        </button>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-clear-filters" id="btnClearFilters"
+                        onclick="clearAllFilters()" style="display:none;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    Clear Filters
+                </button>
+
                 <div style="flex:1;"></div>
+
                 <?php if ($canScheduleMaintenance): ?>
                 <button class="btn-bulk-schedule" id="btnBulkSchedule" onclick="toggleBulkMode()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="4" height="4" rx="1"></rect><rect x="3" y="13" width="4" height="4" rx="1"></rect><line x1="10" y1="7" x2="21" y2="7"></line><line x1="10" y1="15" x2="21" y2="15"></line></svg>
                     <span id="btnBulkScheduleLabel">Schedule Multiple</span>
                 </button>
                 <?php endif; ?>
+
+                <!-- Categories Management button (visible to all logged-in users) -->
+                <button class="btn-categories" onclick="openCategoriesModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="8"  y1="6"  x2="21" y2="6"></line>
+                        <line x1="8"  y1="12" x2="21" y2="12"></line>
+                        <line x1="8"  y1="18" x2="21" y2="18"></line>
+                        <line x1="3"  y1="6"  x2="3.01" y2="6"></line>
+                        <line x1="3"  y1="12" x2="3.01" y2="12"></line>
+                        <line x1="3"  y1="18" x2="3.01" y2="18"></line>
+                    </svg>
+                    Manage Categories
+                </button>
+
                 <?php if (isSuperAdmin()): ?>
                 <button class="btn-add-top" onclick="openAddModal()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -154,27 +234,40 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
             </div>
         </div>
 
-        <!-- SYSTEMS GRID -->
-        <div class="cards-grid" id="cardsGrid">
+        <!-- SYSTEMS GRID — grouped by category (dynamic from DB) -->
+        <div id="cardsGrid">
             <?php if (empty($systems)): ?>
-                <div class="empty-state" style="grid-column:1/-1;">
-                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg>
-                    <h3>No Systems Found</h3>
-                    <p>Start by adding your first system</p>
+                <div class="cards-grid">
+                    <div class="empty-state" style="grid-column:1/-1;">
+                        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+                        <h3>No Systems Found</h3>
+                        <p>Start by adding your first system</p>
+                    </div>
                 </div>
             <?php else: ?>
-                <?php foreach ($systems as $system): ?>
+                <?php foreach ($dbCategories as $dbCat): ?>
+                <?php $categoryName = $dbCat['name']; ?>
+                <?php if (empty($groupedSystems[$categoryName])): continue; endif; ?>
+                <div class="category-group" data-category="<?php echo htmlspecialchars($categoryName); ?>">
+                    <div class="category-header">
+                        <h3 class="category-title"><?php echo htmlspecialchars($categoryName); ?> Systems</h3>
+                        <span class="category-count"><?php echo count($groupedSystems[$categoryName]); ?></span>
+                    </div>
+                    <div class="cards-grid">
+                <?php foreach ($groupedSystems[$categoryName] as $system): ?>
                     <?php
                     $status = $system['status'] ?? 'online';
                     $isArchived = $status === 'archived';
                     $statusLabels = ['online'=>'Online','offline'=>'Offline','maintenance'=>'Maintenance','down'=>'Down','archived'=>'Archived'];
                     $statusLabel = $statusLabels[$status] ?? 'Online';
                     $contactNumber = $system['contact_number'] ?? '123';
+                    $badgeUrl = $system['badge_url'] ?? '';
                     ?>
                     <div class="system-card <?php echo $isArchived ? 'bulk-excluded' : ''; ?>"
                          data-status="<?php echo htmlspecialchars($status); ?>"
                          data-system-id="<?php echo $system['id']; ?>"
-                         data-system-name="<?php echo htmlspecialchars(addslashes($system['name'])); ?>">
+                         data-system-name="<?php echo htmlspecialchars(addslashes($system['name'])); ?>"
+                         data-contact-number="<?php echo htmlspecialchars($contactNumber); ?>">
 
                         <?php if ($canScheduleMaintenance && !$isArchived): ?>
                         <div class="bulk-checkbox-overlay" onclick="toggleCardSelection(event,<?php echo $system['id']; ?>,'<?php echo addslashes($system['name']); ?>')">
@@ -203,12 +296,6 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                                 </div>
                                 <h3 class="card-title"><?php echo htmlspecialchars($system['name']); ?></h3>
                                 <a href="#" class="card-domain" onclick="openDomain('<?php echo htmlspecialchars($system['domain']); ?>');return false;"><?php echo htmlspecialchars($system['domain']); ?></a>
-                                <?php if (!empty($system['updated_at'])): ?>
-                                <div class="card-last-updated">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                    Last updated: <?php echo date('h:i A - m/d/y', strtotime($system['updated_at'])); ?>
-                                </div>
-                                <?php endif; ?>
                             </div>
                             <div class="card-menu">
                                 <button class="menu-toggle" onclick="toggleDropdown(event,<?php echo $system['id']; ?>)">
@@ -216,7 +303,25 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                                 </button>
                                 <div class="dropdown-menu">
                                     <?php if (isSuperAdmin() || isAdmin()): ?>
-                                    <button onclick="openEditModal(<?php echo $system['id']; ?>,'<?php echo addslashes($system['name']); ?>','<?php echo addslashes($system['domain']); ?>','<?php echo addslashes($system['description']); ?>','<?php echo addslashes($status); ?>','<?php echo addslashes($contactNumber); ?>',<?php echo intval($system['exclude_health_check']??0); ?>)">
+                                    <?php
+                                    $logoPreviewPath = (!empty($system['logo']) && file_exists('../' . $system['logo']))
+                                        ? '../' . $system['logo']
+                                        : '';
+                                    ?>
+                                    <button onclick="openEditModal(
+                                        <?php echo $system['id']; ?>,
+                                        '<?php echo addslashes($system['name']); ?>',
+                                        '<?php echo addslashes($system['domain']); ?>',
+                                        '<?php echo addslashes($badgeUrl); ?>',
+                                        '<?php echo addslashes($system['description']); ?>',
+                                        '<?php echo addslashes($status); ?>',
+                                        '<?php echo addslashes($contactNumber); ?>',
+                                        <?php echo intval($system['exclude_health_check']??0); ?>,
+                                        '<?php echo addslashes($logoPreviewPath); ?>',
+                                        '<?php echo addslashes($system['category'] ?? ($dbCategories[0]['name'] ?? 'Direct')); ?>',
+                                        '<?php echo addslashes($system['japanese_domain'] ?? ''); ?>',
+                                        '<?php echo addslashes($system['japanese_description'] ?? ''); ?>'
+                                    )">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                         Edit
                                     </button>
@@ -249,6 +354,9 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
+                    </div><!-- /.cards-grid -->
+                </div><!-- /.category-group -->
+                <?php endforeach; ?>
             <?php endif; ?>
         </div>
     </main>
@@ -277,6 +385,12 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
                 <span id="bulkSelectAllLabel">Select All</span>
             </button>
+            <button class="bulk-action-mark-online" id="bulkBarMarkOnlineBtn"
+                    onclick="openBulkMarkOnlineModal()"
+                    style="display:none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Mark <span id="bulkBarMarkOnlineCount">0</span> as Online
+            </button>
             <button class="bulk-action-proceed" id="bulkProceedBtn" onclick="openBulkModal()" disabled>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                 Schedule <span id="bulkProceedCount">0</span> Systems
@@ -299,7 +413,6 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
         <form id="addSystemForm" onsubmit="addSystem(event)" enctype="multipart/form-data">
             <div class="modal-body">
 
-                <!-- System Logo -->
                 <div class="form-group">
                     <label>System Logo <span style="font-weight:400;color:var(--gray-400);font-size:12px;">(Optional)</span></label>
                     <div class="file-upload-zone" onclick="document.getElementById('systemLogo').click()">
@@ -323,7 +436,8 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     </div>
                 </div>
 
-                <!-- System Name -->
+                <div class="modal-section-divider"></div>
+
                 <div class="form-group">
                     <div class="field-label-row">
                         <label for="systemName">System Name <span style="color:var(--danger)">*</span></label>
@@ -335,13 +449,46 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                            oninput="updateCharCounter(this,'addNameCounter',100)">
                 </div>
 
-                <!-- Domain -->
+                <!-- Category — dynamic from DB -->
+                <div class="form-group">
+                    <label for="systemCategory">Category <span style="color:var(--danger)">*</span></label>
+                    <select id="systemCategory" name="category" required>
+                        <option value="">Select a category...</option>
+                        <?php foreach ($dbCategories as $dbCat): ?>
+                        <option value="<?php echo htmlspecialchars($dbCat['name']); ?>">
+                            <?php echo htmlspecialchars($dbCat['name']); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="field-helper-row">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        Groups this system under the selected category on the dashboard
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="systemDomain">Domain <span style="color:var(--danger)">*</span></label>
                     <input type="text" id="systemDomain" name="domain" required placeholder="e.g., glory.canteen.com.ph">
                 </div>
 
-                <!-- Contact Number -->
+                <div class="form-group">
+                    <label for="systemJapaneseDomain">Japanese Domain <span style="font-weight:400;color:var(--gray-400);font-size:12px;">(Optional)</span></label>
+                    <input type="text" id="systemJapaneseDomain" name="japanese_domain" placeholder="e.g., glory.canteen.co.jp">
+                    <div class="field-helper-row">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        Shown when Japanese translation is enabled
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="systemBadgeUrl">Badge URL <span style="font-weight:400;color:var(--gray-400);font-size:12px;">(Optional)</span></label>
+                    <input type="text" id="systemBadgeUrl" name="badge_url" placeholder="e.g., https://uptime.gpi.com/api/badge/33/status">
+                    <div class="field-helper-row">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        Used for health checks instead of the domain URL
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="systemContact">Contact Number</label>
                     <input type="text" id="systemContact" name="contact_number" placeholder="e.g., 09171234567" value="123">
@@ -351,7 +498,6 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     </div>
                 </div>
 
-                <!-- Description -->
                 <div class="form-group">
                     <label for="systemDescription">Description</label>
                     <textarea id="systemDescription" name="description" placeholder="Brief description of the system"></textarea>
@@ -380,7 +526,6 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
         <form id="editSystemForm" onsubmit="editSystem(event)" enctype="multipart/form-data">
             <div class="modal-body">
 
-                <!-- System Logo -->
                 <div class="form-group">
                     <label>System Logo <span style="font-weight:400;color:var(--gray-400);font-size:12px;">(Optional)</span></label>
                     <div class="file-upload-zone" onclick="document.getElementById('editSystemLogo').click()">
@@ -404,7 +549,8 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     </div>
                 </div>
 
-                <!-- System Name -->
+                <div class="modal-section-divider"></div>
+
                 <div class="form-group">
                     <div class="field-label-row">
                         <label for="editSystemName">System Name <span style="color:var(--danger)">*</span></label>
@@ -415,13 +561,46 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                            oninput="updateCharCounter(this,'editNameCounter',100)">
                 </div>
 
-                <!-- Domain -->
+                <!-- Category — dynamic from DB -->
+                <div class="form-group">
+                    <label for="editSystemCategory">Category <span style="color:var(--danger)">*</span></label>
+                    <select id="editSystemCategory" name="category" required>
+                        <option value="">Select a category...</option>
+                        <?php foreach ($dbCategories as $dbCat): ?>
+                        <option value="<?php echo htmlspecialchars($dbCat['name']); ?>">
+                            <?php echo htmlspecialchars($dbCat['name']); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="field-helper-row">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        Groups this system under the selected category on the dashboard
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="editSystemDomain">Domain <span style="color:var(--danger)">*</span></label>
                     <input type="text" id="editSystemDomain" name="domain" required>
                 </div>
 
-                <!-- Status -->
+                <div class="form-group">
+                    <label for="editSystemJapaneseDomain">Japanese Domain <span style="font-weight:400;color:var(--gray-400);font-size:12px;">(Optional)</span></label>
+                    <input type="text" id="editSystemJapaneseDomain" name="japanese_domain" placeholder="e.g., glory.canteen.co.jp">
+                    <div class="field-helper-row">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        Shown when Japanese translation is enabled
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editSystemBadgeUrl">Badge URL <span style="font-weight:400;color:var(--gray-400);font-size:12px;">(Optional)</span></label>
+                    <input type="text" id="editSystemBadgeUrl" name="badge_url" placeholder="e.g., https://uptime.gpi.com/api/badge/33/status">
+                    <div class="field-helper-row">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        Used for health checks instead of the domain URL
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="editSystemStatus">Status <span style="color:var(--danger)">*</span></label>
                     <div class="status-select-wrap">
@@ -436,7 +615,6 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     </div>
                 </div>
 
-                <!-- Contact Number -->
                 <div class="form-group">
                     <label for="editSystemContact">Contact Number</label>
                     <input type="text" id="editSystemContact" name="contact_number" placeholder="e.g., 09171234567">
@@ -446,13 +624,20 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     </div>
                 </div>
 
-                <!-- Description -->
                 <div class="form-group">
                     <label for="editSystemDescription">Description</label>
                     <textarea id="editSystemDescription" name="description"></textarea>
                 </div>
 
-                <!-- Change Note -->
+                <div class="form-group">
+                    <label for="editSystemJapaneseDescription">Japanese Description <span style="font-weight:400;color:var(--gray-400);font-size:12px;">(Optional)</span></label>
+                    <textarea id="editSystemJapaneseDescription" name="japanese_description" placeholder="日本語での説明..."></textarea>
+                    <div class="field-helper-row">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        Shown when Japanese translation is enabled
+                    </div>
+                </div>
+
                 <div class="change-note-box">
                     <div class="change-note-label">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -463,7 +648,6 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     <div class="change-note-hint">Add a reason when changing status</div>
                 </div>
 
-                <!-- Health Check Toggle -->
                 <div class="health-check-row">
                     <div class="health-check-row-text">
                         <div class="health-check-row-label">Exclude from Health Check</div>
@@ -511,7 +695,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
     </div>
 </div>
 
-<!-- MAINTENANCE MODALS (unchanged) -->
+<!-- MAINTENANCE MODALS -->
 <?php if ($canScheduleMaintenance): ?>
 <div id="maintenanceModal" class="modal">
     <div class="modal-content maintenance-modal-content">
@@ -525,6 +709,18 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
         <div class="maintenance-system-badge" id="maintenanceSystemBadge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span id="maintenanceSystemName">System Name</span>
+        </div>
+        <div id="markOnlineBanner" style="display:none;">
+            <div class="mark-online-banner">
+                <div class="mark-online-banner-info">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span>This system is currently <strong>under maintenance</strong>. Ready to bring it back online?</span>
+                </div>
+                <button type="button" class="btn-mark-online" onclick="markSystemOnline()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Mark as Online
+                </button>
+            </div>
         </div>
         <form id="maintenanceForm" onsubmit="saveMaintenanceSchedule(event)">
             <input type="hidden" id="maintenanceAction" name="action" value="create">
@@ -545,7 +741,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                         <input type="datetime-local" id="maintenanceEnd" name="end_datetime" required>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group maint-status-hidden">
                     <label for="maintenanceStatus">Status *</label>
                     <select id="maintenanceStatus" name="status" required onchange="onMaintenanceStatusChange(this.value)">
                         <option value="Scheduled">Scheduled</option>
@@ -794,33 +990,111 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
     </div>
 </div>
 
+<!-- BULK MARK AS ONLINE MODAL -->
+<div id="bulkMarkOnlineModal" class="modal">
+    <div class="modal-content bmo-modal-content">
+        <div class="modal-header maintenance-modal-header">
+            <div class="maintenance-modal-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <h3>Mark Systems as Online</h3>
+            </div>
+            <button class="close-modal" onclick="closeBulkMarkOnlineModal()">&times;</button>
+        </div>
+        <div class="bmo-header-note">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>Select the systems to bring back online. Their maintenance schedule will be marked as <strong>Done</strong> and removed from the calendar.</span>
+        </div>
+        <div class="modal-body" style="padding:0;">
+            <div id="bulkMarkOnlineList" class="bmo-list"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeBulkMarkOnlineModal()">Cancel</button>
+            <button type="button" class="btn btn-bmo-confirm" id="bmoConfirmBtn" onclick="confirmBulkMarkOnline()" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Mark <span id="bmoConfirmCount">0</span> as Online
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================
+     CATEGORIES MANAGEMENT MODAL
+     ======================================== -->
+<div id="categoriesModal"
+     class="modal"
+     data-super-admin="<?php echo isSuperAdmin() ? '1' : '0'; ?>">
+    <div class="modal-content categories-modal-content">
+        <div class="modal-header">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                <h3>Categories Management</h3>
+            </div>
+            <button class="close-modal" onclick="closeCategoriesModal()">&times;</button>
+        </div>
+        <div class="modal-body" style="padding:0;">
+            <div class="cat-info-bar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span>Drag rows to reorder. Changes apply to the dashboard immediately.</span>
+            </div>
+            <div id="catList" class="cat-list"></div>
+            <!-- Add new category (Super Admin only) -->
+            <div id="catAddSection" class="cat-add-section" style="display:none;">
+                <div class="cat-add-row">
+                    <input type="text"
+                           id="catNewNameInput"
+                           class="cat-add-input"
+                           placeholder="New category name..."
+                           maxlength="100"
+                           onkeydown="onCatAddKeydown(event)">
+                    <button id="catAddBtn" class="cat-btn-add-confirm" onclick="addNewCategory()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Add
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeCategoriesModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================
+     CATEGORY DELETE CONFIRMATION MODAL
+     ======================================== -->
+<div id="catDeleteModal" class="delete-modal">
+    <div class="delete-modal-content">
+        <div class="delete-modal-header">
+            <div class="delete-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </div>
+            <div class="delete-modal-title">
+                <h3>Delete Category</h3>
+                <p>This action cannot be undone</p>
+            </div>
+        </div>
+        <div class="delete-modal-body">
+            <div class="delete-system-name"><strong id="catDeleteName"></strong></div>
+            <div class="delete-warning">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <p id="catDeleteSystemNote"></p>
+            </div>
+            <div id="catReassignSection" class="cat-reassign-section" style="display:none;">
+                <label for="catReassignSelect">Reassign systems to:</label>
+                <select id="catReassignSelect" class="cat-reassign-select"></select>
+            </div>
+        </div>
+        <div class="delete-modal-footer">
+            <button type="button" class="btn-delete-cancel" onclick="closeCatDeleteModal()">Cancel</button>
+            <button type="button" class="btn-delete-confirm" id="catDeleteConfirmBtn" onclick="confirmDeleteCategory()">Delete</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="../assets/js/main.js"></script>
 <script src="../assets/js/maintenance.js"></script>
-<script>
-(function triggerHealthCheck() {
-    function runHealthCheck() {
-        fetch('../backend/trigger_health_check.php')
-            .then(r => r.json())
-            .then(data => { if (data.success && !data.skipped && data.changed > 0) { setTimeout(() => location.reload(), 800); } })
-            .catch(err => console.warn('[G-Portal] Health check failed:', err));
-    }
-    runHealthCheck();
-    setInterval(runHealthCheck, 120000);
-})();
-
-(function triggerMaintenanceCheck() {
-    function runCheck() {
-        fetch('../backend/maintenance/trigger_maintenance_check.php')
-            .then(r => r.json())
-            .then(data => {
-                if (data.success && !data.skipped && data.switched > 0) { setTimeout(() => location.reload(), 800); }
-                else if (data.success) { if (typeof MaintenanceApp !== 'undefined' && MaintenanceApp.sidePanelDate) { loadSidePanelSchedules(MaintenanceApp.sidePanelDate); } }
-            })
-            .catch(err => console.warn('[G-Portal] Maintenance check failed:', err));
-    }
-    runCheck();
-    setInterval(runCheck, 30000);
-})();
-</script>
+<script src="../assets/js/health_check.js"></script>
+<script src="../assets/js/categories.js"></script>
 </body>
 </html>

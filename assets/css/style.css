@@ -644,6 +644,7 @@ nav {
   color: #6b7280;
   border: 1px solid #d1d5db;
 }
+
 .status-indicator {
   width: 6px;
   height: 6px;
@@ -668,6 +669,7 @@ nav {
 .status-archived .status-indicator {
   background-color: #9ca3af;
 }
+
 @keyframes pulse-active {
   0%,
   100% {
@@ -1835,9 +1837,6 @@ nav {
     width: 5px;
     height: 5px;
   }
-  .main-content {
-    padding: 20px 16px;
-  }
   .system-card {
     padding: 20px;
   }
@@ -1858,12 +1857,6 @@ nav {
   }
   .login-header {
     margin-bottom: 24px;
-  }
-  .login-header h1 {
-    font-size: 24px;
-  }
-  .login-header p {
-    font-size: 13px;
   }
   .login-box .form-group {
     margin-bottom: 18px;
@@ -2040,7 +2033,6 @@ nav {
    ADD & EDIT SYSTEM MODAL — ENHANCED UI
    ============================================================ */
 
-/* ── Custom File Upload Zone ── */
 .file-upload-zone {
   position: relative;
   cursor: pointer;
@@ -2048,7 +2040,6 @@ nav {
 .file-upload-zone input[type="file"] {
   display: none;
 }
-
 .file-upload-trigger {
   display: flex;
   align-items: center;
@@ -2089,7 +2080,6 @@ nav {
   flex-shrink: 0;
 }
 
-/* ── Logo Preview Box ── */
 .logo-preview-box {
   display: none;
   align-items: center;
@@ -2150,7 +2140,6 @@ nav {
   color: var(--danger);
 }
 
-/* ── Field Label Row (with char counter) ── */
 .field-label-row {
   display: flex;
   align-items: baseline;
@@ -2178,7 +2167,6 @@ nav {
   color: var(--danger);
 }
 
-/* ── Status Select with Color Dot ── */
 .status-select-wrap {
   position: relative;
 }
@@ -2198,7 +2186,6 @@ nav {
   padding-left: 30px !important;
 }
 
-/* ── Field helper with icon ── */
 .field-helper-row {
   display: flex;
   align-items: center;
@@ -2214,7 +2201,6 @@ nav {
   color: var(--gray-400);
 }
 
-/* ── Change Note Group Box ── */
 .change-note-box {
   background: var(--gray-50);
   border: 1px solid var(--secondary-color);
@@ -2250,7 +2236,6 @@ nav {
   font-weight: 500;
 }
 
-/* ── Health Check Toggle Row ── */
 .health-check-row {
   display: flex;
   align-items: center;
@@ -2281,14 +2266,12 @@ nav {
 /* ============================================================
    LOGIN PAGE — SPLIT LAYOUT
    ============================================================ */
-
 .login-split {
   display: flex;
   min-height: 100vh;
   height: 100vh;
 }
 
-/* ── Left Panel ── */
 .login-left {
   width: 50%;
   min-height: 100vh;
@@ -2300,7 +2283,6 @@ nav {
   position: relative;
   overflow: hidden;
 }
-
 .login-left::before,
 .login-left::after {
   content: "";
@@ -2322,11 +2304,6 @@ nav {
   left: -80px;
 }
 
-/* ============================================================
-   LOGIN PAGE — BRAND TOP BAR (replaces old brand-mark/viewer-link layout)
-   ============================================================ */
-
-/* Top bar: brand name left, viewer link right */
 .brand-top-bar {
   display: flex;
   align-items: center;
@@ -2334,16 +2311,12 @@ nav {
   position: relative;
   z-index: 1;
 }
-
-/* Larger brand name, no icon */
 .brand-name {
   font-size: 26px !important;
   font-weight: 800 !important;
   color: var(--white) !important;
   letter-spacing: -0.5px;
 }
-
-/* Viewer link — now sits top-right inside brand-top-bar */
 .viewer-link {
   display: inline-flex;
   align-items: center;
@@ -2352,32 +2325,28 @@ nav {
   text-decoration: none;
   font-size: 13px;
   font-weight: 600;
-  transition: color var(--transition), gap var(--transition);
+  transition:
+    color var(--transition),
+    gap var(--transition);
   position: relative;
   z-index: 1;
   white-space: nowrap;
 }
-
 .viewer-link:hover {
   color: var(--white);
   gap: 10px;
 }
-
 .viewer-link svg {
   transition: transform var(--transition);
   flex-shrink: 0;
 }
-
 .viewer-link:hover svg {
   transform: translateX(3px);
 }
-
-/* Hide the old standalone brand-mark if it ever appears */
 .brand-mark {
   display: contents;
 }
 
-/* Responsive: stack on small screens */
 @media (max-width: 900px) {
   .brand-top-bar {
     flex-direction: row;
@@ -2388,7 +2357,6 @@ nav {
     font-size: 22px !important;
   }
 }
-
 @media (max-width: 480px) {
   .brand-name {
     font-size: 20px !important;
@@ -2398,7 +2366,6 @@ nav {
   }
 }
 
-/* Viewer link inside right panel — above login title */
 .login-form-wrapper .viewer-link--right {
   display: inline-flex;
   align-items: center;
@@ -2408,22 +2375,21 @@ nav {
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 28px;
-  transition: color var(--transition), gap var(--transition);
+  transition:
+    color var(--transition),
+    gap var(--transition);
   opacity: 1 !important;
   visibility: visible !important;
 }
-
 .login-form-wrapper .viewer-link--right:hover {
   color: var(--primary-dark) !important;
   gap: 10px;
 }
-
 .login-form-wrapper .viewer-link--right svg {
   transition: transform var(--transition);
   flex-shrink: 0;
   color: var(--primary-color) !important;
 }
-
 .login-form-wrapper .viewer-link--right:hover svg {
   transform: translateX(-3px);
   color: var(--primary-dark) !important;
@@ -2433,7 +2399,6 @@ nav {
   position: relative;
   z-index: 1;
 }
-
 .left-eyebrow {
   display: inline-flex;
   align-items: center;
@@ -2449,7 +2414,6 @@ nav {
   text-transform: uppercase;
   margin-bottom: 28px;
 }
-
 .left-eyebrow span {
   width: 6px;
   height: 6px;
@@ -2457,7 +2421,6 @@ nav {
   border-radius: 50%;
   animation: pulse-dot 2s infinite;
 }
-
 @keyframes pulse-dot {
   0%,
   100% {
@@ -2476,11 +2439,9 @@ nav {
   letter-spacing: -1px;
   margin-bottom: 20px;
 }
-
 .left-heading span {
   color: var(--secondary-color);
 }
-
 .left-description {
   font-size: 15px;
   font-weight: 400;
@@ -2495,7 +2456,6 @@ nav {
   flex-direction: column;
   gap: 14px;
 }
-
 .feature-item {
   display: flex;
   align-items: center;
@@ -2504,7 +2464,6 @@ nav {
   font-weight: 500;
   color: rgba(255, 255, 255, 0.85);
 }
-
 .feature-icon {
   width: 32px;
   height: 32px;
@@ -2516,38 +2475,10 @@ nav {
   justify-content: center;
   flex-shrink: 0;
 }
-
 .feature-icon svg {
   color: var(--secondary-color);
 }
 
-.viewer-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: rgba(208, 230, 253, 0.6);
-  text-decoration: none;
-  font-size: 13.5px;
-  font-weight: 600;
-  transition:
-    color var(--transition),
-    gap var(--transition);
-  position: relative;
-  z-index: 1;
-}
-
-.viewer-link:hover {
-  color: var(--white);
-  gap: 12px;
-}
-.viewer-link svg {
-  transition: transform var(--transition);
-}
-.viewer-link:hover svg {
-  transform: translateX(-3px);
-}
-
-/* ── Right Panel ── */
 .login-right {
   width: 50%;
   min-height: 100vh;
@@ -2557,16 +2488,13 @@ nav {
   justify-content: center;
   padding: 56px 64px;
 }
-
 .login-form-wrapper {
   width: 100%;
   max-width: 400px;
 }
-
 .form-header {
   margin-bottom: 40px;
 }
-
 .form-header h2 {
   font-size: 28px;
   font-weight: 800;
@@ -2574,13 +2502,11 @@ nav {
   letter-spacing: -0.5px;
   margin-bottom: 6px;
 }
-
 .form-header p {
   font-size: 14px;
   color: var(--gray-500);
   font-weight: 500;
 }
-
 .form-divider {
   width: 40px;
   height: 3px;
@@ -2602,7 +2528,6 @@ nav {
   font-weight: 600;
   margin-bottom: 24px;
 }
-
 .alert-error svg {
   flex-shrink: 0;
 }
@@ -2613,11 +2538,9 @@ nav {
   border-radius: 8px;
   transition: background var(--transition);
 }
-
 .input-wrap:focus-within {
   background: var(--white);
 }
-
 .input-wrap input {
   width: 100%;
   padding: 12px 14px 12px 42px;
@@ -2633,17 +2556,14 @@ nav {
   position: relative;
   z-index: 1;
 }
-
 .input-wrap input::placeholder {
   color: var(--gray-400);
   font-weight: 400;
 }
-
 .input-wrap input:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.08);
 }
-
 .input-icon {
   position: absolute;
   left: 14px;
@@ -2654,7 +2574,6 @@ nav {
   transition: color var(--transition);
   z-index: 2;
 }
-
 .input-wrap:focus-within .input-icon {
   color: var(--primary-color);
 }
@@ -2679,13 +2598,11 @@ nav {
   justify-content: center;
   gap: 8px;
 }
-
 .btn-signin:hover {
   background: var(--primary-dark);
   box-shadow: 0 6px 20px rgba(22, 38, 96, 0.3);
   transform: translateY(-1px);
 }
-
 .btn-signin:active {
   transform: translateY(0);
   box-shadow: none;
@@ -2707,7 +2624,6 @@ nav {
   font-weight: 500;
 }
 
-/* ── Login Responsive ── */
 @media (max-width: 900px) {
   .login-split {
     flex-direction: column;
@@ -2733,7 +2649,6 @@ nav {
     margin-bottom: 28px;
   }
 }
-
 @media (max-width: 480px) {
   .login-left {
     padding: 32px 24px;
@@ -2747,4 +2662,814 @@ nav {
   .login-form-wrapper {
     max-width: 100%;
   }
+}
+
+/* ================================
+   STATUS LOGS BUTTON — VIEWER
+   ================================ */
+
+/*
+ * Sits on the same line as Maintenance Schedule inside .search-wrapper-viewer
+ * margin-left: auto pushes it to the far right edge of the row
+ */
+.btn-status-logs-viewer {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+  padding: 9px 16px;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition);
+  flex-shrink: 0;
+}
+.btn-status-logs-viewer svg {
+  flex-shrink: 0;
+  color: var(--white);
+}
+.btn-status-logs-viewer:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  box-shadow: 0 4px 12px rgba(22, 38, 96, 0.25);
+  transform: translateY(-1px);
+  color: var(--white);
+  text-decoration: none;
+}
+.btn-status-logs-viewer:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .btn-status-logs-viewer {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ================================
+   MODAL INLINE ERROR BANNER
+   Replaces browser alert() popups
+   ================================ */
+.modal-error-banner {
+  display: none; /* hidden by default, shown by JS */
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #991b1b;
+  line-height: 1.5;
+  font-family: "Segoe UI", Arial, sans-serif;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-error-banner svg {
+  color: #ef4444;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.modal-error-banner span {
+  flex: 1;
+}
+
+/* ============================================================
+   G-Portal — Status Change Flash Animation
+   Add this snippet to:
+     - assets/css/style.css   (dashboard)
+     - assets/css/viewer.css  (viewer)
+   ============================================================ */
+
+@keyframes statusChangedFlash {
+    0%   { outline: 3px solid transparent; box-shadow: none; }
+    25%  { outline: 3px solid #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,0.5); }
+    75%  { outline: 3px solid #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,0.5); }
+    100% { outline: 3px solid transparent; box-shadow: none; }
+}
+
+.status-changed-flash {
+    animation: statusChangedFlash 1.5s ease forwards;
+}
+
+
+/* ============================================================
+   G-Portal — Improved Modal UI/UX
+   Add these styles at the bottom of assets/css/style.css
+   ============================================================ */
+
+/* ── Modal wrapper refinements ── */
+.modal-content {
+  border-radius: 14px;
+  border: none;
+  box-shadow: 0 24px 64px rgba(22, 38, 96, 0.18), 0 4px 16px rgba(22, 38, 96, 0.08);
+}
+
+/* ── Modal header ── */
+.modal-header {
+  padding: 20px 24px;
+  border-radius: 14px 14px 0 0;
+  background: var(--primary-color);
+  border-bottom: none;
+}
+
+.modal-header h3 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--white);
+}
+
+.close-modal {
+  color: rgba(255,255,255,0.7);
+  font-size: 20px;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  transition: all var(--transition);
+}
+
+.close-modal:hover {
+  background: rgba(255,255,255,0.15);
+  color: var(--white);
+}
+
+/* ── Modal body ── */
+.modal-body {
+  padding: 20px 24px;
+}
+
+/* ── Form group spacing ── */
+.modal-body .form-group {
+  margin-bottom: 16px;
+}
+
+.modal-body .form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+  letter-spacing: 0.1px;
+}
+
+/* ── Inputs ── */
+.modal-body .form-group input,
+.modal-body .form-group textarea,
+.modal-body .form-group select {
+  border-color: var(--gray-200);
+  border-radius: 8px;
+  font-size: 14px;
+  padding: 9px 12px;
+  background: var(--gray-50);
+  transition: all var(--transition);
+}
+
+.modal-body .form-group input:focus,
+.modal-body .form-group textarea:focus,
+.modal-body .form-group select:focus {
+  border-color: var(--primary-color);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.08);
+}
+
+.modal-body .form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* ── Section divider inside modal ── */
+.modal-section-divider {
+  height: 1px;
+  background: var(--gray-100);
+  margin: 4px -24px 16px;
+}
+
+/* ── File upload zone ── */
+.file-upload-trigger {
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--gray-50);
+  border-color: var(--gray-200);
+}
+
+.file-upload-trigger:hover {
+  border-color: var(--primary-color);
+  background: #f0f5ff;
+}
+
+/* ── Logo preview box ── */
+.logo-preview-box {
+  border-radius: 8px;
+  background: var(--gray-50);
+  border-color: var(--gray-200);
+  padding: 8px 10px;
+  margin-top: 8px;
+}
+
+/* ── Helper row ── */
+.field-helper-row {
+  font-size: 11px;
+  color: var(--gray-400);
+  margin-top: 4px;
+  gap: 4px;
+}
+
+/* ── Status select dot ── */
+.status-select-wrap select {
+  background: var(--gray-50);
+  border-color: var(--gray-200);
+  border-radius: 8px;
+}
+
+/* ── Change note box ── */
+.change-note-box {
+  background: var(--gray-50);
+  border-color: var(--gray-100);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.change-note-box textarea {
+  border-color: var(--gray-200);
+  border-radius: 6px;
+  font-size: 13px;
+  min-height: 60px;
+}
+
+/* ── Health check row ── */
+.health-check-row {
+  border-radius: 8px;
+  background: var(--gray-50);
+  border-color: var(--gray-100);
+  padding: 12px;
+  margin-bottom: 0;
+}
+
+/* ── Modal footer ── */
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--gray-100);
+  background: var(--gray-50);
+  border-radius: 0 0 14px 14px;
+  gap: 10px;
+}
+
+.modal-footer .btn {
+  padding: 9px 20px;
+  font-size: 13.5px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.modal-footer .btn-primary {
+  background: var(--primary-color);
+  min-width: 120px;
+}
+
+.modal-footer .btn-primary:hover {
+  background: var(--primary-dark);
+  box-shadow: 0 4px 12px rgba(22, 38, 96, 0.25);
+  transform: translateY(-1px);
+}
+
+.modal-footer .btn-secondary {
+  border-color: var(--gray-200);
+  color: var(--gray-600);
+}
+
+.modal-footer .btn-secondary:hover {
+  background: var(--gray-100);
+  border-color: var(--gray-300);
+  color: var(--gray-800);
+}
+
+/* ============================================================
+   G-Portal — Mark as Online Banner
+   Add at the bottom of assets/css/maintenance.css
+   ============================================================ */
+
+.mark-online-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 22px;
+    background: #f0fdf4;
+    border-bottom: 1px solid #bbf7d0;
+    flex-wrap: wrap;
+}
+
+.mark-online-banner-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #166534;
+    flex: 1;
+    min-width: 0;
+}
+
+.mark-online-banner-info svg {
+    color: #16a34a;
+    flex-shrink: 0;
+}
+
+.btn-mark-online {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: #16a34a;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-mark-online:hover {
+    background: #15803d;
+    box-shadow: 0 3px 10px rgba(22, 163, 74, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-mark-online:active {
+    transform: translateY(0);
+}
+
+
+/* ============================================================
+   CATEGORY GROUPING — Dashboard
+   ============================================================ */
+
+.category-group {
+    margin-bottom: 40px;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.category-title {
+    font-size: 33px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    letter-spacing: -0.3px;
+}
+
+.category-title::before { display: none; }
+
+/* Count badge hidden — not needed */
+.category-count {
+    display: none;
+}
+
+/* ============================================================
+   FILTER BUTTONS — Active state when filter is applied
+   ============================================================ */
+
+.btn-filter-active {
+    background-color: var(--primary-color) !important;
+    color: var(--white) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.btn-filter-active:hover {
+    background-color: var(--primary-dark) !important;
+}
+
+/* Small dot indicator showing filter is active */
+.filter-active-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    background: #60a5fa;
+    border-radius: 50%;
+    margin-left: 2px;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   CLEAR FILTERS BUTTON
+   ============================================================ */
+.btn-clear-filters {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid #fca5a5;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all var(--transition);
+    white-space: nowrap;
+    height: fit-content;
+}
+
+.btn-clear-filters:hover {
+    background: #fee2e2;
+    border-color: var(--danger);
+}
+
+/* ── Categories button — matches Schedule Multiple exactly ── */
+.btn-categories {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--white);
+    border: 1px solid var(--primary-color);
+    border-radius: var(--radius-sm);
+    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+    height: fit-content;
+    font-family: inherit;
+}
+ 
+.btn-categories svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--primary-color);
+}
+ 
+.btn-categories:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white);
+    box-shadow: var(--shadow-md);
+}
+ 
+.btn-categories:hover svg {
+    color: var(--white);
+}
+ 
+/* ── Categories modal ── */
+.categories-modal-content {
+    max-width: 480px;
+    width: 100%;
+}
+ 
+/* ── Info bar ── */
+.cat-info-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 12px;
+    color: var(--gray-500);
+    font-weight: 500;
+}
+ 
+.cat-info-bar svg {
+    flex-shrink: 0;
+    color: var(--gray-400);
+}
+ 
+/* ── List container ── */
+.cat-list {
+    min-height: 60px;
+    max-height: 340px;
+    overflow-y: auto;
+}
+ 
+.cat-list::-webkit-scrollbar { width: 4px; }
+.cat-list::-webkit-scrollbar-track { background: transparent; }
+.cat-list::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 4px; }
+ 
+.cat-loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 28px 20px;
+    color: var(--gray-500);
+    font-size: 14px;
+}
+ 
+.cat-empty {
+    padding: 28px 20px;
+    color: var(--gray-400);
+    font-size: 14px;
+    text-align: center;
+}
+ 
+/* ── Category row ── */
+.cat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    background: var(--white);
+    transition: background 0.15s ease;
+    cursor: default;
+    user-select: none;
+    position: relative;
+}
+ 
+.cat-row:last-child {
+    border-bottom: none;
+}
+ 
+.cat-row:hover {
+    background: var(--gray-50);
+}
+ 
+.cat-row.cat-dragging {
+    opacity: 0.4;
+    background: var(--secondary-color);
+}
+ 
+.cat-row.cat-drag-over {
+    background: #eff6ff;
+    border-top: 2px solid var(--primary-color);
+}
+ 
+/* ── Drag handle ── */
+.cat-drag-handle {
+    display: flex;
+    align-items: center;
+    color: var(--gray-300);
+    cursor: grab;
+    padding: 4px 3px;
+    border-radius: 4px;
+    transition: color 0.15s;
+    flex-shrink: 0;
+}
+ 
+.cat-drag-handle:hover {
+    color: var(--primary-color);
+    background: var(--secondary-color);
+}
+ 
+.cat-drag-handle:active {
+    cursor: grabbing;
+}
+ 
+/* ── Order badge ── */
+.cat-order-badge {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+ 
+/* ── Name wrap ── */
+.cat-name-wrap {
+    flex: 1;
+    min-width: 0;
+}
+ 
+.cat-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+ 
+.cat-name-input {
+    width: 100%;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1.5px solid var(--primary-color);
+    border-radius: 6px;
+    outline: none;
+    background: var(--white);
+    color: var(--primary-dark);
+    box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.08);
+    transition: box-shadow 0.15s;
+    font-family: inherit;
+}
+ 
+/* ── System count badge ── */
+.cat-system-count {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-500);
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 2px 8px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+ 
+.cat-system-count svg {
+    color: var(--gray-400);
+}
+ 
+/* ── Action buttons ── */
+.cat-actions {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+}
+ 
+.cat-btn-rename,
+.cat-btn-save,
+.cat-btn-cancel-rename,
+.cat-btn-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+    color: var(--gray-400);
+    padding: 0;
+    flex-shrink: 0;
+}
+ 
+.cat-btn-rename:hover {
+    background: var(--secondary-color);
+    border-color: var(--secondary-dark);
+    color: var(--primary-color);
+}
+ 
+.cat-btn-save {
+    color: var(--success);
+}
+ 
+.cat-btn-save:hover {
+    background: #d1fae5;
+    border-color: #6ee7b7;
+    color: #065f46;
+}
+ 
+.cat-btn-cancel-rename {
+    color: var(--gray-400);
+}
+ 
+.cat-btn-cancel-rename:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: var(--danger);
+}
+ 
+.cat-btn-delete:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: var(--danger);
+}
+ 
+/* ── Add new category section ── */
+.cat-add-section {
+    padding: 14px 16px 16px;
+    background: var(--gray-50);
+    border-top: 1px solid var(--gray-100);
+}
+ 
+.cat-add-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+ 
+.cat-add-input {
+    flex: 1;
+    padding: 9px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    outline: none;
+    background: var(--white);
+    color: var(--primary-dark);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+}
+ 
+.cat-add-input::placeholder {
+    color: var(--gray-400);
+    font-weight: 400;
+}
+ 
+.cat-add-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.08);
+}
+ 
+.cat-btn-add-confirm {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    background: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+    font-family: inherit;
+}
+ 
+.cat-btn-add-confirm:hover {
+    background: var(--primary-dark);
+    box-shadow: 0 4px 12px rgba(22, 38, 96, 0.25);
+    transform: translateY(-1px);
+}
+ 
+.cat-btn-add-confirm:active {
+    transform: translateY(0);
+}
+ 
+.cat-btn-add-confirm:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+ 
+/* ── Reassign section (inside delete modal) ── */
+.cat-reassign-section {
+    margin-top: 14px;
+}
+ 
+.cat-reassign-section label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 6px;
+}
+ 
+.cat-reassign-select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    background: var(--white);
+    color: var(--primary-dark);
+    outline: none;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23162660' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+ 
+.cat-reassign-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.08);
 }

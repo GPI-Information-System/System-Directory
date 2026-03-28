@@ -90,7 +90,6 @@ body {
   gap: 8px;
 }
 
-/* Notification Bell */
 .notification-bell {
   position: relative;
   display: inline-block;
@@ -184,25 +183,20 @@ body {
   transform: rotate(0deg);
 }
 
-/* Mobile Responsive */
 @media (max-width: 768px) {
   .header-content {
     padding: 0 24px;
   }
-
   .viewer-header h1 {
     font-size: 22px;
   }
-
   .bell-button {
     padding: 8px;
   }
-
   .bell-button svg {
     width: 18px;
     height: 18px;
   }
-
   .login-button-slide.show {
     max-width: 130px;
     padding: 10px 16px;
@@ -214,7 +208,6 @@ body {
   .header-content {
     padding: 0 20px;
   }
-
   .viewer-header h1 {
     font-size: 20px;
   }
@@ -273,11 +266,16 @@ body {
   margin-top: 20px;
 }
 
+/*
+ * KEY FIX: removed max-width: 600px so the row stretches
+ * full width — this allows margin-left: auto on the
+ * Status Logs button to push it to the far right edge.
+ */
 .search-wrapper-viewer {
   display: flex;
   gap: 12px;
   align-items: center;
-  max-width: 600px;
+  width: 100%;          /* stretch full width */
 }
 
 .search-box-viewer {
@@ -291,6 +289,7 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23162660' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='m21 21-4.35-4.35'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: 14px center;
+  max-width: 360px;     /* cap the search box width only */
 }
 
 .search-box-viewer::placeholder {
@@ -387,24 +386,12 @@ body {
   flex-shrink: 0;
 }
 
-.filter-all {
-  background-color: var(--primary-light);
-}
-.filter-online {
-  background-color: var(--success);
-}
-.filter-offline {
-  background-color: var(--gray-500);
-}
-.filter-maintenance {
-  background-color: var(--warning);
-}
-.filter-down {
-  background-color: var(--danger);
-}
-.filter-archived {
-  background-color: var(--gray-300);
-}
+.filter-all         { background-color: var(--primary-light); }
+.filter-online      { background-color: var(--success); }
+.filter-offline     { background-color: var(--gray-500); }
+.filter-maintenance { background-color: var(--warning); }
+.filter-down        { background-color: var(--danger); }
+.filter-archived    { background-color: var(--gray-300); }
 
 /* ================================
    ACTIVE FILTERS DISPLAY
@@ -551,31 +538,11 @@ body {
   margin-bottom: 14px;
 }
 
-.status-online {
-  background-color: #d1fae5;
-  color: #065f46;
-  border: 1px solid #6ee7b7;
-}
-.status-offline {
-  background-color: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
-}
-.status-maintenance {
-  background-color: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fcd34d;
-}
-.status-down {
-  background-color: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #fca5a5;
-}
-.status-archived {
-  background-color: #e5e7eb;
-  color: #6b7280;
-  border: 1px solid #d1d5db;
-}
+.status-online      { background-color: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.status-offline     { background-color: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+.status-maintenance { background-color: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+.status-down        { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.status-archived    { background-color: #e5e7eb; color: #6b7280; border: 1px solid #d1d5db; }
 
 .status-indicator-viewer {
   width: 6px;
@@ -584,24 +551,11 @@ body {
   flex-shrink: 0;
 }
 
-.status-online .status-indicator-viewer {
-  background-color: #10b981;
-  animation: pulse-active 2s infinite;
-}
-.status-offline .status-indicator-viewer {
-  background-color: #6b7280;
-}
-.status-maintenance .status-indicator-viewer {
-  background-color: #f59e0b;
-  animation: pulse-warning 2s infinite;
-}
-.status-down .status-indicator-viewer {
-  background-color: #ef4444;
-  animation: pulse-danger 1.5s infinite;
-}
-.status-archived .status-indicator-viewer {
-  background-color: #9ca3af;
-}
+.status-online .status-indicator-viewer      { background-color: #10b981; animation: pulse-active 2s infinite; }
+.status-offline .status-indicator-viewer     { background-color: #6b7280; }
+.status-maintenance .status-indicator-viewer { background-color: #f59e0b; animation: pulse-warning 2s infinite; }
+.status-down .status-indicator-viewer        { background-color: #ef4444; animation: pulse-danger 1.5s infinite; }
+.status-archived .status-indicator-viewer    { background-color: #9ca3af; }
 
 /* ================================
    MAINTENANCE SCHEDULE BUTTON
@@ -611,7 +565,7 @@ body {
   align-items: center;
   gap: 7px;
   padding: 10px 16px;
-  background: var(--primary-color, #162660);
+  background: var(--primary-color);
   color: #ffffff;
   text-decoration: none;
   border-radius: 6px;
@@ -625,7 +579,7 @@ body {
 }
 
 .btn-maintenance-viewer:hover {
-  background: var(--primary-dark, #0f1a45);
+  background: var(--primary-dark);
   box-shadow: 0 4px 12px rgba(22, 38, 96, 0.25);
   transform: translateY(-1px);
 }
@@ -636,6 +590,49 @@ body {
 
 .btn-maintenance-viewer svg {
   flex-shrink: 0;
+}
+
+/* ================================
+   STATUS LOGS BUTTON
+   margin-left: auto pushes it to the
+   far right edge of .search-wrapper-viewer
+   ================================ */
+.btn-status-logs-viewer {
+  display:          inline-flex;
+  align-items:      center;
+  gap:              7px;
+  margin-left:      auto;
+  padding:          10px 16px;
+  background-color: var(--primary-color);
+  color:            var(--white);
+  border:           1px solid transparent;
+  border-radius:    var(--radius-sm);
+  font-size:        13.5px;
+  font-weight:      600;
+  text-decoration:  none;
+  white-space:      nowrap;
+  letter-spacing:   0.01em;
+  cursor:           pointer;
+  flex-shrink:      0;
+  transition:       background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.btn-status-logs-viewer svg {
+  flex-shrink: 0;
+  color:       var(--white);
+}
+
+.btn-status-logs-viewer:hover {
+  background:       var(--primary-dark);
+  box-shadow:       0 4px 12px rgba(22, 38, 96, 0.25);
+  transform:        translateY(-1px);
+  color:            var(--white);
+  text-decoration:  none;
+}
+
+.btn-status-logs-viewer:active {
+  transform:  translateY(0);
+  box-shadow: none;
 }
 
 /* ================================
@@ -650,13 +647,13 @@ body {
   display: block;
   width: 100%;
   max-width: 250px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+  text-align: center;
 }
 
-/* FIX: padding-bottom creates space so the underline
-   is never clipped by overflow:hidden at any zoom level */
 .system-domain-viewer {
   font-size: 14px;
   color: var(--primary-color);
@@ -800,55 +797,28 @@ body {
    ANIMATIONS
    ================================ */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes pulse-active {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
 }
 
 @keyframes pulse-warning {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
 }
 
 @keyframes pulse-danger {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.1);
-  }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.7; transform: scale(1.1); }
 }
 
 /* ================================
@@ -868,27 +838,33 @@ body {
   .page-title {
     font-size: 26px;
   }
-
   .search-wrapper-viewer {
     flex-direction: column;
-    max-width: 100%;
-  }
-
-  .search-box-viewer {
     width: 100%;
   }
-
+  .search-box-viewer {
+    width: 100%;
+    max-width: 100%;
+  }
   .btn-filter-viewer {
     width: 100%;
     justify-content: center;
   }
-
   .filter-dropdown-viewer {
     right: auto;
     left: 0;
     width: 100%;
   }
-
+  .btn-maintenance-viewer {
+    width: 100%;
+    justify-content: center;
+  }
+  /* On mobile: remove auto margin, go full width */
+  .btn-status-logs-viewer {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
   .systems-grid-viewer {
     grid-template-columns: 1fr;
   }
@@ -909,150 +885,256 @@ body {
   }
 }
 
-
 /* ================================
    MAINTENANCE BUTTON — SPEECH DIALOG BOX
-   Always visible when data exists.
-   Append this block to the bottom of viewer.css
    ================================ */
-
-/* Wrapper holds button + dialog together */
 .maint-btn-wrapper {
-    position: relative;
-    display: inline-flex;
-    flex-shrink: 0;
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
 }
 
-/* Speech dialog box — compact single line, always visible */
 .maint-popover {
-    position: absolute;
-    bottom: calc(100% + 12px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: #ffffff;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 20px;
-    padding: 5px 12px;
-    min-width: 0;
-    white-space: nowrap;
-    box-shadow: 0 4px 14px rgba(22, 38, 96, 0.11);
-    z-index: 200;
-    animation: popoverEntrance 0.25s ease;
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 5px 12px;
+  min-width: 0;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(22, 38, 96, 0.11);
+  z-index: 200;
+  animation: popoverEntrance 0.25s ease;
 }
 
 @keyframes popoverEntrance {
-    from { opacity: 0; transform: translateX(-50%) translateY(6px); }
-    to   { opacity: 1; transform: translateX(-50%) translateY(0);   }
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-/* Speech bubble triangle tail pointing DOWN toward button */
 .maint-popover::after {
-    content: '';
-    position: absolute;
-    bottom: -7px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 7px solid transparent;
-    border-right: 7px solid transparent;
-    border-top: 7px solid #ffffff;
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid #ffffff;
 }
 
-/* Border outline for the triangle */
 .maint-popover::before {
-    content: '';
-    position: absolute;
-    bottom: -9px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 8px solid #e5e7eb;
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #e5e7eb;
 }
 
-/* Hide the thought-cloud tail spans */
 .maint-popover-tail { display: none; }
 
-/* Rows — laid out horizontally in one line */
 .maint-popover-inner {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .maint-popover-row {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
 }
 
-/* Separator between rows */
 .maint-popover-row + .maint-popover-row::before {
-    content: '·';
-    color: #d1d5db;
-    font-size: 14px;
-    margin-right: 5px;
+  content: '·';
+  color: #d1d5db;
+  font-size: 14px;
+  margin-right: 5px;
 }
 
-/* Colored dot */
 .maint-popover-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.maint-popover-dot--ongoing {
-    background-color: #f59e0b;
-    animation: pulse-warning 2s infinite;
-}
+.maint-popover-dot--ongoing   { background-color: #f59e0b; animation: pulse-warning 2s infinite; }
+.maint-popover-dot--scheduled { background-color: #3b82f6; }
 
-.maint-popover-dot--scheduled {
-    background-color: #3b82f6;
-}
-
-/* Text */
 .maint-popover-text {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 3px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
 }
 
 .maint-popover-count {
-    font-size: 13px;
-    font-weight: 900;
-    letter-spacing: -0.3px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: -0.3px;
 }
 
 .maint-popover-row--ongoing .maint-popover-count  { color: #b45309; }
 .maint-popover-row--scheduled .maint-popover-count { color: #1d4ed8; }
 
 .maint-popover-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: #6b7280;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
 }
 
-/* Mobile: open downward */
 @media (max-width: 768px) {
-    .maint-popover {
-        bottom: auto;
-        top: calc(100% + 12px);
-    }
-    .maint-popover::after {
-        bottom: auto;
-        top: -7px;
-        border-top: none;
-        border-bottom: 7px solid #ffffff;
-    }
-    .maint-popover::before {
-        bottom: auto;
-        top: -9px;
-        border-top: none;
-        border-bottom: 8px solid #e5e7eb;
-    }
+  .maint-popover {
+    bottom: auto;
+    top: calc(100% + 12px);
+  }
+  .maint-popover::after {
+    bottom: auto;
+    top: -7px;
+    border-top: none;
+    border-bottom: 7px solid #ffffff;
+  }
+  .maint-popover::before {
+    bottom: auto;
+    top: -9px;
+    border-top: none;
+    border-bottom: 8px solid #e5e7eb;
+  }
+}
+
+/* ============================================================
+   G-Portal — Status Change Flash Animation
+   Add this snippet to:
+     - assets/css/style.css   (dashboard)
+     - assets/css/viewer.css  (viewer)
+   ============================================================ */
+
+@keyframes statusChangedFlash {
+    0%   { outline: 3px solid transparent; box-shadow: none; }
+    25%  { outline: 3px solid #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,0.5); }
+    75%  { outline: 3px solid #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,0.5); }
+    100% { outline: 3px solid transparent; box-shadow: none; }
+}
+
+.status-changed-flash {
+    animation: statusChangedFlash 1.5s ease forwards;
+}
+
+/* ============================================================
+   CATEGORY GROUPING — Viewer
+   ============================================================ */
+
+.viewer-category-group {
+    margin-bottom: 40px;
+}
+
+.viewer-category-title {
+    font-size: 33px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    letter-spacing: -0.3px;
+    margin-bottom: 20px;
+}
+
+/* ============================================================
+   FILTER BUTTON — Active state
+   ============================================================ */
+
+.btn-filter-viewer-active {
+    background-color: var(--primary-color) !important;
+    color: var(--white) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.btn-filter-viewer-active:hover {
+    background-color: var(--primary-dark) !important;
+}
+
+/* ============================================================
+   CLEAR FILTERS BUTTON — Viewer
+   ============================================================ */
+
+.btn-clear-filters-viewer {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid #fca5a5;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all var(--transition);
+    white-space: nowrap;
+}
+
+.btn-clear-filters-viewer:hover {
+    background: #fee2e2;
+    border-color: var(--danger);
+}
+
+/* ============================================================
+   JAPANESE LANGUAGE PILL SWITCHER
+   ============================================================ */
+
+.jp-lang-switcher {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 20px;
+    padding: 3px;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.jp-lang-option {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 16px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-family: inherit;
+    line-height: 1;
+}
+
+.jp-lang-option:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.jp-lang-option.active {
+    background: #ffffff;
+    color: var(--primary-color);
+    font-weight: 700;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+.jp-lang-divider {
+    width: 1px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+    .jp-lang-option { padding: 5px 10px; font-size: 12px; }
 }
