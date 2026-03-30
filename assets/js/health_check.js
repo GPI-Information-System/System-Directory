@@ -6,11 +6,13 @@
  *   - pages/dashboard.php  (admin)
  *   - pages/viewer.php     (public)
  *
- * FIX: Dashboard now auto-reloads on ANY status change —
- *      both from health check and maintenance check —
- *      instead of only updating cards in-place.
- *      This ensures all UI elements (cards, chart, calendar,
- *      filters) always reflect the latest state accurately.
+ * FIX: Dashboard auto-reloads on ANY status change.
+ *
+ * FIX 2: Viewer page now has a dedicated status poll that
+ *         compares current card statuses against the DB.
+ *         This catches ALL status changes — including manual
+ *         ones from the dashboard — not just health check
+ *         detected changes. Reloads if any mismatch found.
  */
 
 (function GPortalHealthCheck() {
@@ -39,6 +41,10 @@
         ? '../backend/maintenance/trigger_maintenance_check.php?source=viewer'
         : '../backend/maintenance/trigger_maintenance_check.php';
 
+    const STATUS_ENDPOINT = IS_VIEWER
+        ? '../backend/get_systems_status.php?source=viewer'
+        : '../backend/get_systems_status.php';
+
     // ─────────────────────────────────────────────
     // Guard: prevent multiple reloads firing at
     // the same time if both polls detect a change
@@ -53,12 +59,6 @@
 
     // ─────────────────────────────────────────────
     // Build correct badge HTML matching PHP output
-    // Dashboard: <div class="card-status-badge status-X">
-    //              <span class="status-indicator"></span>Label
-    //            </div>
-    // Viewer:    <div class="status-badge-viewer status-X">
-    //              <span class="status-indicator-viewer"></span>Label
-    //            </div>
     // ─────────────────────────────────────────────
     function buildBadgeHTML(status) {
         var label      = STATUS_LABELS[status] || status;
@@ -82,16 +82,13 @@
         var oldStatus   = card.dataset.status;
         var showContact = ['maintenance', 'offline', 'down'].includes(newStatus);
 
-        // 1. Update data-status
         card.dataset.status = newStatus;
 
-        // 2. Replace badge element
         var oldBadge = card.querySelector(BADGE_CLASS);
         if (oldBadge) {
             oldBadge.outerHTML = buildBadgeHTML(newStatus);
         }
 
-        // 3. Add or remove contact message
         var contactMsg = card.querySelector('.system-contact-message');
         if (showContact && !contactMsg) {
             var contactNumber = card.dataset.contactNumber || '123';
@@ -100,7 +97,6 @@
             contactMsg.remove();
         }
 
-        // 4. Flash animation
         card.classList.add('status-changed-flash');
         setTimeout(function() { card.classList.remove('status-changed-flash'); }, 1500);
 
@@ -153,14 +149,11 @@
                     console.warn('[G-Portal] Health check error:', data.message);
                     return;
                 }
-                if (data.changed > 0 && data.updatedSystems && data.updatedSystems.length > 0) {
+                if (data.changed > 0) {
                     if (IS_VIEWER) {
-                        // Viewer: reload to reflect all changes cleanly
-                        location.reload();
+                        reloadDashboard();
                         return;
                     }
-                    // FIX: Dashboard always reloads on any status change
-                    // so cards, chart, calendar, and filters all stay in sync
                     reloadDashboard();
                 }
             },
@@ -184,12 +177,6 @@
                     return;
                 }
                 if (data.switched > 0) {
-                    if (IS_VIEWER) {
-                        // Viewer: reload to reflect all changes cleanly
-                        location.reload();
-                        return;
-                    }
-                    // FIX: Dashboard reloads on any maintenance switch
                     reloadDashboard();
                 }
             },
@@ -200,26 +187,39 @@
     }
 
     // ─────────────────────────────────────────────
-    // Fetch latest statuses for all cards after
-    // a maintenance switch (viewer page only)
+    // 3. Viewer-only: Status poll
+    // Compares current card statuses on the page
+    // against the DB. Reloads if ANY mismatch found.
+    // This catches manual status changes from the
+    // dashboard that the health check won't detect.
     // ─────────────────────────────────────────────
-    function fetchAndUpdateAllStatuses() {
-        var endpoint = IS_VIEWER
-            ? '../backend/get_systems_status.php?source=viewer'
-            : '../backend/get_systems_status.php';
+    function runViewerStatusPoll() {
+        if (!IS_VIEWER) return;
 
         $.ajax({
-            url:      endpoint,
+            url:      STATUS_ENDPOINT,
             method:   'GET',
             dataType: 'json',
             success: function(data) {
                 if (!data.success || !data.systems) return;
+
+                var hasChange = false;
+
                 data.systems.forEach(function(sys) {
-                    var card = document.querySelector(CARD_CLASS + '[data-system-id="' + sys.id + '"]');
+                    var card = document.querySelector(
+                        '.system-card-viewer[data-system-id="' + sys.id + '"]'
+                    );
                     if (card && card.dataset.status !== sys.status) {
-                        updateCard(sys.id, sys.status);
+                        console.log('[G-Portal Viewer] Status mismatch for #' + sys.id +
+                            ': page=' + card.dataset.status + ' db=' + sys.status);
+                        hasChange = true;
                     }
                 });
+
+                if (hasChange) {
+                    console.log('[G-Portal Viewer] Status change detected — reloading page');
+                    reloadDashboard();
+                }
             },
             error: function() {
                 // Silently fail — next poll will catch it
@@ -233,9 +233,18 @@
     $(document).ready(function() {
         runHealthCheck();
         runMaintenanceCheck();
+
+        // Viewer: also run status poll immediately
+        if (IS_VIEWER) runViewerStatusPoll();
+
         setInterval(function() {
             runHealthCheck();
             runMaintenanceCheck();
+
+            // Viewer: poll DB statuses every 10s to catch
+            // any manual changes made from the dashboard
+            if (IS_VIEWER) runViewerStatusPoll();
+
         }, POLL_INTERVAL);
     });
 

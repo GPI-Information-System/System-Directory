@@ -6,9 +6,11 @@
  *        schedule are ALWAYS skipped — even after exceeding end_datetime.
  */
 
+ob_start(); 
 require_once '../config/session.php';
 require_once '../config/database.php';
 require_once __DIR__ . '/send_email_notification.php';
+ob_clean(); 
 
 header('Content-Type: application/json');
 

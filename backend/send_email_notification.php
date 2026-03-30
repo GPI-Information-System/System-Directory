@@ -8,8 +8,17 @@
 require_once __DIR__ . '/../config/email_config.php';
 require_once __DIR__ . '/../config/database.php';
 
-if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    require_once __DIR__ . '/../vendor/autoload.php';
+// FIX: Load PHPMailer manually (no Composer needed)
+// Files placed in vendor/phpmailer/src/
+$phpmailerBase = __DIR__ . '/../vendor/phpmailer/src/';
+if (file_exists($phpmailerBase . 'Exception.php') &&
+    file_exists($phpmailerBase . 'PHPMailer.php') &&
+    file_exists($phpmailerBase . 'SMTP.php')) {
+    require_once $phpmailerBase . 'Exception.php';
+    require_once $phpmailerBase . 'PHPMailer.php';
+    require_once $phpmailerBase . 'SMTP.php';
+} else {
+    error_log("G-Portal Email: PHPMailer files not found in vendor/phpmailer/src/");
 }
 
 // ── Log rotation settings ──────────────────────────────────
@@ -24,24 +33,24 @@ define('EMAIL_LOG_KEEP_LINES', 400);
 // ============================================================
 function sendStatusChangeEmail($systemId, $systemName, $oldStatus, $newStatus, $domain, $changedBy, $note = '') {
 
-   // ── Master toggle check ──────────────────────────────────
-if (!defined('EMAIL_NOTIFICATIONS_ENABLED') || !EMAIL_NOTIFICATIONS_ENABLED) {
-    // Still log to file using real recipients so you can verify who would receive it
-    $recipients = getSuperAdminEmails();
-    $text       = buildTextEmail($systemName, $oldStatus, $newStatus, $domain, $changedBy, $note);
-    if (!empty($recipients)) {
-        foreach ($recipients as $recipient) {
-            logEmailToFile($recipient['email'], $recipient['name'], 
+    
+    if (!defined('EMAIL_NOTIFICATIONS_ENABLED') || !EMAIL_NOTIFICATIONS_ENABLED) {
+        // Still log to file using real recipients so you can verify who would receive it
+        $recipients = getSuperAdminEmails();
+        $text       = buildTextEmail($systemName, $oldStatus, $newStatus, $domain, $changedBy, $note);
+        if (!empty($recipients)) {
+            foreach ($recipients as $recipient) {
+                logEmailToFile($recipient['email'], $recipient['name'],
+                    '[G-Portal — DISABLED] System ' . $newStatus . ': ' . $systemName,
+                    '', $text);
+            }
+        } else {
+            logEmailToFile('no-superadmin-email', 'No Super Admin email set',
                 '[G-Portal — DISABLED] System ' . $newStatus . ': ' . $systemName,
                 '', $text);
         }
-    } else {
-        logEmailToFile('no-superadmin-email', 'No Super Admin email set',
-            '[G-Portal — DISABLED] System ' . $newStatus . ': ' . $systemName,
-            '', $text);
+        return false;
     }
-    return false;
-}
 
     // ── Only send for Down / Offline ─────────────────────────
     $triggerStatuses = defined('EMAIL_TRIGGER_STATUSES') ? EMAIL_TRIGGER_STATUSES : ['down', 'offline'];
@@ -72,13 +81,12 @@ if (!defined('EMAIL_NOTIFICATIONS_ENABLED') || !EMAIL_NOTIFICATIONS_ENABLED) {
 
 // ============================================================
 // FETCH RECIPIENTS
-// Always fetches Super Admins only, regardless of
-// EMAIL_RECIPIENTS setting — as required.
+// Always fetches Super Admins only
+// 
 // ============================================================
 function getSuperAdminEmails() {
     $conn = getDBConnection();
 
-    // FIX: Always query Super Admin role only
     $sql = "SELECT email, username
             FROM users
             WHERE role = 'Super Admin'
@@ -96,11 +104,11 @@ function getSuperAdminEmails() {
             ];
         }
     }
-    $conn->close();
+    
     return $recipients;
 }
 
-// Keep old function name for compatibility
+
 function getAdminEmails() {
     return getSuperAdminEmails();
 }
@@ -113,15 +121,13 @@ function sendEmail($to, $toName, $subject, $htmlBody, $textBody) {
     if (class_exists('PHPMailer\PHPMailer\PHPMailer')) {
         return sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody);
     }
-    // PHPMailer not installed — log only
+    // PHPMailer not found — log only
     error_log("G-Portal Email: PHPMailer not found — logging only");
     return logEmailToFile($to, $toName, $subject, $htmlBody, $textBody);
 }
 
 // ============================================================
 // PHPMAILER — OFFICE 365 SMTP
-// FIX: Uses EMAIL_FROM_ADDRESS and EMAIL_FROM_NAME constants
-//      (previously was using SMTP_FROM_EMAIL which was undefined)
 // ============================================================
 function sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody) {
     try {
@@ -165,10 +171,7 @@ function sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody) {
             $mail->SMTPKeepAlive = true;
         }
 
-        // ── FIX: Use EMAIL_FROM_ADDRESS / EMAIL_FROM_NAME ─────
-        // Previously the code was looking for EMAIL_FROM_ADDRESS
-        // but email_config.php defined SMTP_FROM_EMAIL — now both
-        // constants are named consistently.
+        // ── Sender details ────────────────────────────────────
         $fromEmail = defined('EMAIL_FROM_ADDRESS') ? EMAIL_FROM_ADDRESS : (defined('SMTP_USERNAME') ? SMTP_USERNAME : '');
         $fromName  = defined('EMAIL_FROM_NAME')    ? EMAIL_FROM_NAME    : 'G-Portal System Alerts';
 
@@ -196,8 +199,7 @@ function sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody) {
 }
 
 // ============================================================
-// FILE LOGGER — fallback when emails can't be sent
-// Also called after successful send for audit trail
+// FILE LOGGER 
 // ============================================================
 function logEmailToFile($to, $toName, $subject, $htmlBody, $textBody) {
     $logFile = EMAIL_LOG_FILE;
@@ -250,7 +252,6 @@ function buildEmailTemplate($systemName, $oldStatus, $newStatus, $domain, $chang
     date_default_timezone_set('Asia/Manila');
     $timestamp = date('F j, Y \a\t g:i A');
 
-    // Strip emojis from auto-detected notes
     $cleanNote = trim(preg_replace('/[\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', '', $note));
 
     $noteRow = '';
