@@ -26,9 +26,9 @@ $conn->close();
     <title>G-Portal - Analytics & Reports</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/analytics.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="../assets/js/chart.umd.min.js"></script>
+    <script src="../assets/js/jspdf.umd.min.js"></script>
+    <script src="../assets/js/html2canvas.min.js"></script>
 </head>
 <body>
     <!-- Hamburger button for tablet/mobile -->

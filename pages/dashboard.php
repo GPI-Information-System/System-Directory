@@ -54,7 +54,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
     <title>G-Portal - Dashboard</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/maintenance.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+     <script src="../assets/js/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="container">
