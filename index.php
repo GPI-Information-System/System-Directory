@@ -1,19 +1,16 @@
 <?php
-/**
- * G-Portal Login Page
- * Handles user authentication and redirects based on login status
- */
+// G-Portal Login Page
 
 require_once 'config/session.php';
 require_once 'config/database.php';
 
-// Already logged in? Go straight to dashboard
+
 if (isLoggedIn()) {
     header('Location: pages/dashboard.php');
     exit();
 }
 
-// Accessing directly without login intent? Send to public viewer
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !isset($_GET['show'])) {
     header('Location: pages/viewer.php');
     exit();
@@ -65,17 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 <div class="login-split">
 
-    <!-- ===============================
-         LEFT PANEL
-         =============================== -->
+    <!--LEFT PANEL-->
     <div class="login-left">
 
-        <!-- Top bar: Brand name only -->
+        
         <div class="brand-top-bar">
             <span class="brand-name">G-Portal</span>
         </div>
 
-        <!-- Centre content -->
+        
         <div class="left-content">           
             <h1 class="left-heading">
                 Monitor & <br>
@@ -114,9 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     </div>
 
-    <!-- ===============================
-         RIGHT PANEL
-         =============================== -->
+    <!-- RIGHT PANEL -->
     <div class="login-right">
         <div class="login-form-wrapper">
 
