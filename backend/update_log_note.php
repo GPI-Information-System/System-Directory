@@ -1,10 +1,4 @@
 <?php
-/**
- * ============================================================
- * PHASE 2 ENHANCEMENT: Update Status Log Note
- * Allows admins to edit notes for existing status change logs
- * ============================================================
- */
 
 require_once '../config/session.php';
 require_once '../config/database.php';

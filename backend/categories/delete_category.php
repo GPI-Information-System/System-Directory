@@ -1,10 +1,6 @@
 <?php
-/**
- * G-Portal - Delete Category
- * Super Admin only.
- * Requires a reassign_to category name for any systems currently in this category.
- * Prevents deleting the last remaining category.
- */
+/*
+ * G-Portal - Delete Category - Super Admin only. - Requires a reassign_to category name for any systems currently in this category.*/
 
 require_once '../../config/session.php';
 require_once '../../config/database.php';

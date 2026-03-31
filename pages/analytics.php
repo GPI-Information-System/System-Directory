@@ -1,8 +1,7 @@
 <?php
-/**
- * G-Portal Analytics & Reports Page
- * Features: Uptime stats, Patch logs, Completed Maintenance, Monthly Reports, Trends
- */
+
+ //G-Portal Analytics & Reports PageFeatures: Uptime stats, Patch logs, Completed Maintenance, Monthly Reports, Trends
+ 
 
 require_once '../config/session.php';
 require_once '../config/database.php';
@@ -31,11 +30,10 @@ $conn->close();
     <script src="../assets/js/html2canvas.min.js"></script>
 </head>
 <body>
-    <!-- Hamburger button for tablet/mobile -->
 <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Open menu">
     <span></span><span></span><span></span>
 </button>
-<!-- Sidebar overlay -->
+
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
 <div class="container">
@@ -109,9 +107,7 @@ $conn->close();
                 </div>
             </div>
 
-            <!-- ========================================
-                 SECTION 1: UPTIME STATISTICS
-                 ======================================== -->
+
             <section class="analytics-section">
                 <div class="section-header">
                     <h3>System Uptime Statistics</h3>
@@ -120,7 +116,7 @@ $conn->close();
                             <button class="toggle-btn active" data-view="overall" onclick="switchUptimeView('overall')">Overall</button>
                             <button class="toggle-btn" data-view="per-system" onclick="switchUptimeView('per-system')">Per System</button>
                         </div>
-                        <!-- Combined search + dropdown for Per System view -->
+                        <!-- Combined search & dropdown for Per System view -->
                         <div class="report-system-combo" id="uptimeSystemCombo" style="display:none;">
                             <div class="report-system-search-wrap">
                                 <svg class="maint-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -179,9 +175,7 @@ $conn->close();
                 </div>
             </section>
 
-            <!-- ========================================
-                 SECTION 2: STATUS CHANGE HISTORY (PATCH LOGS)
-                 ======================================== -->
+
             <section class="analytics-section">
                 <div class="section-header">
                     <h3>Status Change History (Patch Logs)</h3>
@@ -229,9 +223,7 @@ $conn->close();
                 </div>
             </section>
 
-            <!-- ========================================
-                 SECTION 3: COMPLETED MAINTENANCE
-                 ======================================== -->
+
             <section class="analytics-section">
                 <div class="section-header">
                     <h3>Completed Maintenance</h3>
@@ -281,14 +273,12 @@ $conn->close();
                 </div>
             </section>
 
-            <!-- ========================================
-                 SECTION 4: MONTHLY SYSTEM REPORTS
-                 ======================================== -->
+
             <section class="analytics-section">
                 <div class="section-header">
                     <h3>Monthly System Reports</h3>
                     <div class="section-controls">
-                        <!-- Combined search + dropdown selector -->
+                        <!-- Combined search & dropdown selector -->
                         <div class="report-system-combo" id="reportSystemCombo">
                             <div class="report-system-search-wrap">
                                 <svg class="maint-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -354,9 +344,7 @@ $conn->close();
                 </div>
             </section>
 
-            <!-- ========================================
-                 SECTION 5: STATUS CHANGE TRENDS
-                 ======================================== -->
+
             <section class="analytics-section">
                 <div class="section-header">
                     <h3>Status Change Trends</h3>

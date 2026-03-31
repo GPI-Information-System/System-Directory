@@ -1,9 +1,5 @@
 <?php
-/**
- * G-Portal - Reorder Categories
- * Accepts an ordered array of category IDs and updates sort_order accordingly.
- * Both Super Admin and Admin can reorder.
- */
+/*G-Portal - Reorder Categories*/
 
 require_once '../../config/session.php';
 require_once '../../config/database.php';

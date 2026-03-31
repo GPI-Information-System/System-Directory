@@ -1,7 +1,5 @@
 <?php
-/**
- * G-Portal Analytics Data API
- */
+
 
 require_once '../config/session.php';
 require_once '../config/database.php';
@@ -44,7 +42,7 @@ switch ($action) {
             LEFT JOIN users u ON sl.changed_by = u.id
         ";
         if ($days > 0) $sql .= " WHERE sl.changed_at >= DATE_SUB(NOW(), INTERVAL $days DAY)";
-        // FIX: added sl.id DESC as tiebreaker for same-second entries
+        
         $sql .= " ORDER BY sl.changed_at DESC, sl.id DESC LIMIT $limit";
 
         $result = $conn->query($sql);
@@ -60,9 +58,8 @@ switch ($action) {
         ]);
         break;
 
-    // ============================================================
-    // Completed Maintenance — includes actual_end_datetime
-    // ============================================================
+
+    // Completed Maintenance — includes actual end date & time
     case 'completed_maintenance':
         $days = intval($_GET['days'] ?? 30);
 
@@ -106,17 +103,12 @@ switch ($action) {
         echo json_encode(['success' => true, 'data' => $data]);
         break;
 
-    // ============================================================
-    // Uptime Stats
-    // FIX: Overall view now returns accurate current live snapshot
-    //      from systems table instead of relying on log event counts.
-    // ============================================================
     case 'uptime_stats':
         $systemId = intval($_GET['system_id'] ?? 0);
         $days     = intval($_GET['days']      ?? 30);
 
         if ($systemId > 0) {
-            // Per-system: return individual change events for the chart
+            
             $sql = "SELECT DATE(changed_at) AS date, new_status AS status, changed_at
                     FROM status_logs
                     WHERE system_id = $systemId
@@ -130,7 +122,7 @@ switch ($action) {
             echo json_encode(['success' => true, 'data' => $data]);
 
         } else {
-            // Overall: grouped daily counts for the chart
+           
             $sql = "SELECT DATE(changed_at) AS date, new_status AS status, COUNT(*) AS count
                     FROM status_logs
                     WHERE changed_at >= DATE_SUB(NOW(), INTERVAL $days DAY)
@@ -141,7 +133,7 @@ switch ($action) {
             $data   = [];
             while ($row = $result->fetch_assoc()) $data[] = $row;
 
-            // FIX: Fetch accurate current live status snapshot from systems table
+           
             $statusResult = $conn->query("
                 SELECT status, COUNT(*) as count
                 FROM systems

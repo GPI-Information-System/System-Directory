@@ -1,13 +1,5 @@
 <?php
-/**
- * G-Portal — Database Configuration
- * Optimized for XAMPP localhost development environment
- *
- * FIXED:
- * - Disabled persistent connections (caused 10s timeout on XAMPP)
- * - Reduced connection timeout to 5 seconds
- * - Removed stale connection reuse issue
- */
+/* G-Portal — Database Configuration*/
 
 // Database configuration
 define('DB_HOST',      'localhost');
@@ -17,19 +9,11 @@ define('DB_NAME',      'system_directory_db');
 define('DB_CHARSET',   'utf8mb4');
 define('DB_COLLATION', 'utf8mb4_general_ci');
 
-// -------------------------------------------------------
-// FIXED: Persistent connections disabled for XAMPP
-// Persistent connections cause 10-second stale timeouts
-// on localhost — not worth it for a local dev environment
-// -------------------------------------------------------
+
 define('DB_PERSISTENT', false);
 define('DB_TIMEOUT',    5);  // Reduced from 10s to 5s
 
-/**
- * Get database connection
- * Uses a static variable to reuse connection within the same request
- * without relying on persistent connections across requests.
- */
+
 function getDBConnection() {
     static $conn = null;
 
@@ -57,25 +41,19 @@ function getDBConnection() {
     return $conn;
 }
 
-/**
- * Get read-only connection (same as regular for XAMPP)
- */
+
 function getDBConnectionReadOnly() {
     return getDBConnection();
 }
 
-/**
- * Close database connection
- */
+
 function closeDBConnection($conn) {
     if ($conn) {
         $conn->close();
     }
 }
 
-/**
- * Execute a prepared statement safely
- */
+
 function executePreparedQuery($query, $params = [], $types = '') {
     $conn = getDBConnection();
 
@@ -105,9 +83,7 @@ function executePreparedQuery($query, $params = [], $types = '') {
     return $result;
 }
 
-/**
- * Test database connection
- */
+
 function testDBConnection() {
     try {
         $conn = getDBConnection();

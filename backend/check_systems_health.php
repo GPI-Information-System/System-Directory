@@ -24,11 +24,7 @@ function writeLog($message) {
     file_put_contents(LOG_FILE, $logMessage, FILE_APPEND);
 }
 
-// -------------------------------------------------------
-// BADGE URL CHECK
-// Fetches the badge SVG and parses the status text
-// Returns: 'online', 'down', 'maintenance', or null (unknown)
-// -------------------------------------------------------
+
 function checkBadgeStatus($badgeUrl) {
     $ch = curl_init($badgeUrl);
     curl_setopt_array($ch, [
@@ -52,9 +48,7 @@ function checkBadgeStatus($badgeUrl) {
         return null;
     }
 
-    // Parse the SVG badge text content
-    // Badge SVG contains text nodes like: <text ...>Up</text> or <text ...>Down</text>
-    // We extract all text node values and look for status keywords
+
     $textMatches = [];
     preg_match_all('/<text[^>]*>([^<]+)<\/text>/i', $response, $textMatches);
 
@@ -68,7 +62,6 @@ function checkBadgeStatus($badgeUrl) {
     }
 
     if (empty($statusText)) {
-        // Fallback: search raw response for status keywords
         $lower = strtolower($response);
         if (strpos($lower, '>up<') !== false || strpos($lower, '>up <') !== false) {
             $statusText = 'up';
@@ -97,9 +90,8 @@ function checkBadgeStatus($badgeUrl) {
     return null;
 }
 
-// -------------------------------------------------------
+
 // DOMAIN URL CHECK (fallback when no badge URL)
-// -------------------------------------------------------
 function checkSystemHealth($domain) {
     $url = $domain;
 
@@ -210,9 +202,8 @@ function updateSystemStatus($systemId, $newStatus, $oldStatus, $errorDetails, $s
     writeLog("Updated system #$systemId ($systemName): $oldStatus -> $newStatus — $errorDetails");
 }
 
-// -------------------------------------------------------
 // MAIN MONITORING FUNCTION
-// -------------------------------------------------------
+
 function monitorAllSystems() {
     writeLog("=== Health check started ===");
 
@@ -253,7 +244,7 @@ function monitorAllSystems() {
         $newStatus    = null;
         $errorDetails = null;
 
-        // ── Use Badge URL if available ──────────────────────
+        //  Use Badge URL if available 
         if (!empty($badgeUrl)) {
             writeLog("  METHOD: Badge URL ($badgeUrl)");
             $badgeStatus = checkBadgeStatus($badgeUrl);
@@ -274,7 +265,7 @@ function monitorAllSystems() {
                 writeLog("  SKIP: Badge URL returned unknown status — skipping this system");
             }
 
-        // ── Fallback: Domain URL check ──────────────────────
+        //  Fallback: Domain URL check 
         } else {
             writeLog("  METHOD: Domain URL ($systemDomain)");
             $health = checkSystemHealth($systemDomain);
@@ -312,7 +303,7 @@ function monitorAllSystems() {
     writeLog("");
 }
 
-// Run
+
 try {
     monitorAllSystems();
     echo "Health check completed successfully.\n";

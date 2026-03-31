@@ -1,7 +1,4 @@
-/* ================================
-   VIEWER PAGE JAVASCRIPT
-   Updated: Dynamic categories from DB + system name tooltip
-   ================================ */
+/* VIEWER PAGE JAVASCRIPT */
 
 let currentFilter         = 'all';
 let currentSearchTerm     = '';
@@ -16,9 +13,7 @@ const SLIDER_ICON_VIEWER = `<svg width="18" height="18" viewBox="0 0 24 24" fill
     <circle cx="9" cy="18" r="2.5" fill="currentColor" stroke="none"></circle>
 </svg>`;
 
-// ================================
-// MAINTENANCE POPOVER
-// ================================
+
 function fetchMaintenanceBadges() {
     fetch('../backend/maintenance/get_maintenance.php?action=counts')
         .then(r => r.json())
@@ -39,9 +34,7 @@ function renderMaintenancePopover(inProgress, scheduled) {
     popover.style.display = 'block';
 }
 
-// ================================
-// STATUS FILTER
-// ================================
+
 function toggleFilterViewer(event) {
     event.stopPropagation();
     const dropdown    = document.getElementById('statusDropdownViewer');
@@ -76,12 +69,7 @@ function filterSystemsViewer(status) {
     applyAllFilters();
 }
 
-// ================================
-// CATEGORY FILTER
-// FIX: Label map now built dynamically from DB_CATEGORIES
-// injected by PHP — so any new/renamed category works
-// automatically without touching this JS file.
-// ================================
+
 function toggleCategoryFilterViewer(event) {
     event.stopPropagation();
     const dropdown       = document.getElementById('categoryDropdownViewer');
@@ -105,9 +93,7 @@ function filterCategoryViewer(category) {
 
     const catBtn = document.getElementById('categoryFilterBtn');
     if (catBtn) {
-        // FIX: Build label map dynamically from DB_CATEGORIES (injected by PHP)
-        // This means any new category added by Super Admin automatically
-        // appears correctly in the button label without code changes.
+
         const labelMap = { 'all': 'Category' };
         if (typeof DB_CATEGORIES !== 'undefined') {
             DB_CATEGORIES.forEach(name => { labelMap[name] = name; });
@@ -122,17 +108,13 @@ function filterCategoryViewer(category) {
     applyAllFilters();
 }
 
-// ================================
-// SEARCH
-// ================================
+
 function searchSystemsViewer() {
     currentSearchTerm = document.getElementById('viewerSearchBox').value.toLowerCase();
     applyAllFilters();
 }
 
-// ================================
-// APPLY ALL FILTERS (combined)
-// ================================
+
 function applyAllFilters() {
     const cards = document.querySelectorAll('.system-card-viewer');
     let visibleCount = 0;
@@ -149,7 +131,7 @@ function applyAllFilters() {
         const matchesStatus   = currentFilter === 'all' || cardStatus === currentFilter;
         const matchesCategory = currentCategoryFilter === 'all' || cardCategory === currentCategoryFilter;
 
-        // Always hide archived unless explicitly filtering for it
+       
         if (cardStatus === 'archived' && currentFilter !== 'archived') {
             card.style.display = 'none';
         } else if (matchesStatus && matchesCategory && matchesSearch) {
@@ -163,7 +145,7 @@ function applyAllFilters() {
         }
     });
 
-    // Hide category group headers if all their cards are hidden
+    
     document.querySelectorAll('.viewer-category-group').forEach(group => {
         if (currentCategoryFilter !== 'all' && group.dataset.category !== currentCategoryFilter) {
             group.style.display = 'none';
@@ -178,9 +160,6 @@ function applyAllFilters() {
     showEmptyState(visibleCount === 0, 'No systems match your filters');
 }
 
-// ================================
-// UPDATE FILTER DISPLAY
-// ================================
 function updateFilterDisplay(visibleCount) {
     const activeFiltersContainer = document.getElementById('activeFilters');
     const filterResultsText      = document.getElementById('filterResultsText');
@@ -208,31 +187,29 @@ function updateFilterDisplay(visibleCount) {
     }
 }
 
-// ================================
-// CLEAR ALL FILTERS
-// ================================
+
 function clearAllFilters() {
     document.getElementById('viewerSearchBox').value = '';
     currentSearchTerm     = '';
     currentFilter         = 'all';
     currentCategoryFilter = 'all';
 
-    // Reset status filter button
+    
     const statusBtn = document.getElementById('statusFilterBtn');
     if (statusBtn) { statusBtn.innerHTML = SLIDER_ICON_VIEWER + 'Status Filter'; statusBtn.classList.remove('btn-filter-viewer-active'); }
 
-    // Reset category filter button
+    
     const catBtn = document.getElementById('categoryFilterBtn');
     if (catBtn) { catBtn.innerHTML = SLIDER_ICON_VIEWER + 'Category'; catBtn.classList.remove('btn-filter-viewer-active'); }
 
-    // Reset all filter active states (handles dynamic categories too)
+    
     document.querySelectorAll('.filter-item[data-filter]').forEach(item => item.classList.toggle('active', item.dataset.filter === 'all'));
     document.querySelectorAll('#categoryDropdownViewer .filter-item').forEach(item => item.classList.toggle('active', item.dataset.cat === 'all'));
 
-    // Show all category groups
+    
     document.querySelectorAll('.viewer-category-group').forEach(g => g.style.display = '');
 
-    // Show all non-archived cards
+    
     const cards = document.querySelectorAll('.system-card-viewer');
     let activeCount = 0;
     cards.forEach(card => {
@@ -245,9 +222,7 @@ function clearAllFilters() {
     showEmptyState(false);
 }
 
-// ================================
-// EMPTY STATE
-// ================================
+
 function showEmptyState(show, message = 'No systems found') {
     const container = document.getElementById('viewerSystemsContainer');
     let emptyState  = container.querySelector('.filter-empty-state');
@@ -261,9 +236,7 @@ function showEmptyState(show, message = 'No systems found') {
     } else { if (emptyState) emptyState.remove(); }
 }
 
-// ================================
-// OPEN DOMAIN
-// ================================
+
 function openDomainViewer(domain) {
     const cards = document.querySelectorAll('.system-card-viewer');
     let cardStatus = 'online';
@@ -278,9 +251,7 @@ function openDomainViewer(domain) {
     window.open((!domain.startsWith('http') ? 'https://' : '') + domain, '_blank');
 }
 
-// ================================
-// KEYBOARD NAVIGATION
-// ================================
+
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         document.getElementById('statusDropdownViewer')?.classList.remove('show');
@@ -290,9 +261,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// ================================
-// INITIALIZE
-// ================================
+
 document.addEventListener('DOMContentLoaded', function() {
     // Hide archived by default
     let activeCount = 0;
@@ -305,9 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initJapaneseToggle();
 });
 
-// ============================================================
-// JAPANESE TRANSLATION TOGGLE
-// ============================================================
+
 
 const JP_TRANSLATIONS = {
     status: {
@@ -382,7 +349,7 @@ function revertAllDescriptions() {
 }
 
 function applyJapaneseTranslation() {
-    // Page title, subtitle, buttons
+   
     const pageTitle = document.querySelector('.page-title');
     if (pageTitle && !pageTitle.getAttribute('data-en')) {
         pageTitle.setAttribute('data-en', pageTitle.textContent.trim());
@@ -464,7 +431,7 @@ function applyJapaneseTranslation() {
         }
     });
 
-    // Category dropdown — translate known names, leave custom ones as-is
+    
     const categoryOptionMap = {
         'All Categories':   '全カテゴリー',
         'Direct Systems':   'ダイレクトシステム',
@@ -482,14 +449,14 @@ function applyJapaneseTranslation() {
     fetchMaintenanceBadges();
     if (typeof renderNotifications === 'function') renderNotifications(allNotifications);
 
-    // Category headers
+    
     document.querySelectorAll('.viewer-category-title').forEach(el => {
         const original = el.getAttribute('data-en') || el.textContent.trim();
         el.setAttribute('data-en', original);
         el.textContent = JP_TRANSLATIONS.category[original] || original;
     });
 
-    // Cards
+    
     document.querySelectorAll('.system-card-viewer').forEach(card => {
         const jpDomain   = card.getAttribute('data-japanese-domain') || '';
         const mainDomain = card.querySelector('.system-domain-viewer');

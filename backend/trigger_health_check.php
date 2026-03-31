@@ -1,10 +1,5 @@
 <?php
-/**
- * G-Portal - Trigger Health Check
- * Called by AJAX every 10 seconds from dashboard.php and viewer.php
- * FIXED: Systems with an active 'In Progress' or 'Scheduled' maintenance
- *        schedule are ALWAYS skipped — even after exceeding end_datetime.
- */
+/* G-Portal - Trigger Health Check*/
 
 ob_start(); 
 require_once '../config/session.php';
@@ -142,12 +137,7 @@ function checkDomainsInParallel($domainSystems) {
     return $results;
 }
 
-// -------------------------------------------------------
-// KEY FIX: Skip systems that have an active maintenance
-// schedule (In Progress OR Scheduled) regardless of whether
-// end_datetime has passed. An exceeded schedule is still
-// "in progress" until admin manually marks it Done.
-// -------------------------------------------------------
+
 function getSystemsUnderActiveMaintenance($conn) {
     $activeIds = [];
     $result = $conn->query("

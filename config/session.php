@@ -1,9 +1,5 @@
 <?php
-// ============================================================
 // G-Portal — Session Configuration
-// Uses a local sessions/ folder inside the project to avoid
-// C:\xampp\tmp permission issues on restricted machines.
-// ============================================================
 
 // Define session save path inside the project
 $sessionPath = __DIR__ . '/../sessions';

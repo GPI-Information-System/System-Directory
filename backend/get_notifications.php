@@ -1,10 +1,5 @@
 <?php
-/**
- * ============================================================
- * GET RECENT NOTIFICATIONS API — ENHANCED
- * Also returns contact_number for down/offline hints
- * ============================================================
- */
+/* GET RECENT NOTIFICATIONS API */
 
 require_once '../config/database.php';
 

@@ -1,23 +1,18 @@
 <?php
-/**
- * ============================================================
- * MAINTENANCE SCHEDULE EMAIL NOTIFICATIONS
- * G-Portal — PHPMailer based
- * 
- * Sends emails to specified recipients when a maintenance
- * schedule is created, updated, or cancelled/deleted.
- * 
- * Triggers:
- *   - 'created'   : New schedule set
- *   - 'updated'   : Existing schedule edited (shows what changed)
- *   - 'cancelled' : Schedule deleted/cancelled
- * ============================================================
- */
+/* MAINTENANCE SCHEDULE EMAIL NOTIFICATIONS - Sends emails to specified recipients when a maintenance schedule is created, updated, or cancelled/deleted. */
 
 require_once __DIR__ . '/../../config/email_config.php';
 require_once __DIR__ . '/../../config/database.php';
-if (file_exists(__DIR__ . '/../../vendor/autoload.php')) {
-    require_once __DIR__ . '/../../vendor/autoload.php';
+
+$phpmailerBase = __DIR__ . '/../../vendor/phpmailer/src/';
+if (file_exists($phpmailerBase . 'Exception.php') &&
+    file_exists($phpmailerBase . 'PHPMailer.php') &&
+    file_exists($phpmailerBase . 'SMTP.php')) {
+    require_once $phpmailerBase . 'Exception.php';
+    require_once $phpmailerBase . 'PHPMailer.php';
+    require_once $phpmailerBase . 'SMTP.php';
+} else {
+    error_log("G-Portal Maintenance Email: PHPMailer files not found in vendor/phpmailer/src/");
 }
 
 /**
@@ -37,23 +32,16 @@ function sendMaintenanceEmail($trigger, array $scheduleData, array $recipients, 
         return false;
     }
 
-    // Enrich schedule data with system info (name, contact number)
     $scheduleData = enrichWithSystemData($scheduleData);
 
-    // Build subject
     $subject = buildMaintenanceSubject($trigger, $scheduleData);
 
-    // Build HTML + text bodies
     $htmlBody = buildMaintenanceHtml($trigger, $scheduleData, $oldData);
     $textBody = buildMaintenanceText($trigger, $scheduleData, $oldData);
 
-    // Resolve recipient list — fetch names if stored in DB
     $resolvedRecipients = resolveRecipients($recipients);
-
-    // Track used emails in DB for autocomplete
     trackEmailUsage($recipients);
 
-    // Send to each recipient
     $allSuccess = true;
     foreach ($resolvedRecipients as $recipient) {
         $sent = sendEmail(
@@ -72,12 +60,10 @@ function sendMaintenanceEmail($trigger, array $scheduleData, array $recipients, 
     return $allSuccess;
 }
 
-/**
- * Fetch system name and contact number for the schedule
- */
+
 function enrichWithSystemData(array $data): array {
     if (!empty($data['system_name']) && !empty($data['contact_number'])) {
-        return $data; // already enriched
+        return $data; 
     }
 
     $conn = getDBConnection();
@@ -95,13 +81,11 @@ function enrichWithSystemData(array $data): array {
     return $data;
 }
 
-/**
- * Resolve email strings to name+email pairs using DB if available
- */
+
 function resolveRecipients(array $emails): array {
     if (empty($emails)) return [];
 
-    $conn        = getDBConnection();
+    $conn         = getDBConnection();
     $placeholders = implode(',', array_fill(0, count($emails), '?'));
     $types        = str_repeat('s', count($emails));
 
@@ -129,9 +113,7 @@ function resolveRecipients(array $emails): array {
     return $resolved;
 }
 
-/**
- * Track email usage in email_recipients table for autocomplete
- */
+
 function trackEmailUsage(array $emails): void {
     if (empty($emails)) return;
 
@@ -141,7 +123,6 @@ function trackEmailUsage(array $emails): void {
         $email = trim(strtolower($email));
         if (empty($email)) continue;
 
-        // Insert if new, update use_count and last_used if existing
         $stmt = $conn->prepare("
             INSERT INTO email_recipients (email, last_used, use_count)
             VALUES (?, NOW(), 1)
@@ -155,9 +136,7 @@ function trackEmailUsage(array $emails): void {
     }
 }
 
-/**
- * Build email subject line
- */
+
 function buildMaintenanceSubject(string $trigger, array $data): string {
     $prefix     = defined('EMAIL_SUBJECT_PREFIX') ? EMAIL_SUBJECT_PREFIX : '[G-Portal Alert]';
     $systemName = $data['system_name'] ?? 'System';
@@ -175,10 +154,7 @@ function buildMaintenanceSubject(string $trigger, array $data): string {
     }
 }
 
-/**
- * Detect what changed between old and new schedule data
- * Returns array of human-readable change strings
- */
+
 function detectChanges(array $new, array $old): array {
     $changes = [];
 
@@ -198,7 +174,6 @@ function detectChanges(array $new, array $old): array {
 
         if ($oldVal === $newVal) continue;
 
-        // Format datetimes nicely
         if (in_array($key, ['start_datetime', 'end_datetime'])) {
             $oldFormatted = !empty($oldVal) ? date('F j, Y \a\t g:i A', strtotime($oldVal)) : '—';
             $newFormatted = !empty($newVal) ? date('F j, Y \a\t g:i A', strtotime($newVal)) : '—';
@@ -213,9 +188,7 @@ function detectChanges(array $new, array $old): array {
     return $changes;
 }
 
-/**
- * Build the full HTML email body
- */
+
 function buildMaintenanceHtml(string $trigger, array $data, array $oldData = []): string {
     date_default_timezone_set('Asia/Manila');
 
@@ -228,15 +201,13 @@ function buildMaintenanceHtml(string $trigger, array $data, array $oldData = [])
     $contactNumber = htmlspecialchars($data['contact_number'] ?? '');
     $now           = date('F j, Y \a\t g:i A');
 
-    // Trigger-specific styling
     $triggerConfig = [
-        'created'   => ['color' => '#1e40af', 'bg' => '#EFF6FF', 'border' => '#BFDBFE', 'badge_bg' => '#1e40af', 'badge_text' => '#fff',  'label' => 'Scheduled',  'icon' => '📅'],
-        'updated'   => ['color' => '#92400e', 'bg' => '#FFFBEB', 'border' => '#FDE68A', 'badge_bg' => '#D97706', 'badge_text' => '#fff',  'label' => 'Updated',    'icon' => '✏️'],
-        'cancelled' => ['color' => '#991b1b', 'bg' => '#FFF1F2', 'border' => '#FECDD3', 'badge_bg' => '#E11D48', 'badge_text' => '#fff',  'label' => 'Cancelled',  'icon' => '🚫'],
+        'created'   => ['color' => '#1e40af', 'bg' => '#EFF6FF', 'border' => '#BFDBFE', 'badge_bg' => '#1e40af', 'badge_text' => '#fff', 'label' => 'Scheduled',  'icon' => '📅'],
+        'updated'   => ['color' => '#92400e', 'bg' => '#FFFBEB', 'border' => '#FDE68A', 'badge_bg' => '#D97706', 'badge_text' => '#fff', 'label' => 'Updated',    'icon' => '✏️'],
+        'cancelled' => ['color' => '#991b1b', 'bg' => '#FFF1F2', 'border' => '#FECDD3', 'badge_bg' => '#E11D48', 'badge_text' => '#fff', 'label' => 'Cancelled',  'icon' => '🚫'],
     ];
     $cfg = $triggerConfig[$trigger] ?? $triggerConfig['created'];
 
-    // Header message per trigger
     $headerMessages = [
         'created'   => "A maintenance schedule has been set for <strong>$systemName</strong>. Please plan accordingly.",
         'updated'   => "The maintenance schedule for <strong>$systemName</strong> has been updated. Please review the changes below.",
@@ -244,7 +215,6 @@ function buildMaintenanceHtml(string $trigger, array $data, array $oldData = [])
     ];
     $headerMessage = $headerMessages[$trigger] ?? '';
 
-    // Changes section (for 'updated')
     $changesHtml = '';
     if ($trigger === 'updated' && !empty($oldData)) {
         $changes = detectChanges($data, $oldData);
@@ -272,7 +242,6 @@ function buildMaintenanceHtml(string $trigger, array $data, array $oldData = [])
         }
     }
 
-    // Description row
     $descriptionHtml = '';
     if (!empty($description)) {
         $descriptionHtml = "
@@ -284,7 +253,6 @@ function buildMaintenanceHtml(string $trigger, array $data, array $oldData = [])
                                 </tr>";
     }
 
-    // Contact row
     $contactHtml = '';
     if (!empty($contactNumber)) {
         $contactHtml = "
@@ -296,7 +264,6 @@ function buildMaintenanceHtml(string $trigger, array $data, array $oldData = [])
                     </tr>";
     }
 
-    // Strikethrough schedule details if cancelled
     $detailStyle = $trigger === 'cancelled' ? 'opacity: 0.55; text-decoration: line-through;' : '';
 
     return <<<HTML
@@ -458,14 +425,14 @@ function buildMaintenanceText(string $trigger, array $data, array $oldData = [])
 
 /**
  * Send email — auto-selects PHPMailer or file logging
- * (mirrors pattern from existing send_email_notification.php)
  */
 function sendEmail($to, $toName, $subject, $htmlBody, $textBody) {
     if (class_exists('PHPMailer\PHPMailer\PHPMailer')) {
         return sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody);
-    } else {
-        return logMaintenanceEmailToFile($to, $toName, $subject, $textBody);
     }
+    
+    error_log("G-Portal Maintenance Email: PHPMailer not found — logging only");
+    return logMaintenanceEmailToFile($to, $toName, $subject, $textBody);
 }
 
 function sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody) {
@@ -479,38 +446,48 @@ function sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody) {
         }
 
         $mail->isSMTP();
-        $mail->Host = defined('SMTP_HOST') ? SMTP_HOST : 'localhost';
-        $mail->Port = defined('SMTP_PORT') ? SMTP_PORT : 587;
+        $mail->Host       = defined('SMTP_HOST')       ? SMTP_HOST       : 'smtp.office365.com';
+        $mail->Port       = defined('SMTP_PORT')       ? SMTP_PORT       : 587;
+        $mail->SMTPAuth   = true;
+        $mail->Username   = defined('SMTP_USERNAME')   ? SMTP_USERNAME   : '';
+        $mail->Password   = defined('SMTP_PASSWORD')   ? SMTP_PASSWORD   : '';
+        $mail->SMTPSecure = defined('SMTP_ENCRYPTION') ? SMTP_ENCRYPTION : 'tls';
 
-        $smtpUser = defined('SMTP_USERNAME') ? SMTP_USERNAME : '';
-        $smtpPass = defined('SMTP_PASSWORD') ? SMTP_PASSWORD : '';
-        if (!empty($smtpUser) && !empty($smtpPass)) {
-            $mail->SMTPAuth = true;
-            $mail->Username = $smtpUser;
-            $mail->Password = $smtpPass;
+        $verifySSL = defined('SMTP_VERIFY_SSL') ? SMTP_VERIFY_SSL : true;
+        if (!$verifySSL) {
+            $mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer'       => false,
+                    'verify_peer_name'  => false,
+                    'allow_self_signed' => true,
+                ]
+            ];
         }
 
-        $encryption = defined('SMTP_ENCRYPTION') ? SMTP_ENCRYPTION : '';
-        if (!empty($encryption)) {
-            $mail->SMTPSecure = $encryption;
+        $mail->Timeout = defined('SMTP_TIMEOUT') ? SMTP_TIMEOUT : 30;
+
+        if (defined('SMTP_KEEPALIVE') && SMTP_KEEPALIVE) {
+            $mail->SMTPKeepAlive = true;
         }
 
-        $fromEmail = defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'noreply@gportal.local';
-        $fromName  = defined('SMTP_FROM_NAME')  ? SMTP_FROM_NAME  : 'G-Portal';
+        $fromEmail = defined('EMAIL_FROM_ADDRESS') ? EMAIL_FROM_ADDRESS : (defined('SMTP_USERNAME') ? SMTP_USERNAME : '');
+        $fromName  = defined('EMAIL_FROM_NAME')    ? EMAIL_FROM_NAME    : 'G-Portal System Alerts';
+
         $mail->setFrom($fromEmail, $fromName);
         $mail->addAddress($to, $toName);
-        $mail->CharSet  = defined('EMAIL_CHARSET') ? EMAIL_CHARSET : 'UTF-8';
+        $mail->CharSet = defined('EMAIL_CHARSET') ? EMAIL_CHARSET : 'UTF-8';
         $mail->isHTML(true);
-        $mail->Subject  = $subject;
-        $mail->Body     = $htmlBody;
-        $mail->AltBody  = $textBody;
+        $mail->Subject = $subject;
+        $mail->Body    = $htmlBody;
+        $mail->AltBody = $textBody;
         $mail->send();
 
+        error_log("G-Portal Maintenance Email: Sent to $to via PHPMailer");
         logMaintenanceEmailToFile($to, $toName, $subject, $textBody);
         return true;
 
     } catch (PHPMailer\PHPMailer\Exception $e) {
-        error_log("G-Portal Maintenance Email PHPMailer error: {$mail->ErrorInfo}");
+        error_log("G-Portal Maintenance Email PHPMailer error: " . $e->getMessage());
         return logMaintenanceEmailToFile($to, $toName, $subject, $textBody);
     }
 }
@@ -535,3 +512,4 @@ function logMaintenanceEmailToFile($to, $toName, $subject, $textBody) {
 
     return file_put_contents($logFile, $entry, FILE_APPEND) !== false;
 }
+?>

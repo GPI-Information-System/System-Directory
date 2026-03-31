@@ -1,9 +1,5 @@
 <?php
-/**
- * G-Portal - Get Categories
- * Returns all categories ordered by sort_order with system counts.
- * Public endpoint — used by dashboard, viewer, and category modal.
- */
+/* G-Portal - Get Categories -  Returns all categories ordered by sort_order with system counts.*/
 
 require_once '../../config/session.php';
 require_once '../../config/database.php';

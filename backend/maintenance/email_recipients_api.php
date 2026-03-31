@@ -1,14 +1,5 @@
 <?php
-/**
- * ============================================================
- * EMAIL RECIPIENTS API
- * Handles autocomplete suggestions and recipient management
- * 
- * Actions:
- *   GET  ?action=suggest&q=john    → autocomplete suggestions
- *   POST action=add                → add/update a recipient
- * ============================================================
- */
+/* EMAIL RECIPIENTS API*/
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/session.php';
@@ -24,7 +15,7 @@ if (!isLoggedIn()) {
 $conn   = getDBConnection();
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
-// ── Autocomplete suggestions ──────────────────────────────────
+//  Autocomplete suggestions 
 if ($action === 'suggest') {
     $q = trim($_GET['q'] ?? '');
 
@@ -50,6 +41,6 @@ if ($action === 'suggest') {
     exit();
 }
 
-// ── Fallback ──────────────────────────────────────────────────
+// Fallback 
 echo json_encode(['success' => false, 'message' => 'Unknown action']);
 exit();

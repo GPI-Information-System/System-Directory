@@ -1,8 +1,6 @@
 <?php
-/**
- * G-Portal - Viewer Maintenance Schedule Page
- * Updated: Japanese translation support
- */
+//G-Portal - Viewer Maintenance Schedule Page 
+ 
 
 require_once '../config/database.php';
 date_default_timezone_set('Asia/Manila');
@@ -287,7 +285,7 @@ function isodt($dt) { return date('c', strtotime($dt)); }
 </div>
 </main>
 
-<!-- MOBILE BOTTOM SHEET -->
+
 <div class="vm-sheet-overlay" id="vmSheetOverlay" onclick="vmCloseFilterSheet()"></div>
 <div class="vm-bottom-sheet" id="vmBottomSheet" role="dialog" aria-modal="true" aria-label="Filter options">
     <div class="vm-sheet-handle"></div>

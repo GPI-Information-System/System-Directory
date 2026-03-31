@@ -1091,7 +1091,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="../assets/js/jquery-3.7.1.min.js"></script>
 <script src="../assets/js/main.js"></script>
 <script src="../assets/js/maintenance.js"></script>
 <script src="../assets/js/health_check.js"></script>

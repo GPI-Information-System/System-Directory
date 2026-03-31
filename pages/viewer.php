@@ -1,8 +1,5 @@
 <?php
-/**
- * G-Portal Public Viewer Page
- * Public-facing system directory for employees
- */
+//G-Portal Public Viewer PagePublic-facing system directory for employees
 
 require_once '../config/database.php';
 
@@ -39,7 +36,7 @@ usort($systems, function($a, $b) use ($categoryOrder, $statusPriority) {
     return strcasecmp($a['name'] ?? '', $b['name'] ?? '');
 });
 
-// Group by category (preserving DB order)
+// Group by category 
 $groupedSystems = [];
 foreach ($systems as $system) {
     $cat = $system['category'] ?? ($dbCategories[0]['name'] ?? 'Direct');
@@ -67,7 +64,7 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
         <div class="header-content">
             <h1>G-Portal</h1>
             <div class="header-right">
-                <!-- Japanese Translation Toggle -->
+                <!-- Japanese Translation -->
                 <div class="jp-lang-switcher" id="jpLangSwitcher">
                     <button class="jp-lang-option" id="jpLangEng" onclick="setLanguage('en')">
                         Eng
@@ -151,7 +148,7 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
                             </div>
                         </div>
 
-                        <!-- Category Filter — dynamically built from DB categories -->
+                        <!-- Category Filter -->
                         <div class="filter-container-viewer">
                             <button type="button" class="btn-filter-viewer" id="categoryFilterBtn" onclick="toggleCategoryFilterViewer(event)" aria-label="Filter by category">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -177,7 +174,7 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
                             </div>
                         </div>
 
-                        <!-- Maintenance Schedule button -->
+                        <!-- Maintenance Schedule btn -->
                         <div class="maint-btn-wrapper" id="maintBtnWrapper">
                             <a href="viewer_maintenance.php" class="btn-maintenance-viewer" id="maintBtn">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -223,7 +220,7 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
                 </div>
             </div>
 
-            <!-- SYSTEMS — grouped by category (order follows DB sort_order) -->
+            
             <div id="viewerSystemsContainer">
                 <?php if (empty($systems)): ?>
                     <div class="systems-grid-viewer">
@@ -274,7 +271,7 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
                                     <?php echo $statusLabel; ?>
                                 </div>
 
-                                <!-- FIX: title attribute shows full name on hover when truncated -->
+                               
                                 <h3 class="system-name-viewer">
                                     <?php echo htmlspecialchars($system['name']); ?>
                                 </h3>
@@ -304,10 +301,9 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
         <p>&copy; <?php echo date('Y'); ?> G-Portal. All rights reserved.</p>
     </footer>
 
-    <!-- Pass DB categories to JS so filterCategoryViewer labelMap stays in sync -->
+    <!--  Filter Category Viewer stays in sync -->
     <script>
-        const TOTAL_SYSTEMS = <?php echo $totalSystems; ?>;
-        // Dynamic category list from DB — used by viewer.js for label mapping
+        const TOTAL_SYSTEMS = <?php echo $totalSystems; ?>
         const DB_CATEGORIES = <?php echo json_encode(array_column($dbCategories, 'name')); ?>;
 
         function toggleLogin() {
@@ -317,7 +313,7 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
             arrowToggle.classList.toggle('active');
         }
     </script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="../assets/js/jquery-3.7.1.min.js"></script>
     <script src="../assets/js/viewer.js"></script>
     <script src="../assets/js/notifications.js"></script>
     <script src="../assets/js/health_check.js"></script>

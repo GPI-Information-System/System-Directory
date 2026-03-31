@@ -1,13 +1,5 @@
 <?php
-/**
- * G-Portal - Get Maintenance Schedules
- * Supports:
- *   ?action=calendar&month=YYYY-MM  → all schedules in a month (for calendar dots)
- *   ?action=day&date=YYYY-MM-DD     → schedules on a specific date (side panel)
- *   ?action=system&system_id=N      → all schedules for a system
- *   ?action=single&id=N             → single schedule by id
- *   ?action=counts                  → in_progress + scheduled counts (public, no auth)
- */
+/* G-Portal - Get Maintenance Schedules*/
 
 require_once '../../config/session.php';
 require_once '../../config/database.php';
@@ -17,10 +9,7 @@ header('Content-Type: application/json');
 $action = trim($_GET['action'] ?? '');
 $conn   = getDBConnection();
 
-// -------------------------------------------------------
-// COUNTS: Public endpoint — no auth required
-// Returns in_progress and scheduled counts for viewer badge
-// -------------------------------------------------------
+
 if ($action === 'counts') {
     $stmt = $conn->prepare("
         SELECT
@@ -43,15 +32,13 @@ if ($action === 'counts') {
     exit();
 }
 
-// All other actions require login
+
 if (!isLoggedIn()) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
 }
 
-// -------------------------------------------------------
-// CALENDAR: Get all schedules in a given month
-// -------------------------------------------------------
+
 if ($action === 'calendar') {
     $month = trim($_GET['month'] ?? date('Y-m'));
 
@@ -91,9 +78,7 @@ if ($action === 'calendar') {
 
     echo json_encode(['success' => true, 'data' => $schedules]);
 
-// -------------------------------------------------------
-// DAY: Get schedules for a specific date (side panel)
-// -------------------------------------------------------
+
 } elseif ($action === 'day') {
     $date = trim($_GET['date'] ?? '');
 
@@ -138,9 +123,7 @@ if ($action === 'calendar') {
 
     echo json_encode(['success' => true, 'data' => $schedules, 'date' => $date]);
 
-// -------------------------------------------------------
-// SYSTEM: Get all schedules for a specific system
-// -------------------------------------------------------
+
 } elseif ($action === 'system') {
     $systemId = intval($_GET['system_id'] ?? 0);
 
@@ -180,9 +163,7 @@ if ($action === 'calendar') {
 
     echo json_encode(['success' => true, 'data' => $schedules]);
 
-// -------------------------------------------------------
-// SINGLE: Get one schedule by ID
-// -------------------------------------------------------
+
 } elseif ($action === 'single') {
     $id = intval($_GET['id'] ?? 0);
 

@@ -1,8 +1,5 @@
 <?php
-/**
- * G-Portal — User Management Page
- * Superadmin only: Add, Edit, Delete users
- */
+// G-Portal — User Management Page - Superadmin only: Add, Edit, Delete user
 
 require_once '../config/session.php';
 require_once '../config/database.php';

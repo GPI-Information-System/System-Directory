@@ -1,390 +1,421 @@
-/* ============================================================
-   G-Portal — User Management Styles
-   ============================================================ */
+/*  G-Portal — User Management CSS  */
 
 .page-header-users {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 28px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid var(--secondary-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--secondary-color);
 }
 
 .page-title-users {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--primary-dark);
-    letter-spacing: -0.4px;
-    margin-bottom: 4px;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  letter-spacing: -0.4px;
+  margin-bottom: 4px;
 }
 
 .page-subtitle-users {
-    font-size: 14px;
-    color: var(--gray-500);
-    font-weight: 500;
+  font-size: 14px;
+  color: var(--gray-500);
+  font-weight: 500;
 }
 
 .btn-add-user {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: var(--primary-color);
-    color: var(--white);
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--transition);
-    font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
 }
 .btn-add-user:hover {
-    background: var(--primary-dark);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
+  background: var(--primary-dark);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
-/* ── BANNER ── */
+/* BANNER  */
 .users-banner {
-    padding: 12px 16px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 20px;
-    font-size: 14px;
-    font-weight: 600;
-    animation: fadeIn 0.2s ease;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  animation: fadeIn 0.2s ease;
 }
 .users-banner-success {
-    background: #d1fae5;
-    color: #065f46;
-    border: 1px solid #6ee7b7;
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
 }
 .users-banner-error {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fca5a5;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
 }
 
-/* ── TABLE ── */
+/* TABLE */
 .users-table-wrap {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--secondary-color);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--secondary-color);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
 
 .users-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
 }
 
 .users-table thead {
-    background: var(--gray-50);
-    border-bottom: 1px solid var(--secondary-color);
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--secondary-color);
 }
 
 .users-table th {
-    padding: 12px 16px;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--gray-500);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    white-space: nowrap;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
 }
 
 .users-table td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--gray-100);
-    color: var(--gray-700);
-    vertical-align: middle;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-700);
+  vertical-align: middle;
 }
 
 .users-table tbody tr:last-child td {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .users-table tbody tr:hover {
-    background: var(--gray-50);
+  background: var(--gray-50);
 }
 
 .users-td-num {
-    color: var(--gray-400);
-    font-size: 13px;
-    font-weight: 500;
-    width: 40px;
+  color: var(--gray-400);
+  font-size: 13px;
+  font-weight: 500;
+  width: 40px;
 }
 
-/* ── NAME CELL ── */
+/* NAME */
 .users-name-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .users-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-    color: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 700;
-    flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-light)
+  );
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 .users-username {
-    font-weight: 600;
-    color: var(--primary-dark);
+  font-weight: 600;
+  color: var(--primary-dark);
 }
 
 .users-you-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    background: var(--secondary-color);
-    color: var(--primary-color);
-    border-radius: 10px;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--secondary-color);
+  color: var(--primary-color);
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
-/* ── ROLE BADGE ── */
+/*  ROLE BADGE  */
 .users-role-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .users-role-super-admin {
-    background: #ede9fe;
-    color: #5b21b6;
-    border: 1px solid #c4b5fd;
+  background: #ede9fe;
+  color: #5b21b6;
+  border: 1px solid #c4b5fd;
 }
 
 .users-role-admin {
-    background: var(--secondary-color);
-    color: var(--primary-color);
-    border: 1px solid var(--secondary-dark);
+  background: var(--secondary-color);
+  color: var(--primary-color);
+  border: 1px solid var(--secondary-dark);
 }
 
-/* ── EMAIL / DATE ── */
+/*  EMAIL & DATE */
 .users-email {
-    color: var(--gray-600);
-    font-size: 13px;
+  color: var(--gray-600);
+  font-size: 13px;
 }
 .users-no-email {
-    color: var(--gray-300);
+  color: var(--gray-300);
 }
 .users-date {
-    color: var(--gray-500);
-    font-size: 13px;
-    white-space: nowrap;
+  color: var(--gray-500);
+  font-size: 13px;
+  white-space: nowrap;
 }
 
-/* ── ACTIONS ── */
 .users-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .btn-user-edit,
 .btn-user-delete {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 6px 12px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1px solid;
-    transition: all var(--transition);
-    font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all var(--transition);
+  font-family: inherit;
 }
 
 .btn-user-edit {
-    background: var(--white);
-    color: var(--primary-color);
-    border-color: var(--secondary-color);
+  background: var(--white);
+  color: var(--primary-color);
+  border-color: var(--secondary-color);
 }
 .btn-user-edit:hover {
-    background: var(--secondary-color);
-    border-color: var(--primary-color);
+  background: var(--secondary-color);
+  border-color: var(--primary-color);
 }
 
 .btn-user-delete {
-    background: var(--white);
-    color: var(--danger);
-    border-color: #fca5a5;
+  background: var(--white);
+  color: var(--danger);
+  border-color: #fca5a5;
 }
 .btn-user-delete:hover {
-    background: #fee2e2;
-    border-color: var(--danger);
+  background: #fee2e2;
+  border-color: var(--danger);
 }
 
-/* ── EMPTY STATE ── */
 .users-empty {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--gray-400);
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--gray-400);
 }
 .users-empty svg {
-    margin-bottom: 16px;
-    opacity: 0.3;
+  margin-bottom: 16px;
+  opacity: 0.3;
 }
 .users-empty h3 {
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--gray-600);
-    margin-bottom: 6px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--gray-600);
+  margin-bottom: 6px;
 }
 .users-empty p {
-    font-size: 14px;
+  font-size: 14px;
 }
 
-/* ── TABLE FOOTER ── */
+/*  TABLE FOOTER */
 .users-table-footer {
-    padding: 12px 16px;
-    border-top: 1px solid var(--gray-100);
-    background: var(--gray-50);
+  padding: 12px 16px;
+  border-top: 1px solid var(--gray-100);
+  background: var(--gray-50);
 }
 .users-total {
-    font-size: 13px;
-    color: var(--gray-500);
-    font-weight: 500;
+  font-size: 13px;
+  color: var(--gray-500);
+  font-weight: 500;
 }
 .users-total strong {
-    color: var(--gray-700);
+  color: var(--gray-700);
 }
 
-/* ── PASSWORD FIELD ── */
+/* PASSWORD FIELD  */
 .password-input-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 .password-input-wrap input {
-    width: 100%;
-    padding-right: 42px !important;
+  width: 100%;
+  padding-right: 42px !important;
 }
 .btn-toggle-password {
-    position: absolute;
-    right: 10px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--gray-400);
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    transition: color var(--transition);
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gray-400);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition);
 }
-.btn-toggle-password:hover { color: var(--primary-color); }
+.btn-toggle-password:hover {
+  color: var(--primary-color);
+}
 
-/* ── CHANGE PASSWORD SECTION ── */
+/* CHANGE PASSWORD SECTION  */
 .users-password-section {
-    background: var(--gray-50);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-sm);
-    padding: 14px;
-    margin-bottom: 0;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 0;
 }
 
 .users-password-toggle-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .users-password-toggle-label {
-    font-size: 13.5px;
-    font-weight: 600;
-    color: var(--primary-dark);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--primary-dark);
 }
 
-/* ── RESPONSIVE ── */
+/*  RESPONSIVE  */
 @media (max-width: 768px) {
-    .page-header-users { flex-direction: column; align-items: flex-start; gap: 14px; }
-    .btn-add-user { width: 100%; justify-content: center; }
-    .users-table { font-size: 13px; }
-    .users-table th, .users-table td { padding: 10px 12px; }
-    .users-email, .users-date { display: none; }
+  .page-header-users {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .btn-add-user {
+    width: 100%;
+    justify-content: center;
+  }
+  .users-table {
+    font-size: 13px;
+  }
+  .users-table th,
+  .users-table td {
+    padding: 10px 12px;
+  }
+  .users-email,
+  .users-date {
+    display: none;
+  }
 }
 
-/* ── SEARCH FIELD ── */
+/*  SEARCH FIELD  */
 .users-header-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .users-search-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .users-search-icon {
-    position: absolute;
-    left: 10px;
-    color: #94a3b8;
-    pointer-events: none;
+  position: absolute;
+  left: 10px;
+  color: #94a3b8;
+  pointer-events: none;
 }
 
 .users-search-input {
-    padding: 9px 34px 9px 32px;
-    border: 1px solid var(--secondary-color);
-    border-radius: var(--radius-sm);
-    font-size: 13.5px;
-    color: var(--primary-dark);
-    background: var(--white);
-    width: 220px;
-    transition: all var(--transition);
-    font-family: inherit;
+  padding: 9px 34px 9px 32px;
+  border: 1px solid var(--secondary-color);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  color: var(--primary-dark);
+  background: var(--white);
+  width: 220px;
+  transition: all var(--transition);
+  font-family: inherit;
 }
 
 .users-search-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.1);
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(22, 38, 96, 0.1);
 }
 
-.users-search-input::placeholder { color: #94a3b8; }
+.users-search-input::placeholder {
+  color: #94a3b8;
+}
 
 .users-search-clear {
-    position: absolute;
-    right: 8px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #94a3b8;
-    display: flex;
-    align-items: center;
-    padding: 2px;
-    border-radius: 4px;
-    transition: all var(--transition);
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 4px;
+  transition: all var(--transition);
 }
 
-.users-search-clear:hover { color: var(--primary-dark); background: var(--gray-100); }
+.users-search-clear:hover {
+  color: var(--primary-dark);
+  background: var(--gray-100);
+}
 
 @media (max-width: 768px) {
-    .users-header-right { flex-direction: column; align-items: stretch; width: 100%; }
-    .users-search-input { width: 100%; }
-    .btn-add-user { width: 100%; justify-content: center; }
+  .users-header-right {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  .users-search-input {
+    width: 100%;
+  }
+  .btn-add-user {
+    width: 100%;
+    justify-content: center;
+  }
 }

@@ -1,10 +1,8 @@
-/* ============================================================
-   G-Portal — User Management JavaScript
-   ============================================================ */
+/* G-Portal — User Management JavaScript */
 
 let deleteUserId = null;
 
-// ── SHOW BANNER ──
+
 function showUsersBanner(message, type = 'success') {
     const banner = document.getElementById('usersBanner');
     banner.className = `users-banner users-banner-${type}`;
@@ -13,7 +11,7 @@ function showUsersBanner(message, type = 'success') {
     setTimeout(() => { banner.style.display = 'none'; }, 4000);
 }
 
-// ── TOGGLE PASSWORD VISIBILITY ──
+
 function togglePassword(inputId, btn) {
     const input = document.getElementById(inputId);
     const isText = input.type === 'text';
@@ -23,7 +21,7 @@ function togglePassword(inputId, btn) {
         : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
 }
 
-// ── TOGGLE CHANGE PASSWORD FIELDS ──
+
 function toggleChangePassword(checkbox) {
     const fields = document.getElementById('changePasswordFields');
     fields.style.display = checkbox.checked ? 'block' : 'none';
@@ -33,7 +31,7 @@ function toggleChangePassword(checkbox) {
     }
 }
 
-// ── ADD USER MODAL ──
+
 function openAddUserModal() {
     document.getElementById('addUserForm').reset();
     document.getElementById('addUserError').style.display = 'none';
@@ -75,7 +73,7 @@ function submitAddUser(event) {
         });
 }
 
-// ── EDIT USER MODAL ──
+
 function openEditUserModal(id, username, role, email) {
     document.getElementById('editUserId').value    = id;
     document.getElementById('editUsername').value  = username;

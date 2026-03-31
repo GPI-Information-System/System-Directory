@@ -1,18 +1,5 @@
 <?php
-/**
- * G-Portal — System Error Landing Page
- *
- * Usage:
- *   error_page.php?type=503&domain=youtube.com
- *   error_page.php?type=404&domain=youtube.com
- *   error_page.php?type=500&domain=youtube.com
- *   error_page.php?type=403&domain=youtube.com
- *   error_page.php?type=maintenance&system_id=5
- *   error_page.php?type=down&domain=youtube.com
- *
- * Place this file at: system-directory/pages/error_page.php
- * The viewer page link points to: viewer.php
- */
+/* G-Portal — System Error Landing Page*/
 
 require_once '../config/database.php';
 
@@ -20,14 +7,10 @@ $type     = trim($_GET['type']       ?? '503');
 $domain   = trim($_GET['domain']     ?? '');
 $systemId = intval($_GET['system_id'] ?? 0);
 
-// ── Where to send the "Go to G-Portal" button ──────────────────
-// If accessed from dashboard (admin), go back to dashboard.
-// Otherwise go to the public viewer.
 $from     = trim($_GET['from'] ?? 'viewer');
 $backUrl  = ($from === 'dashboard') ? 'dashboard.php' : 'viewer.php';
 $backLabel = ($from === 'dashboard') ? 'Go to Dashboard' : 'Go to G-Portal';
 
-// ── Fetch system info from DB if domain or system_id provided ──
 $systemInfo      = null;
 $maintenanceInfo = null;
 
@@ -47,7 +30,6 @@ if ($systemId > 0) {
     $stmt->close();
 }
 
-// If system found and type is maintenance, fetch active schedule
 if ($systemInfo) {
     $systemId = $systemInfo['id'];
     $stmt = $conn->prepare("
@@ -64,7 +46,6 @@ if ($systemInfo) {
     $maintenanceInfo = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
-    // Auto-detect type from system status if not maintenance/down
     if (in_array($type, ['503', 'down', 'maintenance'])) {
         if ($systemInfo['status'] === 'maintenance' || $maintenanceInfo) {
             $type = 'maintenance';
@@ -76,7 +57,6 @@ if ($systemInfo) {
 
 $conn->close();
 
-// ── Error config per type ──────────────────────────────────────
 $errors = [
     '404' => [
         'code'    => '404',
@@ -134,7 +114,6 @@ $errors = [
     ],
 ];
 
-// Default to 503 if unknown type
 $errorConfig = $errors[$type] ?? [
     'code'    => '503',
     'label'   => 'Unavailable',
@@ -148,7 +127,6 @@ $errorConfig = $errors[$type] ?? [
 $systemName    = $systemInfo['name']           ?? ($domain ?: 'This System');
 $contactNumber = $systemInfo['contact_number'] ?? null;
 
-// Format datetimes
 function fmtDt($dt) {
     if (!$dt) return '—';
     date_default_timezone_set('Asia/Manila');
@@ -161,11 +139,8 @@ function fmtDt($dt) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($errorConfig['title']) ?> — G-Portal</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/error_page.css">
     <style>
-        /* Dynamic variables injected per error type */
         :root {
             --error-color: <?= $errorConfig['color'] ?>;
             --error-bg:    <?= $errorConfig['bg'] ?>;
@@ -175,14 +150,13 @@ function fmtDt($dt) {
 <body>
 <div class="page">
 
-    <!-- ═══════════════ LEFT PANEL ═══════════════ -->
+    <!-- LEFT PANEL -->
     <div class="left-panel">
 
         <?php if (!empty($errorConfig['code'])): ?>
             <div class="error-code"><?= $errorConfig['code'] ?></div>
         <?php endif; ?>
 
-        <!-- G-Portal mark -->
         <div class="gportal-mark">
             <div class="gportal-mark-icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -195,13 +169,11 @@ function fmtDt($dt) {
             <span class="gportal-mark-text">G-Portal</span>
         </div>
 
-        <!-- Error badge -->
         <div class="error-badge">
             <span class="error-badge-dot"></span>
             <?= htmlspecialchars($errorConfig['label']) ?>
         </div>
 
-        <!-- Heading -->
         <h1 class="error-heading">
             <?php
                 $words = explode(' ', $errorConfig['title']);
@@ -210,16 +182,13 @@ function fmtDt($dt) {
             ?>
         </h1>
 
-        <!-- System name -->
         <div class="system-name-row">
             <span class="system-name-label">System</span>
             <span class="system-name-value"><?= htmlspecialchars($systemName) ?></span>
         </div>
 
-        <!-- Message -->
         <p class="error-message"><?= htmlspecialchars($errorConfig['message']) ?></p>
 
-        <!-- Maintenance details card -->
         <?php if ($type === 'maintenance' && $maintenanceInfo): ?>
         <div class="maintenance-card">
             <div class="maintenance-card-header">
@@ -268,7 +237,6 @@ function fmtDt($dt) {
         </div>
         <?php endif; ?>
 
-        <!-- Contact number -->
         <?php if ($contactNumber): ?>
         <div class="contact-row">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -282,7 +250,7 @@ function fmtDt($dt) {
 
     </div>
 
-    <!-- ═══════════════ RIGHT PANEL ═══════════════ -->
+    <!-- RIGHT PANEL -->
     <div class="right-panel">
         <div class="right-panel-grid"></div>
 
@@ -299,12 +267,6 @@ function fmtDt($dt) {
             <h2 class="right-heading">View System Status<br>on G-Portal</h2>
             <p class="right-sub">Check real-time status, maintenance schedules, and system health across all services.</p>
 
-            <!-- =====================================================
-                 CTA BUTTON
-                 $backUrl  = dashboard.php (if from=dashboard)
-                             viewer.php    (default / from=viewer)
-                 $backLabel = "Go to Dashboard" or "Go to G-Portal"
-                 ===================================================== -->
             <a href="<?= htmlspecialchars($backUrl) ?>" class="cta-btn">
                 <?= htmlspecialchars($backLabel) ?>
                 <span class="cta-btn-arrow">
@@ -329,7 +291,6 @@ function fmtDt($dt) {
 </div>
 
 <script>
-    // Live timestamp
     function updateTimestamp() {
         const now = new Date();
         const opts = { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };

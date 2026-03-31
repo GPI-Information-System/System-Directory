@@ -1,8 +1,5 @@
 <?php
-/**
- * G-Portal - Save Maintenance Schedule
- * Handles CREATE, UPDATE, and BULK_CREATE operations
- */
+/* G-Portal - Save Maintenance Schedule - Handles CREATE, UPDATE, and BULK_CREATE operations*/
 
 require_once '../../config/session.php';
 require_once '../../config/database.php';
@@ -63,9 +60,7 @@ if (!$currentUserId) { echo json_encode(['success' => false, 'message' => 'Sessi
 
 $conn = getDBConnection();
 
-// ================================================================
-// BULK CREATE
-// ================================================================
+
 if ($action === 'bulk_create') {
     $systemIds = $_POST['system_ids'] ?? [];
     if (!is_array($systemIds) || count($systemIds) === 0) {
@@ -101,9 +96,7 @@ if ($action === 'bulk_create') {
     exit();
 }
 
-// ================================================================
-// SINGLE CREATE
-// ================================================================
+
 if ($action === 'create') {
     if ($systemId <= 0) { echo json_encode(['success' => false, 'message' => 'Invalid system ID']); exit(); }
     $isDryRun = !empty($_POST['dry_run']) && $_POST['dry_run'] === '1';
@@ -140,9 +133,7 @@ if ($action === 'create') {
     exit();
 }
 
-// ================================================================
-// UPDATE
-// ================================================================
+
 if ($action === 'update') {
     if ($systemId <= 0) { echo json_encode(['success' => false, 'message' => 'Invalid system ID']); exit(); }
     if ($id <= 0) { echo json_encode(['success' => false, 'message' => 'Invalid schedule ID']); exit(); }
@@ -194,8 +185,7 @@ if ($action === 'update') {
         }
     }
 
-    // ── SET actual_end_datetime = NOW() only when first marking as Done ──
-    // If already Done, keep the original actual_end_datetime
+
     $setActualEnd  = ($status === 'Done' && ($current['status'] ?? '') !== 'Done') ? 'NOW()' : 'actual_end_datetime';
     $setDoneByUser = ($status === 'Done' && ($current['status'] ?? '') !== 'Done') ? "'" . $conn->real_escape_string($currentUsername) . "'" : 'done_by_username';
 

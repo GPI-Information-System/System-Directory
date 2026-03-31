@@ -1,15 +1,11 @@
 <?php
 /**
- * G-Portal — Email Notification
- * Sends alerts to all Super Admins when a system goes Down or Offline.
- * Uses PHPMailer with Office 365 SMTP.
- */
+ * G-Portal — Email Notification - Sends alerts to all Super Admins when a system goes Down or Offline. - Uses PHPMailer with Office 365 SMTP.*/
 
 require_once __DIR__ . '/../config/email_config.php';
 require_once __DIR__ . '/../config/database.php';
 
-// FIX: Load PHPMailer manually (no Composer needed)
-// Files placed in vendor/phpmailer/src/
+
 $phpmailerBase = __DIR__ . '/../vendor/phpmailer/src/';
 if (file_exists($phpmailerBase . 'Exception.php') &&
     file_exists($phpmailerBase . 'PHPMailer.php') &&
@@ -26,16 +22,12 @@ define('EMAIL_LOG_FILE',       __DIR__ . '/logs/emails.log');
 define('EMAIL_LOG_MAX_LINES',  500);
 define('EMAIL_LOG_KEEP_LINES', 400);
 
-// ============================================================
-// MAIN ENTRY POINT
-// Called by trigger_health_check.php when status changes to
-// 'down' or 'offline'.
-// ============================================================
+
 function sendStatusChangeEmail($systemId, $systemName, $oldStatus, $newStatus, $domain, $changedBy, $note = '') {
 
     
     if (!defined('EMAIL_NOTIFICATIONS_ENABLED') || !EMAIL_NOTIFICATIONS_ENABLED) {
-        // Still log to file using real recipients so you can verify who would receive it
+        
         $recipients = getSuperAdminEmails();
         $text       = buildTextEmail($systemName, $oldStatus, $newStatus, $domain, $changedBy, $note);
         if (!empty($recipients)) {
@@ -52,11 +44,11 @@ function sendStatusChangeEmail($systemId, $systemName, $oldStatus, $newStatus, $
         return false;
     }
 
-    // ── Only send for Down / Offline ─────────────────────────
+    // ── Only send for Down / Offline 
     $triggerStatuses = defined('EMAIL_TRIGGER_STATUSES') ? EMAIL_TRIGGER_STATUSES : ['down', 'offline'];
     if (!in_array($newStatus, $triggerStatuses)) return false;
 
-    // ── Fetch Super Admin recipients from DB ─────────────────
+    // ── Fetch Super Admin recipients from DB 
     $recipients = getSuperAdminEmails();
     if (empty($recipients)) {
         error_log("G-Portal Email: No Super Admin emails found in users table");
@@ -79,11 +71,7 @@ function sendStatusChangeEmail($systemId, $systemName, $oldStatus, $newStatus, $
     return $success;
 }
 
-// ============================================================
-// FETCH RECIPIENTS
-// Always fetches Super Admins only
-// 
-// ============================================================
+
 function getSuperAdminEmails() {
     $conn = getDBConnection();
 
@@ -113,10 +101,9 @@ function getAdminEmails() {
     return getSuperAdminEmails();
 }
 
-// ============================================================
-// SEND ROUTER
-// Uses PHPMailer if available, otherwise falls back to log
-// ============================================================
+
+// SEND ROUTER Uses PHPMailer if available, otherwise falls back to log
+
 function sendEmail($to, $toName, $subject, $htmlBody, $textBody) {
     if (class_exists('PHPMailer\PHPMailer\PHPMailer')) {
         return sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody);
@@ -126,9 +113,9 @@ function sendEmail($to, $toName, $subject, $htmlBody, $textBody) {
     return logEmailToFile($to, $toName, $subject, $htmlBody, $textBody);
 }
 
-// ============================================================
+
 // PHPMAILER — OFFICE 365 SMTP
-// ============================================================
+
 function sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody) {
     try {
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
@@ -163,15 +150,15 @@ function sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody) {
             ];
         }
 
-        // ── Timeout ───────────────────────────────────────────
+        //  Timeout
         $mail->Timeout = defined('SMTP_TIMEOUT') ? SMTP_TIMEOUT : 30;
 
-        // ── Keep alive for multiple recipients ────────────────
+        // Keep alive for multiple recipients 
         if (defined('SMTP_KEEPALIVE') && SMTP_KEEPALIVE) {
             $mail->SMTPKeepAlive = true;
         }
 
-        // ── Sender details ────────────────────────────────────
+        // ── Sender details 
         $fromEmail = defined('EMAIL_FROM_ADDRESS') ? EMAIL_FROM_ADDRESS : (defined('SMTP_USERNAME') ? SMTP_USERNAME : '');
         $fromName  = defined('EMAIL_FROM_NAME')    ? EMAIL_FROM_NAME    : 'G-Portal System Alerts';
 
@@ -179,7 +166,7 @@ function sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody) {
         $mail->addAddress($to, $toName);
         $mail->CharSet = defined('EMAIL_CHARSET') ? EMAIL_CHARSET : 'UTF-8';
 
-        // ── Email content ─────────────────────────────────────
+        //  Email content 
         $mail->isHTML(true);
         $mail->Subject = $subject;
         $mail->Body    = $htmlBody;
@@ -198,9 +185,8 @@ function sendEmailViaPHPMailer($to, $toName, $subject, $htmlBody, $textBody) {
     }
 }
 
-// ============================================================
+
 // FILE LOGGER 
-// ============================================================
 function logEmailToFile($to, $toName, $subject, $htmlBody, $textBody) {
     $logFile = EMAIL_LOG_FILE;
     $logDir  = dirname($logFile);
@@ -234,9 +220,8 @@ function logEmailToFile($to, $toName, $subject, $htmlBody, $textBody) {
     return true;
 }
 
-// ============================================================
+
 // EMAIL TEMPLATES
-// ============================================================
 
 function buildEmailTemplate($systemName, $oldStatus, $newStatus, $domain, $changedBy, $note) {
     $statusColors = [

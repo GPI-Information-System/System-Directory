@@ -1,12 +1,5 @@
 <?php
-/**
- * G-Portal - Get Systems Status
- * Lightweight endpoint that returns current status of all systems.
- * Called by health_check.js after a maintenance switch to update
- * card statuses in-place without a full page reload.
- *
- * Access: Logged-in admins OR public viewer
- */
+/* G-Portal - Get Systems Status*/
 
 require_once '../config/session.php';
 require_once '../config/database.php';

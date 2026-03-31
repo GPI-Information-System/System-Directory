@@ -1,11 +1,5 @@
 <?php
-/**
- * G-Portal - Save Category
- * Handles:
- *   action=add    — Super Admin only: create a new category
- *   action=rename — Super Admin or Admin: rename an existing category
- *                   also updates all systems.category where old name matched
- */
+/*G-Portal - Save Category */
 
 require_once '../../config/session.php';
 require_once '../../config/database.php';
@@ -38,14 +32,14 @@ if (strlen($name) > 100) {
 
 $conn = getDBConnection();
 
-// ── ADD ──────────────────────────────────────────────────────
+//  ADD 
 if ($action === 'add') {
     if (!isSuperAdmin()) {
         echo json_encode(['success' => false, 'message' => 'Only Super Admins can add new categories']);
         exit();
     }
 
-    // Check for duplicate name (case-insensitive)
+    // Check for duplicate name 
     $check = $conn->prepare("SELECT id FROM categories WHERE LOWER(name) = LOWER(?)");
     $check->bind_param('s', $name);
     $check->execute();
@@ -76,7 +70,7 @@ if ($action === 'add') {
     exit();
 }
 
-// ── RENAME ───────────────────────────────────────────────────
+// RENAME 
 if ($action === 'rename') {
     if ($id <= 0) {
         echo json_encode(['success' => false, 'message' => 'Invalid category ID']);
@@ -96,7 +90,7 @@ if ($action === 'rename') {
     }
     $oldName = $row['name'];
 
-    // Check for duplicate (ignore self)
+    
     $dupStmt = $conn->prepare("SELECT id FROM categories WHERE LOWER(name) = LOWER(?) AND id != ?");
     $dupStmt->bind_param('si', $name, $id);
     $dupStmt->execute();
