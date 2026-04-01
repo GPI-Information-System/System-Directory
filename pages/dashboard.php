@@ -37,7 +37,7 @@ usort($systems, function($a, $b) use ($categoryOrder, $statusPriority) {
     return strcasecmp($a['name'] ?? '', $b['name'] ?? '');
 });
 
-// Group systems by category for rendering
+// Group systems by category 
 $groupedSystems = [];
 foreach ($systems as $system) {
     $cat = $system['category'] ?? ($dbCategories[0]['name'] ?? 'Direct');
@@ -175,7 +175,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     </div>
                 </div>
 
-                <!-- Category Filter — populated dynamically from DB -->
+                <!-- Category Filter -->
                 <div class="filter-dropdown-container">
                     <button type="button" class="btn-filter" onclick="toggleCategoryDropdown(event)">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="18" x2="20" y2="18"></line><circle cx="9" cy="6" r="2.5" fill="currentColor" stroke="none"></circle><circle cx="15" cy="12" r="2.5" fill="currentColor" stroke="none"></circle><circle cx="9" cy="18" r="2.5" fill="currentColor" stroke="none"></circle></svg>
@@ -212,7 +212,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                 </button>
                 <?php endif; ?>
 
-                <!-- Categories Management button (visible to all logged-in users) -->
+                <!-- Categories Management btn-->
                 <button class="btn-categories" onclick="openCategoriesModal()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="8"  y1="6"  x2="21" y2="6"></line>
@@ -234,7 +234,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
             </div>
         </div>
 
-        <!-- SYSTEMS GRID — grouped by category (dynamic from DB) -->
+        <!-- SYSTEMS GRID  -->
         <div id="cardsGrid">
             <?php if (empty($systems)): ?>
                 <div class="cards-grid">
@@ -354,15 +354,15 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
-                    </div><!-- /.cards-grid -->
-                </div><!-- /.category-group -->
+                    </div>
+                </div>
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
     </main>
 </div>
 
-<!-- BULK ACTION BAR -->
+<!-- BULK MAINT BAR-->
 <?php if ($canScheduleMaintenance): ?>
 <div class="bulk-action-bar" id="bulkActionBar">
     <div class="bulk-action-bar-inner">
@@ -400,9 +400,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
 </div>
 <?php endif; ?>
 
-<!-- ========================================
-     ADD SYSTEM MODAL
-     ======================================== -->
+<!-- ADD SYSTEM MODAL-->
 <?php if (isSuperAdmin()): ?>
 <div id="addModal" class="modal">
     <div class="modal-content">
@@ -449,7 +447,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                            oninput="updateCharCounter(this,'addNameCounter',100)">
                 </div>
 
-                <!-- Category — dynamic from DB -->
+                <!-- Category -->
                 <div class="form-group">
                     <label for="systemCategory">Category <span style="color:var(--danger)">*</span></label>
                     <select id="systemCategory" name="category" required>
@@ -527,9 +525,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
 </div>
 <?php endif; ?>
 
-<!-- ========================================
-     EDIT SYSTEM MODAL
-     ======================================== -->
+<!-- EDIT SYSTEM MODAL-->
 <?php if (isSuperAdmin() || isAdmin()): ?>
 <div id="editModal" class="modal">
     <div class="modal-content">
@@ -575,7 +571,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                            oninput="updateCharCounter(this,'editNameCounter',100)">
                 </div>
 
-                <!-- Category — dynamic from DB -->
+                <!-- Category -->
                 <div class="form-group">
                     <label for="editSystemCategory">Category <span style="color:var(--danger)">*</span></label>
                     <select id="editSystemCategory" name="category" required>
@@ -1031,9 +1027,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
     </div>
 </div>
 
-<!-- ========================================
-     CATEGORIES MANAGEMENT MODAL
-     ======================================== -->
+<!-- CATEGORIES MANAGEMENT MODAL -->
 <div id="categoriesModal"
      class="modal"
      data-super-admin="<?php echo isSuperAdmin() ? '1' : '0'; ?>">
@@ -1051,7 +1045,6 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                 <span>Drag rows to reorder. Changes apply to the dashboard immediately.</span>
             </div>
             <div id="catList" class="cat-list"></div>
-            <!-- Add new category (Super Admin only) -->
             <div id="catAddSection" class="cat-add-section" style="display:none;">
                 <div class="cat-add-row">
                     <input type="text"
@@ -1073,9 +1066,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
     </div>
 </div>
 
-<!-- ========================================
-     CATEGORY DELETE CONFIRMATION MODAL
-     ======================================== -->
+<!--  CATEGORY DELETE CONFIRMATION MODAL-->
 <div id="catDeleteModal" class="delete-modal">
     <div class="delete-modal-content">
         <div class="delete-modal-header">
