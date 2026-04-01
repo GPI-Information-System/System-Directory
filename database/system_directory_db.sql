@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 28, 2026 at 06:02 AM
+-- Generation Time: Apr 01, 2026 at 04:32 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -127,16 +127,27 @@ CREATE TABLE `systems` (
 --
 
 INSERT INTO `systems` (`id`, `name`, `category`, `domain`, `japanese_domain`, `badge_url`, `logo`, `description`, `japanese_description`, `contact_number`, `status`, `created_at`, `updated_at`, `exclude_health_check`) VALUES
-(1, 'Document Management System', 'Direct', 'dms.gpi.com', '192,168,5,228;80', 'https://uptime.gpi.com/api/badge/1/status', 'uploads/logos/logo_69c60295255ae.png', '', '', '1120', 'down', '2026-03-27 04:07:49', '2026-03-28 04:59:35', 0),
-(2, 'Equipment Monitoring System', 'Direct', 'ems.gpi.com', '', 'https://uptime.gpi.com/api/badge/15/status', 'uploads/logos/logo_69c60379dbafd.png', '', '', '1120', 'down', '2026-03-27 04:11:37', '2026-03-28 01:51:18', 0),
-(3, 'iBoard System', 'Direct', 'iboard.gpi.com', '', 'https://uptime.gpi.com/api/badge/14/status', 'uploads/logos/logo_69c603f904016.png', '', '', '1120', 'down', '2026-03-27 04:13:45', '2026-03-28 01:51:18', 0),
+(1, 'Document Management System', 'Direct', 'dms.gpi.com', '192,168,5,228;80', 'https://uptime.gpi.com/api/badge/1/status', 'uploads/logos/logo_69c60295255ae.png', '', '', '1120', 'down', '2026-03-27 04:07:49', '2026-04-01 02:24:59', 0),
+(2, 'Equipment Monitoring System', 'Direct', 'ems.gpi.com', '', 'https://uptime.gpi.com/api/badge/15/status', 'uploads/logos/logo_69c60379dbafd.png', '', '', '1120', 'down', '2026-03-27 04:11:37', '2026-04-01 02:16:51', 0),
+(3, 'iBoard System', 'Direct', 'iboard.gpi.com', '', 'https://uptime.gpi.com/api/badge/14/status', 'uploads/logos/logo_69c603f904016.png', '', '', '1120', 'down', '2026-03-27 04:13:45', '2026-04-01 02:18:06', 0),
 (4, 'LOA Monitoring System', 'Direct', 'glory.lms.com.ph', '', 'https://uptime.gpi.com/api/badge/16/status', 'uploads/logos/logo_69c604f273221.png', '', '', '1120', 'down', '2026-03-27 04:17:54', '2026-03-28 01:51:18', 0),
 (5, 'Mold Inventory Management System', 'Direct', 'mims.gpi.com', '', 'https://uptime.gpi.com/api/badge/18/status', 'uploads/logos/logo_69c60555928ec.png', '', '', '1120', 'down', '2026-03-27 04:19:33', '2026-03-28 01:51:18', 0),
 (6, 'Parts Order Form System', 'Direct', 'pofs.gpi.com', '', 'https://uptime.gpi.com/api/badge/3/status', 'uploads/logos/logo_69c6243634105.png', '', '', '1120', 'down', '2026-03-27 06:31:18', '2026-03-28 01:51:18', 0),
 (7, 'Production Monitoring System', 'Direct', 'pms.gpi.com', '', 'https://uptime.gpi.com/api/badge/20/status', 'uploads/logos/logo_69c62484729f2.png', '', '', '123', 'down', '2026-03-27 06:32:36', '2026-03-28 01:51:18', 0),
 (8, 'QC - Trouble Report System', 'Direct', 'qc-trs.gpi.com', '', 'https://uptime.gpi.com/api/badge/4/status', 'uploads/logos/logo_69c628d25dc63.png', '', '', '1120', 'down', '2026-03-27 06:50:58', '2026-03-28 01:51:18', 0),
 (9, 'Revision of Product Information System', 'Direct', 'rpis.gpi.com', '', 'https://uptime.gpi.com/api/badge/2/status', 'uploads/logos/logo_69c6291e6ea9a.png', '', '', '1120', 'down', '2026-03-27 06:52:14', '2026-03-28 01:51:18', 0),
-(10, 'Production Supplies Inventory System', 'Direct', 'psis.gpi.com', '', 'https://uptime.gpi.com/api/badge/31/status', 'uploads/logos/logo_69c62962bbfc6.png', '', '', '1120', 'down', '2026-03-27 06:53:22', '2026-03-28 01:51:18', 0);
+(10, 'Production Supplies Inventory System', 'Direct', 'psis.gpi.com', '', 'https://uptime.gpi.com/api/badge/31/status', 'uploads/logos/logo_69c62962bbfc6.png', '', '', '1120', 'down', '2026-03-27 06:53:22', '2026-03-28 01:51:18', 0),
+(12, 'Asset Management System', 'Indirect', 'ams.gpi.com', '', 'https://uptime.gpi.com/api/badge/6/status', NULL, '', '', '1120', 'down', '2026-04-01 00:40:41', '2026-04-01 00:40:58', 0),
+(13, 'Online DTR Filing System', 'Indirect', '192.168.5.4:8081', '', 'https://uptime.gpi.com/api/badge/36/status', NULL, '', '', '1120', 'down', '2026-04-01 00:42:20', '2026-04-01 00:42:20', 0),
+(14, 'Canteen System', 'Indirect', 'canteen.gpi.com', '', 'uptime.gpi.com/api/badge/7/status', NULL, '', '', '1120', 'down', '2026-04-01 00:44:14', '2026-04-01 00:44:14', 0),
+(15, 'Employees Medical Record System', 'Indirect', 'emr.gpi.com', '', 'https://uptime.gpi.com/api/badge/8/status', NULL, '', '', '1120', 'down', '2026-04-01 00:46:23', '2026-04-01 00:46:23', 0),
+(16, 'Conference Reservation', 'Indirect', 'reservation.gpi.com', '', 'https://uptime.gpi.com/api/badge/17/status', NULL, '', '', '1120', 'down', '2026-04-01 00:47:59', '2026-04-01 00:47:59', 0),
+(17, 'FEM - Helpdesk System', 'Indirect', 'helpdesk-fem.gpi.com', '', 'https://uptime.gpi.com/api/badge/9/status', NULL, '', '', '1120', 'down', '2026-04-01 00:51:08', '2026-04-01 00:51:08', 0),
+(18, 'Human Resource Information System', 'Indirect', 'hris.gpi.com', '', 'https://uptime.gpi.com/api/badge/19/status', NULL, '', '', '1120', 'down', '2026-04-01 00:52:47', '2026-04-01 00:53:57', 0),
+(19, 'ICT - Helpdesk System', 'Indirect', '192.168.5.50/helpdesk', '', 'https://uptime.gpi.com/api/badge/12/status', NULL, '', '', '1120', 'down', '2026-04-01 00:57:56', '2026-04-01 00:58:14', 0),
+(20, 'PPD - Helpdesk System', 'Indirect', 'helpdesk-ppd.gpi.com', '', 'https://uptime.gpi.com/api/badge/11/status', NULL, '', '', '1120', 'down', '2026-04-01 00:59:59', '2026-04-01 00:59:59', 0),
+(21, 'Service Request System', 'Indirect', 'srs.gpi.com', '', 'https://uptime.gpi.com/api/badge/13/status', NULL, '', '', '1120', 'down', '2026-04-01 01:14:06', '2026-04-01 01:14:06', 0),
+(22, 'Task Management System', 'Indirect', 'tms.gpi.com', '', 'https://uptime.gpi.com/api/badge/5/status', NULL, '', '', '1120', 'down', '2026-04-01 01:15:22', '2026-04-01 01:15:22', 0);
 
 -- --------------------------------------------------------
 
@@ -238,7 +249,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `email_recipients`
@@ -262,7 +273,7 @@ ALTER TABLE `status_logs`
 -- AUTO_INCREMENT for table `systems`
 --
 ALTER TABLE `systems`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `users`
