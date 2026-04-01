@@ -37,6 +37,12 @@ function openAddModal() {
   if (nameInput) updateCharCounter(nameInput, "addNameCounter", 100);
   const addBox = document.getElementById("addLogoPreviewBox");
   if (addBox) addBox.classList.remove("visible");
+  // Initialize status dot color on modal open
+  const statusSelect = document.getElementById("systemStatus");
+  const statusDot = document.getElementById("addStatusDot");
+  if (statusSelect && statusDot) {
+    statusDot.style.background = STATUS_DOT_COLORS[statusSelect.value] || "#9CA3AF";
+  }
 }
 
 function closeAddModal() {

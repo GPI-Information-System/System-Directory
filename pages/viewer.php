@@ -303,7 +303,7 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
 
     <!--  Filter Category Viewer stays in sync -->
     <script>
-        const TOTAL_SYSTEMS = <?php echo $totalSystems; ?>
+        const TOTAL_SYSTEMS = <?php echo $totalSystems; ?>;
         const DB_CATEGORIES = <?php echo json_encode(array_column($dbCategories, 'name')); ?>;
 
         function toggleLogin() {

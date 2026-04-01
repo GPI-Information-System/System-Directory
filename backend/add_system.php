@@ -28,11 +28,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    $allowedCategories = ['Direct', 'Indirect', 'Support'];
-    if (empty($category) || !in_array($category, $allowedCategories)) {
-        echo json_encode(['success' => false, 'message' => 'Category is required. Please select Direct, Indirect, or Support.']);
+    if (empty($category)) {
+        echo json_encode(['success' => false, 'message' => 'Category is required.']);
         exit();
     }
+
+    // FIX: Validate category dynamically from DB instead of hardcoded list
+    // This supports any categories added via the Categories Management feature
+    $conn = getDBConnection();
+    $catCheck = $conn->prepare("SELECT id FROM categories WHERE name = ? LIMIT 1");
+    $catCheck->bind_param("s", $category);
+    $catCheck->execute();
+    if ($catCheck->get_result()->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'Invalid category selected.']);
+        exit();
+    }
+    $catCheck->close();
 
     // Handle logo upload
     if (isset($_FILES['logo']) && $_FILES['logo']['error'] !== UPLOAD_ERR_NO_FILE) {
@@ -68,12 +79,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $japaneseDomain       = trim($_POST['japanese_domain'] ?? '');
-    $japaneseDescription  = trim($_POST['japanese_description'] ?? '');
+    $japaneseDomain      = trim($_POST['japanese_domain']      ?? '');
+    $japaneseDescription = trim($_POST['japanese_description'] ?? '');
 
-    $conn = getDBConnection();
-    $stmt = $conn->prepare("INSERT INTO systems (name, category, domain, japanese_domain, badge_url, logo, description, japanese_description, contact_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssssss", $name, $category, $domain, $japaneseDomain, $badgeUrl, $logo, $description, $japaneseDescription, $contactNumber);
+    // FIX: Added status field — previously missing, new systems always defaulted to DB default
+    $status = trim($_POST['status'] ?? 'online');
+    $allowedStatuses = ['online', 'offline', 'maintenance', 'down', 'archived'];
+    if (!in_array($status, $allowedStatuses)) {
+        $status = 'online';
+    }
+
+    $stmt = $conn->prepare("
+        INSERT INTO systems
+            (name, category, domain, japanese_domain, badge_url, logo, description, japanese_description, contact_number, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
+    $stmt->bind_param(
+        "ssssssssss",
+        $name, $category, $domain, $japaneseDomain,
+        $badgeUrl, $logo, $description, $japaneseDescription,
+        $contactNumber, $status
+    );
 
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'message' => 'System added successfully.']);

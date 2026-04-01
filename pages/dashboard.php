@@ -466,9 +466,23 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     </div>
                 </div>
 
+              <div class="form-group">
+                    <label for="systemStatus">Status <span style="color:var(--danger)">*</span></label>
+                    <div class="status-select-wrap">
+                        <span class="status-select-dot" id="addStatusDot"></span>
+                        <select id="systemStatus" name="status" required onchange="updateStatusDot(this,'addStatusDot')">
+                            <option value="online">Online</option>
+                            <option value="offline">Offline</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="down">Down</option>
+                            <option value="archived">Archived</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="systemDomain">Domain <span style="color:var(--danger)">*</span></label>
-                    <input type="text" id="systemDomain" name="domain" required placeholder="e.g., glory.canteen.com.ph">
+                    <input type="text" id="systemDomain" name="domain" required placeholder="e.g., ams.gpi.com">
                 </div>
 
                 <div class="form-group">

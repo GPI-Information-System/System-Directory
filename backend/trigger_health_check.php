@@ -1,18 +1,19 @@
 <?php
 /* G-Portal - Trigger Health Check*/
 
-ob_start(); 
+ob_start();
 require_once '../config/session.php';
 require_once '../config/database.php';
 require_once __DIR__ . '/send_email_notification.php';
-ob_clean(); 
+ob_clean();
 
 header('Content-Type: application/json');
 
 define('HC_LOG_FILE',     __DIR__ . '/logs/health_check.log');
-define('CHECK_TIMEOUT',   3);
-define('DOMAIN_TIMEOUT',  2);
-define('CONNECT_TIMEOUT', 2);
+
+define('CHECK_TIMEOUT',   2);
+define('DOMAIN_TIMEOUT',  1);
+define('CONNECT_TIMEOUT', 1);
 define('HC_USER_AGENT',   'G-Portal Health Monitor/1.0');
 
 function hcLog($message) {
@@ -20,11 +21,11 @@ function hcLog($message) {
     $logDir    = dirname(HC_LOG_FILE);
     if (!file_exists($logDir)) mkdir($logDir, 0777, true);
 
-    // ── Log rotation: keep max 500 lines ──
+    // Log rotation: keep max 500 lines
     if (file_exists(HC_LOG_FILE)) {
         $lines = file(HC_LOG_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         if (count($lines) > 500) {
-            $trimmed = array_slice($lines, -400); // keep last 400 lines
+            $trimmed = array_slice($lines, -400);
             file_put_contents(HC_LOG_FILE, implode(PHP_EOL, $trimmed) . PHP_EOL);
         }
     }
@@ -58,8 +59,6 @@ function hcCheckBadgeStatus($badgeUrl) {
     $curlErrno = curl_errno($ch);
     curl_close($ch);
 
-    // HTTP 0 = complete connection failure (network unreachable, DNS fail, etc.)
-    // Return 'UNREACHABLE' so caller can fallback to domain check
     if ($httpCode === 0 || $curlErrno === CURLE_COULDNT_RESOLVE_HOST || $curlErrno === CURLE_COULDNT_CONNECT) {
         hcLog("  BADGE UNREACHABLE: $curlError (HTTP $httpCode) — will fallback to domain");
         return 'UNREACHABLE';
@@ -137,7 +136,6 @@ function checkDomainsInParallel($domainSystems) {
     return $results;
 }
 
-
 function getSystemsUnderActiveMaintenance($conn) {
     $activeIds = [];
     $result = $conn->query("
@@ -184,7 +182,6 @@ try {
         $badgeUrl = trim($system['badge_url'] ?? '');
         $systems[$systemId] = $system;
 
-        // Skip systems under active OR exceeded maintenance
         if (isset($activeMaintenance[$systemId])) {
             hcLog("SKIP system #$systemId ({$system['name']}) — maintenance schedule active/exceeded");
             continue;
@@ -194,10 +191,17 @@ try {
             $badgeSystems[$systemId] = $badgeUrl;
         } elseif ($system['status'] === 'online') {
             $domainSystems[$systemId] = $system['domain'];
-        }    }
+        }
+    }
 
     $systemsChecked = $changed = 0;
     $updatedSystems = [];
+
+    $monitorUser = $conn->query("SELECT id FROM users WHERE username = 'system_monitor' LIMIT 1")->fetch_assoc();
+    if (!$monitorUser) {
+        $monitorUser = $conn->query("SELECT id FROM users WHERE role = 'Super Admin' ORDER BY id ASC LIMIT 1")->fetch_assoc();
+    }
+    $cachedUserId = $monitorUser ? $monitorUser['id'] : 1;
 
     hcLog("=== Health check started ===");
     hcLog("Badge: " . count($badgeSystems) . " | Domain: " . count($domainSystems) . " | Skipped (maintenance): " . count($activeMaintenance));
@@ -222,7 +226,6 @@ try {
             $badgeStatus = hcCheckBadgeStatus($badgeUrl);
 
             if ($badgeStatus === 'UNREACHABLE') {
-                // Badge server unreachable — fallback to domain check
                 hcLog("  FALLBACK: Checking domain ($systemDomain) instead");
                 $url    = preg_match("~^(?:f|ht)tps?://~i", $systemDomain) ? $systemDomain : 'http://' . $systemDomain;
                 $ch     = curl_init($url);
@@ -245,7 +248,6 @@ try {
 
                 $accessible = !$domainCurlError && $domainHttpCode >= 200 && $domainHttpCode < 400;
                 if (!$accessible && $domainHttpCode === 0) {
-                    // Domain also unreachable — mark as down
                     $newStatus    = 'down';
                     $errorDetails = "Badge & domain both unreachable (HTTP $domainHttpCode)";
                     hcLog("  DOWN: Badge & domain both unreachable");
@@ -282,12 +284,8 @@ try {
 
             $changeNote = 'Auto-detected: ' . $errorDetails;
 
-            // Use system_monitor user if exists, otherwise fallback to first Super Admin
-            $monitorUser = $conn->query("SELECT id FROM users WHERE username = 'system_monitor' LIMIT 1")->fetch_assoc();
-            if (!$monitorUser) {
-                $monitorUser = $conn->query("SELECT id FROM users WHERE role = 'Super Admin' ORDER BY id ASC LIMIT 1")->fetch_assoc();
-            }
-            $userId = $monitorUser ? $monitorUser['id'] : 1;
+            // Use cached user ID 
+            $userId = $cachedUserId;
 
             $logStmt = $conn->prepare("INSERT INTO status_logs (system_id, old_status, new_status, changed_by, change_note) VALUES (?, ?, ?, ?, ?)");
             $logStmt->bind_param("issis", $systemId, $currentStatus, $newStatus, $userId, $changeNote);

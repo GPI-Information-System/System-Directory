@@ -1,7 +1,8 @@
-/*G-Portal Real-Time Health Check + Maintenance Check  */
+/* G-Portal — Real-Time Health Check + Maintenance Check */
 
 (function GPortalHealthCheck() {
-  const POLL_INTERVAL = 10000;
+
+  const POLL_INTERVAL = 30000;
 
   const STATUS_LABELS = {
     online: "Online",
@@ -128,8 +129,7 @@
     }, 3000);
   }
 
-  // health check AJAX
-
+  // Health check AJAX poll
   function runHealthCheck() {
     $.ajax({
       url: HEALTH_ENDPOINT,
@@ -154,7 +154,7 @@
     });
   }
 
-  //  Maintenance check AJAX poll
+  // Maintenance check AJAX poll
   function runMaintenanceCheck() {
     $.ajax({
       url: MAINTENANCE_ENDPOINT,
@@ -174,6 +174,7 @@
       },
     });
   }
+
 
   function runViewerStatusPoll() {
     if (!IS_VIEWER) return;
@@ -211,10 +212,13 @@
           reloadDashboard();
         }
       },
-      error: function () {},
+      error: function () {
+        
+      },
     });
   }
 
+ 
   $(document).ready(function () {
     runHealthCheck();
     runMaintenanceCheck();
@@ -224,7 +228,6 @@
     setInterval(function () {
       runHealthCheck();
       runMaintenanceCheck();
-
       if (IS_VIEWER) runViewerStatusPoll();
     }, POLL_INTERVAL);
   });
