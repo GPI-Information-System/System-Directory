@@ -2,10 +2,10 @@
 /* G-Portal — Database Configuration*/
 
 // Database configuration
-define('DB_HOST',      'localhost');
-define('DB_USER',      'root');
+define('DB_HOST',      '');
+define('DB_USER',      '');
 define('DB_PASS',      '');
-define('DB_NAME',      'system_directory_db');
+define('DB_NAME',      '');
 define('DB_CHARSET',   'utf8mb4');
 define('DB_COLLATION', 'utf8mb4_general_ci');
 
