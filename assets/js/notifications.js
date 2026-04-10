@@ -4,6 +4,12 @@ let notificationCheckInterval = null;
 let lastNotificationCount = 0;
 let allNotifications = [];
 
+// ── CONSTANTS ──────────────────────────────────────────────────────────────────
+const NOTIF_COOKIE_KEY    = 'gportal_read_notifs';
+const NOTIF_MAX_KB        = 29;          
+const NOTIF_MAX_AGE_MINS  = 30;          
+const NOTIF_MAX_COUNT     = 25;          
+
 const NOTIF_JP = {
   header: "最新情報",
   markAllRead: "全て既読にする",
@@ -28,10 +34,11 @@ function notifStatusLabel(status) {
   return capitalize(status);
 }
 
+
 function getReadIds() {
   try {
     return new Set(
-      JSON.parse(localStorage.getItem("gportal_read_notifs") || "[]"),
+      JSON.parse(sessionStorage.getItem(NOTIF_COOKIE_KEY) || "[]"),
     );
   } catch {
     return new Set();
@@ -39,7 +46,29 @@ function getReadIds() {
 }
 
 function saveReadIds(set) {
-  localStorage.setItem("gportal_read_notifs", JSON.stringify([...set]));
+  try {
+    const data = JSON.stringify([...set]);
+
+
+    if (new Blob([data]).size > NOTIF_MAX_KB * 1024) {
+      const arr = [...set];
+      while (arr.length > 0) {
+        arr.shift(); // Remove oldest ID
+        const trimmed = JSON.stringify(arr);
+        if (new Blob([trimmed]).size <= NOTIF_MAX_KB * 1024) {
+          sessionStorage.setItem(NOTIF_COOKIE_KEY, trimmed);
+          return;
+        }
+      }
+
+      sessionStorage.removeItem(NOTIF_COOKIE_KEY);
+      return;
+    }
+
+    sessionStorage.setItem(NOTIF_COOKIE_KEY, data);
+  } catch (e) {
+    sessionStorage.removeItem(NOTIF_COOKIE_KEY);
+  }
 }
 
 function markAsRead(id) {
@@ -56,11 +85,30 @@ function markAllRead() {
   updateNotificationBadge(0);
 }
 
+
+function filterRecentNotifications(notifications) {
+  const now = new Date();
+  const cutoff = NOTIF_MAX_AGE_MINS * 60 * 1000;
+
+  const sessionStart = new Date(sessionStorage.getItem('gportal_session_start') || now.toISOString());
+
+  const recent = notifications.filter(n => {
+    const age = now - new Date(n.changed_at);
+    const notifTime = new Date(n.changed_at);
+    return age <= cutoff && notifTime >= sessionStart;
+  });
+
+  return recent.slice(0, NOTIF_MAX_COUNT);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   initializeNotifications();
 });
 
 function initializeNotifications() {
+  if (!sessionStorage.getItem('gportal_session_start')) {
+    sessionStorage.setItem('gportal_session_start', new Date().toISOString());
+  }
   loadNotifications();
   notificationCheckInterval = setInterval(loadNotifications, 30000);
   document.addEventListener("click", function (event) {
@@ -88,7 +136,7 @@ function loadNotifications() {
     .then((r) => r.json())
     .then((data) => {
       if (data.success) {
-        allNotifications = data.notifications || [];
+        allNotifications = filterRecentNotifications(data.notifications || []);
         const readIds = getReadIds();
         const unreadCount = allNotifications.filter(
           (n) => !readIds.has(n.id),
