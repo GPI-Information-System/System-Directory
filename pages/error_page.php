@@ -125,6 +125,8 @@ $errorConfig = $errors[$type] ?? [
 ];
 
 $systemName    = $systemInfo['name']           ?? ($domain ?: 'This System');
+$displayDomain = trim($_GET['display_domain'] ?? '');
+$systemDomain  = !empty($displayDomain) ? $displayDomain : ($systemInfo['domain'] ?? ($domain ?: '—'));
 $contactNumber = $systemInfo['contact_number'] ?? null;
 
 function fmtDt($dt) {
@@ -182,9 +184,16 @@ function fmtDt($dt) {
             ?>
         </h1>
 
+        <!-- FIX: Show both System name and Domain -->
         <div class="system-name-row">
             <span class="system-name-label">System</span>
             <span class="system-name-value"><?= htmlspecialchars($systemName) ?></span>
+        </div>
+        <div class="system-name-row" style="margin-top: 6px;">
+            <span class="system-name-label">Domain</span>
+            <span class="system-name-value" style="font-size: 12px; font-family: 'Consolas', 'Courier New', monospace;">
+                <?= htmlspecialchars($systemDomain) ?>
+            </span>
         </div>
 
         <p class="error-message"><?= htmlspecialchars($errorConfig['message']) ?></p>

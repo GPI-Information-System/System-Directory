@@ -1,24 +1,24 @@
 <?php
-//G-Portal Public Viewer PagePublic-facing system directory for employees
+//G-Portal Public Viewer Page 
 
 require_once '../config/database.php';
 
 $conn = getDBConnection();
 
-// ── Fetch categories dynamically from DB ──────────────────────────────────────
+// ── Fetch categories 
 $catResult  = $conn->query("SELECT name, sort_order FROM categories ORDER BY sort_order ASC");
 $dbCategories = [];
 while ($row = $catResult->fetch_assoc()) {
     $dbCategories[] = $row;
 }
 
-// Build category order map from DB (fallback to position index)
+// category order 
 $categoryOrder = [];
 foreach ($dbCategories as $i => $cat) {
     $categoryOrder[$cat['name']] = $cat['sort_order'] ?? ($i + 1);
 }
 
-// ── Fetch all systems ─────────────────────────────────────────────────────────
+// Fetch all systems 
 $result = $conn->query("SELECT *, COALESCE(japanese_domain, '') as japanese_domain FROM systems ORDER BY created_at DESC");
 $systems = [];
 while ($row = $result->fetch_assoc()) { $systems[] = $row; }
@@ -36,7 +36,7 @@ usort($systems, function($a, $b) use ($categoryOrder, $statusPriority) {
     return strcasecmp($a['name'] ?? '', $b['name'] ?? '');
 });
 
-// Group by category 
+// Group by category
 $groupedSystems = [];
 foreach ($systems as $system) {
     $cat = $system['category'] ?? ($dbCategories[0]['name'] ?? 'Direct');
@@ -64,7 +64,6 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
         <div class="header-content">
             <h1>G-Portal</h1>
             <div class="header-right">
-                <!-- Japanese Translation -->
                 <div class="jp-lang-switcher" id="jpLangSwitcher">
                     <button class="jp-lang-option" id="jpLangEng" onclick="setLanguage('en')">
                         Eng
@@ -220,7 +219,6 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
                 </div>
             </div>
 
-            
             <div id="viewerSystemsContainer">
                 <?php if (empty($systems)): ?>
                     <div class="systems-grid-viewer">
@@ -253,7 +251,7 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
                                  data-description="<?php echo htmlspecialchars($system['description'] ?? ''); ?>"
                                  data-japanese-description="<?php echo htmlspecialchars($system['japanese_description'] ?? ''); ?>"
                                  tabindex="0" role="article"
-                                 onclick="openDomainViewer('<?php echo htmlspecialchars($system['domain']); ?>')"
+                                 onclick="openDomainViewer(this)"
                                  style="cursor: pointer;">
 
                                 <a href="#" class="logo-link-viewer" aria-label="Open <?php echo htmlspecialchars($system['name']); ?>" onclick="event.stopPropagation();">
@@ -271,7 +269,6 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
                                     <?php echo $statusLabel; ?>
                                 </div>
 
-                               
                                 <h3 class="system-name-viewer">
                                     <?php echo htmlspecialchars($system['name']); ?>
                                 </h3>
@@ -301,7 +298,6 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
         <p>&copy; <?php echo date('Y'); ?> G-Portal. All rights reserved.</p>
     </footer>
 
-    <!--  Filter Category Viewer stays in sync -->
     <script>
         const TOTAL_SYSTEMS = <?php echo $totalSystems; ?>;
         const DB_CATEGORIES = <?php echo json_encode(array_column($dbCategories, 'name')); ?>;

@@ -93,7 +93,6 @@ function filterCategoryViewer(category) {
 
     const catBtn = document.getElementById('categoryFilterBtn');
     if (catBtn) {
-
         const labelMap = { 'all': 'Category' };
         if (typeof DB_CATEGORIES !== 'undefined') {
             DB_CATEGORIES.forEach(name => { labelMap[name] = name; });
@@ -131,7 +130,6 @@ function applyAllFilters() {
         const matchesStatus   = currentFilter === 'all' || cardStatus === currentFilter;
         const matchesCategory = currentCategoryFilter === 'all' || cardCategory === currentCategoryFilter;
 
-       
         if (cardStatus === 'archived' && currentFilter !== 'archived') {
             card.style.display = 'none';
         } else if (matchesStatus && matchesCategory && matchesSearch) {
@@ -145,7 +143,6 @@ function applyAllFilters() {
         }
     });
 
-    
     document.querySelectorAll('.viewer-category-group').forEach(group => {
         if (currentCategoryFilter !== 'all' && group.dataset.category !== currentCategoryFilter) {
             group.style.display = 'none';
@@ -194,22 +191,17 @@ function clearAllFilters() {
     currentFilter         = 'all';
     currentCategoryFilter = 'all';
 
-    
     const statusBtn = document.getElementById('statusFilterBtn');
     if (statusBtn) { statusBtn.innerHTML = SLIDER_ICON_VIEWER + 'Status Filter'; statusBtn.classList.remove('btn-filter-viewer-active'); }
 
-    
     const catBtn = document.getElementById('categoryFilterBtn');
     if (catBtn) { catBtn.innerHTML = SLIDER_ICON_VIEWER + 'Category'; catBtn.classList.remove('btn-filter-viewer-active'); }
 
-    
     document.querySelectorAll('.filter-item[data-filter]').forEach(item => item.classList.toggle('active', item.dataset.filter === 'all'));
     document.querySelectorAll('#categoryDropdownViewer .filter-item').forEach(item => item.classList.toggle('active', item.dataset.cat === 'all'));
 
-    
     document.querySelectorAll('.viewer-category-group').forEach(g => g.style.display = '');
 
-    
     const cards = document.querySelectorAll('.system-card-viewer');
     let activeCount = 0;
     cards.forEach(card => {
@@ -237,17 +229,35 @@ function showEmptyState(show, message = 'No systems found') {
 }
 
 
-function openDomainViewer(domain) {
-    const cards = document.querySelectorAll('.system-card-viewer');
-    let cardStatus = 'online';
-    cards.forEach(card => {
-        const domainEl = card.querySelector('.system-domain-viewer');
-        if (domainEl && domainEl.textContent.trim() === domain) cardStatus = card.getAttribute('data-status') || 'online';
-    });
+
+function openDomainViewer(cardEl) {
+    const card = cardEl.closest ? cardEl.closest('.system-card-viewer') : cardEl;
+    if (!card) return;
+
+    const cardStatus = card.getAttribute('data-status') || 'online';
+    const domainEl   = card.querySelector('.system-domain-viewer');
+
+    // Original English domain
+    const originalDomain = domainEl
+        ? (domainEl.getAttribute('data-en-domain') || domainEl.textContent.trim())
+        : '';
+
+    // Japanese domain stored in card's data attribute (set in PHP)
+    const jpDomain = card.getAttribute('data-japanese-domain') || '';
+
+    // Use JP domain only if: JP mode is active AND a JP domain is set
+    const domain = (isJapanese && jpDomain) ? jpDomain : originalDomain;
+
     if (['maintenance', 'down', 'offline'].includes(cardStatus)) {
-        window.location.href = '../pages/error_page.php?type=' + encodeURIComponent(cardStatus) + '&domain=' + encodeURIComponent(domain);
+        let url = '../pages/error_page.php?type=' + encodeURIComponent(cardStatus) + '&domain=' + encodeURIComponent(originalDomain);
+        if (isJapanese && jpDomain) {
+            url += '&display_domain=' + encodeURIComponent(jpDomain);
+        }
+        window.location.href = url;
         return;
     }
+
+    
     window.open((!domain.startsWith('http') ? 'https://' : '') + domain, '_blank');
 }
 
@@ -263,7 +273,6 @@ document.addEventListener('keydown', function(e) {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Hide archived by default
     let activeCount = 0;
     document.querySelectorAll('.system-card-viewer').forEach(card => {
         if ((card.getAttribute('data-status') || '') === 'archived') card.style.display = 'none';
@@ -349,7 +358,6 @@ function revertAllDescriptions() {
 }
 
 function applyJapaneseTranslation() {
-   
     const pageTitle = document.querySelector('.page-title');
     if (pageTitle && !pageTitle.getAttribute('data-en')) {
         pageTitle.setAttribute('data-en', pageTitle.textContent.trim());
@@ -431,7 +439,6 @@ function applyJapaneseTranslation() {
         }
     });
 
-    
     const categoryOptionMap = {
         'All Categories':   '全カテゴリー',
         'Direct Systems':   'ダイレクトシステム',
@@ -449,14 +456,12 @@ function applyJapaneseTranslation() {
     fetchMaintenanceBadges();
     if (typeof renderNotifications === 'function') renderNotifications(allNotifications);
 
-    
     document.querySelectorAll('.viewer-category-title').forEach(el => {
         const original = el.getAttribute('data-en') || el.textContent.trim();
         el.setAttribute('data-en', original);
         el.textContent = JP_TRANSLATIONS.category[original] || original;
     });
 
-    
     document.querySelectorAll('.system-card-viewer').forEach(card => {
         const jpDomain   = card.getAttribute('data-japanese-domain') || '';
         const mainDomain = card.querySelector('.system-domain-viewer');
