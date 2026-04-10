@@ -24,8 +24,10 @@ $sql = "
     JOIN users   u ON sl.changed_by = u.id
     WHERE sl.changed_at >= DATE_SUB(NOW(), INTERVAL ? HOUR)
     ORDER BY sl.changed_at DESC
-    LIMIT 20
+    LIMIT 25
 ";
+
+
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $hours);

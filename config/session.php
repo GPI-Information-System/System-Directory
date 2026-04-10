@@ -1,16 +1,11 @@
 <?php
 // G-Portal — Session Configuration
 
-// Define session save path inside the project
-$sessionPath = __DIR__ . '/../sessions';
 
-// Create the sessions folder if it doesn't exist
-if (!file_exists($sessionPath)) {
-    mkdir($sessionPath, 0777, true);
-}
-
-// Tell PHP to use our local sessions folder
-session_save_path($sessionPath);
+// Configure session security settings
+ini_set('session.use_strict_mode', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_httponly', 1);
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
