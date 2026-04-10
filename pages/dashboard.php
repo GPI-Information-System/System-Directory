@@ -264,10 +264,11 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     $badgeUrl = $system['badge_url'] ?? '';
                     ?>
                     <div class="system-card <?php echo $isArchived ? 'bulk-excluded' : ''; ?>"
-                         data-status="<?php echo htmlspecialchars($status); ?>"
-                         data-system-id="<?php echo $system['id']; ?>"
-                         data-system-name="<?php echo htmlspecialchars(addslashes($system['name'])); ?>"
-                         data-contact-number="<?php echo htmlspecialchars($contactNumber); ?>">
+                    data-status="<?php echo htmlspecialchars($status); ?>"
+                    data-system-id="<?php echo $system['id']; ?>"
+                    data-system-name="<?php echo htmlspecialchars(addslashes($system['name'])); ?>"
+                    data-contact-number="<?php echo htmlspecialchars($contactNumber); ?>"
+                    data-japanese-domain="<?php echo htmlspecialchars($system['japanese_domain'] ?? ''); ?>">
 
                         <?php if ($canScheduleMaintenance && !$isArchived): ?>
                         <div class="bulk-checkbox-overlay" onclick="toggleCardSelection(event,<?php echo $system['id']; ?>,'<?php echo addslashes($system['name']); ?>')">

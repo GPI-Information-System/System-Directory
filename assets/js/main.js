@@ -277,29 +277,36 @@ function searchSystems() {
 function openDomain(domain) {
   if (!domain) return;
   let cardStatus = "online";
+  let japaneseDomain = "";
+
   document.querySelectorAll(".system-card").forEach((card) => {
     const domainEl = card.querySelector(".card-domain");
     if (domainEl && domainEl.textContent.trim() === domain) {
       cardStatus = card.getAttribute("data-status") || "online";
+      japaneseDomain = card.getAttribute("data-japanese-domain") || "";
     }
   });
+
   if (
     cardStatus === "maintenance" ||
     cardStatus === "down" ||
     cardStatus === "offline"
   ) {
-    const errorUrl =
+    window.location.href =
       "../pages/error_page.php?type=" +
       encodeURIComponent(cardStatus) +
       "&domain=" +
       encodeURIComponent(domain) +
       "&from=dashboard";
-    window.location.href = errorUrl;
     return;
   }
+
+  
+  const isJapaneseDomain = !!(japaneseDomain && domain === japaneseDomain);
+
   let url = domain;
   if (!domain.startsWith("http://") && !domain.startsWith("https://")) {
-    url = "https://" + domain;
+    url = (isJapaneseDomain ? "http://" : "https://") + domain;
   }
   window.open(url, "_blank");
 }
