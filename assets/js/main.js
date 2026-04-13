@@ -3,7 +3,7 @@ let currentEditId = null;
 let deleteSystemId = null;
 let deleteSystemName = null;
 
-// Close dropdowns when clicking outside
+// Close dropdowns 
 document.addEventListener("click", function (e) {
   if (!e.target.closest(".card-menu")) {
     closeAllDropdowns();
@@ -29,7 +29,7 @@ function closeAllDropdowns() {
     .forEach((menu) => menu.classList.remove("show"));
 }
 
-// ── Open Add System Modal ──
+//  Open Add System Modal 
 function openAddModal() {
   document.getElementById("addModal").classList.add("show");
   document.getElementById("addSystemForm").reset();
@@ -41,7 +41,8 @@ function openAddModal() {
   const statusSelect = document.getElementById("systemStatus");
   const statusDot = document.getElementById("addStatusDot");
   if (statusSelect && statusDot) {
-    statusDot.style.background = STATUS_DOT_COLORS[statusSelect.value] || "#9CA3AF";
+    statusDot.style.background =
+      STATUS_DOT_COLORS[statusSelect.value] || "#9CA3AF";
   }
 }
 
@@ -50,7 +51,7 @@ function closeAddModal() {
   document.getElementById("addSystemForm").reset();
 }
 
-// ── Open Edit System Modal ──
+// Open Edit System Modal 
 function openEditModal(
   id,
   name,
@@ -274,41 +275,45 @@ function searchSystems() {
   });
 }
 
-function openDomain(domain) {
+function openDomain(systemId) {
+  if (!systemId) return;
+
+  const card = document.querySelector('.system-card[data-system-id="' + systemId + '"]');
+  if (!card) return;
+
+  const domainEl = card.querySelector('.card-domain');
+  const domain = domainEl ? domainEl.textContent.trim() : '';
   if (!domain) return;
-  let cardStatus = "online";
-  let japaneseDomain = "";
 
-  document.querySelectorAll(".system-card").forEach((card) => {
-    const domainEl = card.querySelector(".card-domain");
-    if (domainEl && domainEl.textContent.trim() === domain) {
-      cardStatus = card.getAttribute("data-status") || "online";
-      japaneseDomain = card.getAttribute("data-japanese-domain") || "";
-    }
-  });
+  const cardStatus = card.getAttribute('data-status') || 'online';
+  const japaneseDomain = card.getAttribute('data-japanese-domain') || '';
 
-  if (
-    cardStatus === "maintenance" ||
-    cardStatus === "down" ||
-    cardStatus === "offline"
-  ) {
+if (cardStatus === 'maintenance' || cardStatus === 'down' || cardStatus === 'offline') {
+    const systemId = card.getAttribute('data-system-id') || '';
+    const engDomain = card.getAttribute('data-eng-domain') || domain;
+    const japaneseDomain = card.getAttribute('data-japanese-domain') || '';
+    const displayDomain = (japaneseDomainActive && japaneseDomain) ? japaneseDomain : engDomain;
+
     window.location.href =
-      "../pages/error_page.php?type=" +
+      '../pages/error_page.php?type=' +
       encodeURIComponent(cardStatus) +
-      "&domain=" +
-      encodeURIComponent(domain) +
-      "&from=dashboard";
+      '&domain=' +
+      encodeURIComponent(engDomain) +
+      '&system_id=' +
+      encodeURIComponent(systemId) +
+      '&display_domain=' +
+      encodeURIComponent(displayDomain) +
+      '&from=dashboard';
     return;
-  }
+}
 
-  
   const isJapaneseDomain = !!(japaneseDomain && domain === japaneseDomain);
 
   let url = domain;
-  if (!domain.startsWith("http://") && !domain.startsWith("https://")) {
-    url = (isJapaneseDomain ? "http://" : "https://") + domain;
+  if (!domain.startsWith('http://') && !domain.startsWith('https://')) {
+    url = (isJapaneseDomain ? 'http://' : 'https://') + domain;
   }
-  window.open(url, "_blank");
+  window.open(url, '_blank');
 }
 
 window.onclick = function (event) {
@@ -341,7 +346,6 @@ function clearAllFilters() {
 function toggleCategoryDropdown(event) {
   event.stopPropagation();
   const menu = document.getElementById("categoryFilterMenu");
-  // Close status filter if open
   const statusMenu = document.querySelector(
     ".filter-dropdown-menu.show:not(#categoryFilterMenu)",
   );
@@ -350,7 +354,6 @@ function toggleCategoryDropdown(event) {
 }
 
 function filterByCategory(category) {
-  // Update button label
   const catBtn = document.querySelector(
     '.btn-filter[onclick="toggleCategoryDropdown(event)"]',
   );
@@ -871,4 +874,43 @@ function _onMarkOnlineSuccess(systemId) {
   if (typeof closeMaintenanceModal === "function") {
     closeMaintenanceModal();
   }
+}
+
+//  entire card clickable
+
+function handleCardClick(event, systemId) {
+    if (event.target.closest('.card-menu') ||
+        event.target.closest('.dropdown-menu') ||
+        event.target.closest('.bulk-checkbox-overlay') ||
+        event.target.closest('button') ||
+        event.target.closest('a')) {
+        return;
+    }
+    openDomain(systemId);
+}
+
+// Japanese Domain Toggle 
+let japaneseDomainActive = false;
+
+function toggleJapaneseDomain(isChecked) {
+    japaneseDomainActive = isChecked;
+
+    document.querySelectorAll('.system-card').forEach(card => {
+        const domainEl = card.querySelector('.card-domain');
+        if (!domainEl) return;
+
+        // Store original eng domain 
+        if (!card.getAttribute('data-eng-domain')) {
+            card.setAttribute('data-eng-domain', domainEl.textContent.trim());
+        }
+
+        const engDomain = card.getAttribute('data-eng-domain');
+        const japaneseDomain = card.getAttribute('data-japanese-domain') || '';
+
+        if (japaneseDomainActive && japaneseDomain) {
+            domainEl.textContent = japaneseDomain;
+        } else {
+            domainEl.textContent = engDomain;
+        }
+    });
 }

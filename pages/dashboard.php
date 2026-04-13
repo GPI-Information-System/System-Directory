@@ -7,14 +7,14 @@ $currentUser = getCurrentUser();
 
 $conn = getDBConnection();
 
-// Load categories dynamically from DB (sorted by sort_order)
+// Load categories from DB 
 $catResult = $conn->query("SELECT id, name, sort_order FROM categories ORDER BY sort_order ASC, name ASC");
 $dbCategories = [];
 while ($catRow = $catResult->fetch_assoc()) {
     $dbCategories[] = $catRow;
 }
 
-// Build category order map from DB
+// Build category order 
 $categoryOrder = [];
 foreach ($dbCategories as $i => $cat) {
     $categoryOrder[$cat['name']] = $i + 1;
@@ -37,7 +37,7 @@ usort($systems, function($a, $b) use ($categoryOrder, $statusPriority) {
     return strcasecmp($a['name'] ?? '', $b['name'] ?? '');
 });
 
-// Group systems by category 
+// Group systems by category
 $groupedSystems = [];
 foreach ($systems as $system) {
     $cat = $system['category'] ?? ($dbCategories[0]['name'] ?? 'Direct');
@@ -232,9 +232,19 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                 </button>
                 <?php endif; ?>
             </div>
+
+            <!-- Japanese Domain Toggle -->
+            <div class="lang-toggle-below-row">
+                <label class="lang-toggle-switch">
+                    <input type="checkbox" id="toggleJapaneseDomainInput" onchange="toggleJapaneseDomain(this.checked)">
+                    <span class="lang-toggle-slider"></span>
+                </label>
+                <span class="lang-toggle-label">Show Japanese Domain</span>
+            </div>
+
         </div>
 
-        <!-- SYSTEMS GRID  -->
+        <!-- SYSTEMS GRID -->
         <div id="cardsGrid">
             <?php if (empty($systems)): ?>
                 <div class="cards-grid">
@@ -264,11 +274,15 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     $badgeUrl = $system['badge_url'] ?? '';
                     ?>
                     <div class="system-card <?php echo $isArchived ? 'bulk-excluded' : ''; ?>"
-                    data-status="<?php echo htmlspecialchars($status); ?>"
-                    data-system-id="<?php echo $system['id']; ?>"
-                    data-system-name="<?php echo htmlspecialchars(addslashes($system['name'])); ?>"
-                    data-contact-number="<?php echo htmlspecialchars($contactNumber); ?>"
-                    data-japanese-domain="<?php echo htmlspecialchars($system['japanese_domain'] ?? ''); ?>">
+                        data-status="<?php echo htmlspecialchars($status); ?>"
+                        data-system-id="<?php echo $system['id']; ?>"
+                        data-system-name="<?php echo htmlspecialchars(addslashes($system['name'])); ?>"
+                        data-contact-number="<?php echo htmlspecialchars($contactNumber); ?>"
+                        data-japanese-domain="<?php echo htmlspecialchars($system['japanese_domain'] ?? ''); ?>"
+                        <?php if (!$isArchived): ?>
+                        onclick="handleCardClick(event, <?php echo $system['id']; ?>)"
+                        style="cursor: pointer;"
+                        <?php endif; ?>>
 
                         <?php if ($canScheduleMaintenance && !$isArchived): ?>
                         <div class="bulk-checkbox-overlay" onclick="toggleCardSelection(event,<?php echo $system['id']; ?>,'<?php echo addslashes($system['name']); ?>')">
@@ -281,11 +295,11 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                         <div class="card-header">
                             <div style="flex:1;">
                                 <?php if (!empty($system['logo']) && file_exists('../'.$system['logo'])): ?>
-                                    <a href="#" onclick="openDomain('<?php echo htmlspecialchars($system['domain']); ?>');return false;" style="display:block;">
+                                    <a href="#" onclick="openDomain(<?php echo $system['id']; ?>);return false;" style="display:block;">
                                         <img src="../<?php echo htmlspecialchars($system['logo']); ?>" alt="<?php echo htmlspecialchars($system['name']); ?>" class="system-logo system-logo-clickable">
                                     </a>
                                 <?php else: ?>
-                                    <a href="#" onclick="openDomain('<?php echo htmlspecialchars($system['domain']); ?>');return false;" style="display:block;">
+                                    <a href="#" onclick="openDomain(<?php echo $system['id']; ?>);return false;" style="display:block;">
                                         <div class="system-logo-placeholder system-logo-clickable">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                                         </div>
@@ -296,7 +310,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                                     <?php echo $statusLabel; ?>
                                 </div>
                                 <h3 class="card-title"><?php echo htmlspecialchars($system['name']); ?></h3>
-                                <a href="#" class="card-domain" onclick="openDomain('<?php echo htmlspecialchars($system['domain']); ?>');return false;"><?php echo htmlspecialchars($system['domain']); ?></a>
+                                <a href="#" class="card-domain" onclick="openDomain(<?php echo $system['id']; ?>);return false;"><?php echo htmlspecialchars($system['domain']); ?></a>
                             </div>
                             <div class="card-menu">
                                 <button class="menu-toggle" onclick="toggleDropdown(event,<?php echo $system['id']; ?>)">
@@ -465,7 +479,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     </div>
                 </div>
 
-              <div class="form-group">
+                <div class="form-group">
                     <label for="systemStatus">Status <span style="color:var(--danger)">*</span></label>
                     <div class="status-select-wrap">
                         <span class="status-select-dot" id="addStatusDot"></span>
@@ -1067,7 +1081,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
     </div>
 </div>
 
-<!--  CATEGORY DELETE CONFIRMATION MODAL-->
+<!-- CATEGORY DELETE CONFIRMATION MODAL -->
 <div id="catDeleteModal" class="delete-modal">
     <div class="delete-modal-content">
         <div class="delete-modal-header">

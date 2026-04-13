@@ -237,20 +237,21 @@ function openDomainViewer(cardEl) {
     const cardStatus = card.getAttribute('data-status') || 'online';
     const domainEl   = card.querySelector('.system-domain-viewer');
 
-    // Original English domain
+    // English domain
     const originalDomain = domainEl
         ? (domainEl.getAttribute('data-en-domain') || domainEl.textContent.trim())
         : '';
 
-    // Japanese domain stored in card's data attribute (set in PHP)
+    // Japanese domain stored in cards
     const jpDomain = card.getAttribute('data-japanese-domain') || '';
 
-    // Use JP domain only if: JP mode is active AND a JP domain is set
-    const domain = (isJapanese && jpDomain) ? jpDomain : originalDomain;
+    // Use JP domain only if JP mode is active 
+    const isJp = !!(isJapanese && jpDomain);
+    const domain = isJp ? jpDomain : originalDomain;
 
     if (['maintenance', 'down', 'offline'].includes(cardStatus)) {
         let url = '../pages/error_page.php?type=' + encodeURIComponent(cardStatus) + '&domain=' + encodeURIComponent(originalDomain);
-        if (isJapanese && jpDomain) {
+        if (isJp) {
             url += '&display_domain=' + encodeURIComponent(jpDomain);
         }
         window.location.href = url;
@@ -258,7 +259,11 @@ function openDomainViewer(cardEl) {
     }
 
     
-    window.open((!domain.startsWith('http') ? 'https://' : '') + domain, '_blank');
+    let url = domain;
+    if (!domain.startsWith('http://') && !domain.startsWith('https://')) {
+        url = (isJp ? 'http://' : 'https://') + domain;
+    }
+    window.open(url, '_blank');
 }
 
 
