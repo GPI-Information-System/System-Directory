@@ -70,7 +70,7 @@ function closeAddModal() {
   document.getElementById("addSystemForm").reset();
 }
 
-// ── OPEN Edit System Modal 
+// Open Edit System Modal 
 function openEditModal(
   id,
   name,
@@ -115,7 +115,6 @@ function openEditModal(
   const nameInput = document.getElementById("editSystemName");
   if (nameInput) updateCharCounter(nameInput, "editNameCounter", 100);
 
-  // Logo preview
   const editBox   = document.getElementById("editLogoPreviewBox");
   const editThumb = document.getElementById("editLogoThumb");
   const editFname = document.getElementById("editLogoFilename");
@@ -131,7 +130,7 @@ function openEditModal(
     if (editInput) editInput.value = "";
   }
 
-  // Pre-select network type 
+  // Default network type 
   selectNetworkType('edit', networkType || 'https');
 }
 
@@ -139,6 +138,19 @@ function closeEditModal() {
   document.getElementById("editModal").classList.remove("show");
   document.getElementById("editSystemForm").reset();
   currentEditId = null;
+}
+
+
+function extractErrorMessage(text) {
+  try {
+    const data = JSON.parse(text);
+    return data.message || null;
+  } catch (e) {
+    const plain = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (plain.length > 0 && plain.length < 500) return plain;
+    if (plain.length >= 500) return plain.substring(0, 500) + '...';
+    return null;
+  }
 }
 
 // Add System 
@@ -170,8 +182,11 @@ function addSystem(event) {
         return;
       }
       let data;
-      try { data = JSON.parse(text); } catch (e) {
-        showModalError("addModal", "An unexpected error occurred. Please try again.");
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        const msg = extractErrorMessage(text);
+        showModalError("addModal", msg || "An unexpected error occurred. Please try again.");
         return;
       }
       if (data.success) {
@@ -182,8 +197,7 @@ function addSystem(event) {
       }
     })
     .catch((error) => {
-      console.error("Error:", error);
-      showModalError("addModal", "A connection error occurred. Please check your network and try again.");
+      showModalError("addModal", error.message || "A connection error occurred. Please check your network and try again.");
     });
 }
 
@@ -217,8 +231,11 @@ function editSystem(event) {
         return;
       }
       let data;
-      try { data = JSON.parse(text); } catch (e) {
-        showModalError("editModal", "An unexpected error occurred. Please try again.");
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        const msg = extractErrorMessage(text);
+        showModalError("editModal", msg || "An unexpected error occurred. Please try again.");
         return;
       }
       if (data.success) {
@@ -229,8 +246,7 @@ function editSystem(event) {
       }
     })
     .catch((error) => {
-      console.error("Error:", error);
-      showModalError("editModal", "A connection error occurred. Please check your network and try again.");
+      showModalError("editModal", error.message || "A connection error occurred. Please check your network and try again.");
     });
 }
 
@@ -257,8 +273,7 @@ function confirmDelete() {
       }
     })
     .catch((error) => {
-      console.error("Error:", error);
-      showModalError("deleteModal", "A network error occurred. Please try again.");
+      showModalError("deleteModal", error.message || "A network error occurred. Please try again.");
     });
 }
 
@@ -281,15 +296,14 @@ function searchSystems() {
         ? "block" : "none";
   });
 
-  // Hide category 
+
   document.querySelectorAll(".category-group").forEach((group) => {
     const hasVisible = Array.from(group.querySelectorAll(".system-card"))
       .some(c => c.style.display !== "none");
     group.style.display = hasVisible ? "" : "none";
   });
 }
-
-// ── open Domain —uses stored network type 
+ 
 function openDomain(systemId) {
   if (!systemId) return;
 
@@ -421,7 +435,7 @@ function filterSystems(status) {
   const dropdown = document.querySelector(".filter-dropdown-menu");
   if (dropdown) dropdown.classList.remove("show");
 
-  // Hide category 
+  // Hide category when no visible cards
   document.querySelectorAll(".category-group").forEach((group) => {
     const hasVisible = Array.from(group.querySelectorAll(".system-card"))
       .some(c => c.style.display !== "none");
@@ -486,7 +500,7 @@ function renderDashboardChart(data) {
   });
 }
 
-// Responsive Hamburger Menu 
+// Responsive Hamburger Icon 
 function toggleSidebar() {
   document.body.classList.toggle("sidebar-open");
   const overlay = document.querySelector(".sidebar-overlay");
