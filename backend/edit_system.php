@@ -15,13 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name               = trim($_POST['name']               ?? '');
     $category           = trim($_POST['category']           ?? '');
     $domain             = trim($_POST['domain']             ?? '');
+    $networkType        = trim($_POST['network_type']       ?? '');
     $badgeUrl           = trim($_POST['badge_url']          ?? '');
     $description        = trim($_POST['description']        ?? '');
     $status             = trim($_POST['status']             ?? 'online');
     $contactNumber      = trim($_POST['contact_number']     ?? '123');
     $changeNote         = trim($_POST['change_note']        ?? '');
     $excludeHealthCheck = isset($_POST['exclude_health_check']) ? 1 : 0;
-    $japaneseDomain      = trim($_POST['japanese_domain'] ?? '');
+    $japaneseDomain      = trim($_POST['japanese_domain']      ?? '');
     $japaneseDescription = trim($_POST['japanese_description'] ?? '');
 
     if ($systemId <= 0 || empty($name) || empty($domain)) {
@@ -29,13 +30,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    $allowedCategories = ['Direct', 'Indirect', 'Support'];
-    if (empty($category) || !in_array($category, $allowedCategories)) {
-        echo json_encode(['success' => false, 'message' => 'Category is required. Please select Direct, Indirect, or Support.']);
+    // Validate network type
+    if (empty($networkType) || !in_array($networkType, ['http', 'https'])) {
+        echo json_encode(['success' => false, 'message' => 'Network Type is required. Please select HTTP or HTTPS.']);
         exit();
     }
 
     $conn = getDBConnection();
+
+    // Validate category 
+    if (empty($category)) {
+        $conn->close();
+        echo json_encode(['success' => false, 'message' => 'Category is required.']);
+        exit();
+    }
+    $catCheck = $conn->prepare("SELECT id FROM categories WHERE name = ? LIMIT 1");
+    $catCheck->bind_param("s", $category);
+    $catCheck->execute();
+    if ($catCheck->get_result()->num_rows === 0) {
+        $catCheck->close();
+        $conn->close();
+        echo json_encode(['success' => false, 'message' => 'Invalid category selected.']);
+        exit();
+    }
+    $catCheck->close();
 
     $oldStatusQuery = $conn->prepare("SELECT status, name, domain FROM systems WHERE id = ?");
     $oldStatusQuery->bind_param("i", $systemId);
@@ -84,11 +102,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($logoPath) {
-        $stmt = $conn->prepare("UPDATE systems SET name = ?, category = ?, domain = ?, japanese_domain = ?, badge_url = ?, description = ?, japanese_description = ?, status = ?, contact_number = ?, logo = ?, exclude_health_check = ?, updated_at = NOW() WHERE id = ?");
-        $stmt->bind_param("ssssssssssii", $name, $category, $domain, $japaneseDomain, $badgeUrl, $description, $japaneseDescription, $status, $contactNumber, $logoPath, $excludeHealthCheck, $systemId);
+        $stmt = $conn->prepare("UPDATE systems SET name = ?, category = ?, domain = ?, network_type = ?, japanese_domain = ?, badge_url = ?, description = ?, japanese_description = ?, status = ?, contact_number = ?, logo = ?, exclude_health_check = ?, updated_at = NOW() WHERE id = ?");
+        $stmt->bind_param("sssssssssssii", $name, $category, $domain, $networkType, $japaneseDomain, $badgeUrl, $description, $japaneseDescription, $status, $contactNumber, $logoPath, $excludeHealthCheck, $systemId);
     } else {
-        $stmt = $conn->prepare("UPDATE systems SET name = ?, category = ?, domain = ?, japanese_domain = ?, badge_url = ?, description = ?, japanese_description = ?, status = ?, contact_number = ?, exclude_health_check = ?, updated_at = NOW() WHERE id = ?");
-        $stmt->bind_param("sssssssssii", $name, $category, $domain, $japaneseDomain, $badgeUrl, $description, $japaneseDescription, $status, $contactNumber, $excludeHealthCheck, $systemId);
+        $stmt = $conn->prepare("UPDATE systems SET name = ?, category = ?, domain = ?, network_type = ?, japanese_domain = ?, badge_url = ?, description = ?, japanese_description = ?, status = ?, contact_number = ?, exclude_health_check = ?, updated_at = NOW() WHERE id = ?");
+        $stmt->bind_param("ssssssssssii", $name, $category, $domain, $networkType, $japaneseDomain, $badgeUrl, $description, $japaneseDescription, $status, $contactNumber, $excludeHealthCheck, $systemId);
     }
 
     if ($stmt->execute()) {

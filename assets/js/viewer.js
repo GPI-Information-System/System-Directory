@@ -14,6 +14,15 @@ const SLIDER_ICON_VIEWER = `<svg width="18" height="18" viewBox="0 0 24 24" fill
 </svg>`;
 
 
+
+function syncRecentsVisibility() {
+    const recentsSection = document.getElementById('recentsSection');
+    if (!recentsSection) return;
+    const anyFilterActive = currentFilter !== 'all' || currentCategoryFilter !== 'all' || currentSearchTerm !== '';
+    recentsSection.style.display = anyFilterActive ? 'none' : (getRecentIds().length > 0 ? 'block' : 'none');
+}
+
+
 function fetchMaintenanceBadges() {
     fetch('../backend/maintenance/get_maintenance.php?action=counts')
         .then(r => r.json())
@@ -51,6 +60,7 @@ function toggleFilterViewer(event) {
 
 function filterSystemsViewer(status) {
     currentFilter = status;
+    syncRecentsVisibility();
 
     document.querySelectorAll('.filter-item[data-filter]').forEach(item => {
         item.classList.toggle('active', item.dataset.filter === status);
@@ -86,6 +96,7 @@ function toggleCategoryFilterViewer(event) {
 
 function filterCategoryViewer(category) {
     currentCategoryFilter = category;
+    syncRecentsVisibility();
 
     document.querySelectorAll('[data-cat]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.cat === category);
@@ -110,12 +121,13 @@ function filterCategoryViewer(category) {
 
 function searchSystemsViewer() {
     currentSearchTerm = document.getElementById('viewerSearchBox').value.toLowerCase();
+    syncRecentsVisibility();
     applyAllFilters();
 }
 
 
 function applyAllFilters() {
-    const cards = document.querySelectorAll('.system-card-viewer');
+    const cards = document.querySelectorAll('#viewerSystemsContainer .system-card-viewer');
     let visibleCount = 0;
 
     cards.forEach(card => {
@@ -144,10 +156,6 @@ function applyAllFilters() {
     });
 
     document.querySelectorAll('.viewer-category-group').forEach(group => {
-        if (currentCategoryFilter !== 'all' && group.dataset.category !== currentCategoryFilter) {
-            group.style.display = 'none';
-            return;
-        }
         const hasVisible = Array.from(group.querySelectorAll('.system-card-viewer'))
             .some(c => c.style.display !== 'none');
         group.style.display = hasVisible ? '' : 'none';
@@ -202,7 +210,7 @@ function clearAllFilters() {
 
     document.querySelectorAll('.viewer-category-group').forEach(g => g.style.display = '');
 
-    const cards = document.querySelectorAll('.system-card-viewer');
+    const cards = document.querySelectorAll('#viewerSystemsContainer .system-card-viewer');
     let activeCount = 0;
     cards.forEach(card => {
         const cardStatus = card.getAttribute('data-status') || 'online';
@@ -210,6 +218,7 @@ function clearAllFilters() {
         else { card.style.display = 'flex'; card.style.opacity = '1'; card.style.pointerEvents = 'auto'; card.style.cursor = 'pointer'; activeCount++; }
     });
 
+    syncRecentsVisibility();
     updateFilterDisplay(activeCount);
     showEmptyState(false);
 }
@@ -242,26 +251,22 @@ function openDomainViewer(cardEl) {
         ? (domainEl.getAttribute('data-en-domain') || domainEl.textContent.trim())
         : '';
 
-    // Japanese domain stored in cards
-    const jpDomain = card.getAttribute('data-japanese-domain') || '';
-
-    // Use JP domain only if JP mode is active 
-    const isJp = !!(isJapanese && jpDomain);
-    const domain = isJp ? jpDomain : originalDomain;
+    // Japanese domain & network type
+    const jpDomain    = card.getAttribute('data-japanese-domain') || '';
+    const networkType = card.getAttribute('data-network-type') || 'https';
+    const isJp        = !!(isJapanese && jpDomain);
+    const domain      = isJp ? jpDomain : originalDomain;
 
     if (['maintenance', 'down', 'offline'].includes(cardStatus)) {
         let url = '../pages/error_page.php?type=' + encodeURIComponent(cardStatus) + '&domain=' + encodeURIComponent(originalDomain);
-        if (isJp) {
-            url += '&display_domain=' + encodeURIComponent(jpDomain);
-        }
+        if (isJp) url += '&display_domain=' + encodeURIComponent(jpDomain);
         window.location.href = url;
         return;
     }
 
-    
     let url = domain;
     if (!domain.startsWith('http://') && !domain.startsWith('https://')) {
-        url = (isJp ? 'http://' : 'https://') + domain;
+        url = (isJp ? 'http://' : (networkType === 'http' ? 'http://' : 'https://')) + domain;
     }
     window.open(url, '_blank');
 }
@@ -279,7 +284,7 @@ document.addEventListener('keydown', function(e) {
 
 document.addEventListener('DOMContentLoaded', function() {
     let activeCount = 0;
-    document.querySelectorAll('.system-card-viewer').forEach(card => {
+    document.querySelectorAll('#viewerSystemsContainer .system-card-viewer').forEach(card => {
         if ((card.getAttribute('data-status') || '') === 'archived') card.style.display = 'none';
         else activeCount++;
     });
@@ -289,6 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+/* JAPANESE TRANSLATIONS  */
 
 const JP_TRANSLATIONS = {
     status: {
@@ -303,13 +309,17 @@ const JP_TRANSLATIONS = {
         'Indirect Systems': 'インダイレクトシステム',
         'Support Systems':  'サポートシステム',
     },
-    contact: '支援のために {number} にお問い合わせください',
+    contact:        '支援のために {number} にお問い合わせください',
     pageTitle:      'システムディレクトリ',
     pageSubtitle:   '利用可能なすべてのシステムを参照',
     maintenance:    'メンテナンススケジュール',
     statusFilter:   'ステータスフィルター',
     categoryFilter: 'カテゴリー',
     statusLogs:     'ステータスログ',
+    recentsTitle:   '最近',
+    recentsClear:   'クリア',
+    recentBadge:    '最近',
+    systemsTitle:   'システム',
 };
 
 let isJapanese = false;
@@ -327,6 +337,7 @@ function setLanguage(lang) {
     if (isJapanese) applyJapaneseTranslation();
     else revertToEnglish();
     applyAllFilters();
+    renderRecents();
 }
 
 function toggleJapanese() {
@@ -342,7 +353,7 @@ function updateToggleUI() {
 }
 
 function translateAllDescriptions() {
-    document.querySelectorAll('.system-card-viewer').forEach(card => {
+    document.querySelectorAll('#viewerSystemsContainer .system-card-viewer').forEach(card => {
         const desc = card.querySelector('.system-description-viewer');
         if (!desc) return;
         if (!desc.getAttribute('data-en-desc')) {
@@ -354,7 +365,7 @@ function translateAllDescriptions() {
 }
 
 function revertAllDescriptions() {
-    document.querySelectorAll('.system-card-viewer').forEach(card => {
+    document.querySelectorAll('#viewerSystemsContainer .system-card-viewer').forEach(card => {
         const desc = card.querySelector('.system-description-viewer');
         if (!desc) return;
         const en = desc.getAttribute('data-en-desc');
@@ -467,7 +478,7 @@ function applyJapaneseTranslation() {
         el.textContent = JP_TRANSLATIONS.category[original] || original;
     });
 
-    document.querySelectorAll('.system-card-viewer').forEach(card => {
+    document.querySelectorAll('#viewerSystemsContainer .system-card-viewer').forEach(card => {
         const jpDomain   = card.getAttribute('data-japanese-domain') || '';
         const mainDomain = card.querySelector('.system-domain-viewer');
         if (mainDomain) {
@@ -511,6 +522,30 @@ function applyJapaneseTranslation() {
             `;
         }
     });
+
+    // Recents title
+    const recentsTitle = document.querySelector('.recents-title');
+    if (recentsTitle) {
+        if (!recentsTitle.getAttribute('data-en')) recentsTitle.setAttribute('data-en', recentsTitle.textContent.trim());
+        recentsTitle.textContent = JP_TRANSLATIONS.recentsTitle;
+    }
+
+    // Recents clear button
+    const recentsClearBtn = document.querySelector('.recents-clear-btn');
+    if (recentsClearBtn) {
+        const textNode = Array.from(recentsClearBtn.childNodes).find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+        if (textNode) {
+            if (!recentsClearBtn.getAttribute('data-en-clear')) recentsClearBtn.setAttribute('data-en-clear', textNode.textContent.trim());
+            textNode.textContent = ' ' + JP_TRANSLATIONS.recentsClear;
+        }
+    }
+
+    // Systems section title
+    const sectionTitle = document.querySelector('.viewer-section-title');
+    if (sectionTitle) {
+        if (!sectionTitle.getAttribute('data-en')) sectionTitle.setAttribute('data-en', sectionTitle.textContent.trim());
+        sectionTitle.textContent = JP_TRANSLATIONS.systemsTitle;
+    }
 }
 
 function revertToEnglish() {
@@ -572,7 +607,7 @@ function revertToEnglish() {
         const en = el.getAttribute('data-en'); if (en) el.textContent = en;
     });
 
-    document.querySelectorAll('.system-card-viewer').forEach(card => {
+    document.querySelectorAll('#viewerSystemsContainer .system-card-viewer').forEach(card => {
         const mainDomain = card.querySelector('.system-domain-viewer');
         if (mainDomain) { const en = mainDomain.getAttribute('data-en-domain'); if (en) mainDomain.textContent = en; }
 
@@ -586,4 +621,131 @@ function revertToEnglish() {
         const contact = card.querySelector('.system-contact-message');
         if (contact) { const enHtml = contact.getAttribute('data-en-html'); if (enHtml) contact.innerHTML = enHtml; }
     });
+
+    // Recents title
+    const recentsTitle = document.querySelector('.recents-title');
+    if (recentsTitle) { const en = recentsTitle.getAttribute('data-en'); if (en) recentsTitle.textContent = en; }
+
+    // Recents clear button
+    const recentsClearBtn = document.querySelector('.recents-clear-btn');
+    if (recentsClearBtn) {
+        const textNode = Array.from(recentsClearBtn.childNodes).find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+        if (textNode) { const en = recentsClearBtn.getAttribute('data-en-clear'); if (en) textNode.textContent = ' ' + en; }
+    }
+
+    // Systems section title
+    const sectionTitle = document.querySelector('.viewer-section-title');
+    if (sectionTitle) { const en = sectionTitle.getAttribute('data-en'); if (en) sectionTitle.textContent = en; }
 }
+
+
+/* ── RECENTS (Cookie-based, max 5 systems) */
+
+const RECENTS_COOKIE = 'gportal_recents';
+const RECENTS_MAX    = 5;
+const RECENTS_DAYS   = 30;
+
+function setCookie(name, value, days) {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = name + '=' + encodeURIComponent(value) +
+        '; expires=' + expires + '; path=/; SameSite=Lax';
+}
+
+function getCookie(name) {
+    const match = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+    return match ? decodeURIComponent(match[1]) : null;
+}
+
+function deleteCookie(name) {
+    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+}
+
+function getRecentIds() {
+    try {
+        const raw = getCookie(RECENTS_COOKIE);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveRecentId(systemId) {
+    const id = String(systemId);
+    let ids  = getRecentIds().filter(x => x !== id);
+    ids.unshift(id);
+    ids = ids.slice(0, RECENTS_MAX);
+    setCookie(RECENTS_COOKIE, JSON.stringify(ids), RECENTS_DAYS);
+}
+
+function renderRecents() {
+    const section = document.getElementById('recentsSection');
+    const grid    = document.getElementById('recentsGrid');
+    if (!section || !grid) return;
+
+    const ids = getRecentIds();
+    if (ids.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    grid.innerHTML = '';
+
+    let rendered = 0;
+    ids.forEach(id => {
+        const source = document.querySelector(
+            '#viewerSystemsContainer .system-card-viewer[data-system-id="' + id + '"]'
+        );
+        if (!source) return;
+
+        const clone = source.cloneNode(true);
+        clone.style.display       = 'flex';
+        clone.style.opacity       = '1';
+        clone.style.pointerEvents = 'auto';
+        clone.style.cursor        = 'pointer';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'recents-card-wrapper';
+
+        const badge = document.createElement('span');
+        badge.className   = 'recents-badge';
+        badge.textContent = isJapanese ? JP_TRANSLATIONS.recentBadge : 'RECENT';
+
+        wrapper.appendChild(badge);
+        wrapper.appendChild(clone);
+        grid.appendChild(wrapper);
+        rendered++;
+    });
+
+    section.style.display = rendered > 0 ? 'block' : 'none';
+}
+
+function clearRecents() {
+    deleteCookie(RECENTS_COOKIE);
+    const section = document.getElementById('recentsSection');
+    if (section) section.style.display = 'none';
+}
+
+(function () {
+    const _original = openDomainViewer;
+
+    openDomainViewer = function (cardEl) {
+        const card = (cardEl && cardEl.closest)
+            ? cardEl.closest('.system-card-viewer')
+            : null;
+
+        if (!card) return;
+
+        if (!card.closest('#recentsGrid')) {
+            const id = card.getAttribute('data-system-id');
+            if (id) saveRecentId(id);
+        }
+
+        _original.call(this, card);
+    };
+})();
+
+document.addEventListener('DOMContentLoaded', function () {
+    renderRecents();
+});

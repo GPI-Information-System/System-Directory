@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name          = trim($_POST['name']           ?? '');
     $category      = trim($_POST['category']       ?? '');
     $domain        = trim($_POST['domain']         ?? '');
+    $networkType   = trim($_POST['network_type']   ?? '');
     $badgeUrl      = trim($_POST['badge_url']      ?? '');
     $description   = trim($_POST['description']    ?? '');
     $contactNumber = trim($_POST['contact_number'] ?? '123');
@@ -33,8 +34,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // FIX: Validate category dynamically from DB instead of hardcoded list
-    // This supports any categories added via the Categories Management feature
+    // Validate network type
+    if (empty($networkType) || !in_array($networkType, ['http', 'https'])) {
+        echo json_encode(['success' => false, 'message' => 'Network Type is required. Please select HTTP or HTTPS.']);
+        exit();
+    }
+
+    // Validate category 
     $conn = getDBConnection();
     $catCheck = $conn->prepare("SELECT id FROM categories WHERE name = ? LIMIT 1");
     $catCheck->bind_param("s", $category);
@@ -82,7 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $japaneseDomain      = trim($_POST['japanese_domain']      ?? '');
     $japaneseDescription = trim($_POST['japanese_description'] ?? '');
 
-    // FIX: Added status field — previously missing, new systems always defaulted to DB default
     $status = trim($_POST['status'] ?? 'online');
     $allowedStatuses = ['online', 'offline', 'maintenance', 'down', 'archived'];
     if (!in_array($status, $allowedStatuses)) {
@@ -91,12 +96,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $stmt = $conn->prepare("
         INSERT INTO systems
-            (name, category, domain, japanese_domain, badge_url, logo, description, japanese_description, contact_number, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (name, category, domain, network_type, japanese_domain, badge_url, logo, description, japanese_description, contact_number, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $stmt->bind_param(
-        "ssssssssss",
-        $name, $category, $domain, $japaneseDomain,
+        "sssssssssss",
+        $name, $category, $domain, $networkType, $japaneseDomain,
         $badgeUrl, $logo, $description, $japaneseDescription,
         $contactNumber, $status
     );

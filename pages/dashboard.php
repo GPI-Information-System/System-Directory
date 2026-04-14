@@ -272,6 +272,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     $statusLabel = $statusLabels[$status] ?? 'Online';
                     $contactNumber = $system['contact_number'] ?? '123';
                     $badgeUrl = $system['badge_url'] ?? '';
+                    $networkType = $system['network_type'] ?? 'https';
                     ?>
                     <div class="system-card <?php echo $isArchived ? 'bulk-excluded' : ''; ?>"
                         data-status="<?php echo htmlspecialchars($status); ?>"
@@ -279,6 +280,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                         data-system-name="<?php echo htmlspecialchars(addslashes($system['name'])); ?>"
                         data-contact-number="<?php echo htmlspecialchars($contactNumber); ?>"
                         data-japanese-domain="<?php echo htmlspecialchars($system['japanese_domain'] ?? ''); ?>"
+                        data-network-type="<?php echo htmlspecialchars($networkType); ?>"
                         <?php if (!$isArchived): ?>
                         onclick="handleCardClick(event, <?php echo $system['id']; ?>)"
                         style="cursor: pointer;"
@@ -335,7 +337,8 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                                         '<?php echo addslashes($logoPreviewPath); ?>',
                                         '<?php echo addslashes($system['category'] ?? ($dbCategories[0]['name'] ?? 'Direct')); ?>',
                                         '<?php echo addslashes($system['japanese_domain'] ?? ''); ?>',
-                                        '<?php echo addslashes($system['japanese_description'] ?? ''); ?>'
+                                        '<?php echo addslashes($system['japanese_description'] ?? ''); ?>',
+                                        '<?php echo addslashes($networkType); ?>'
                                     )">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                         Edit
@@ -462,7 +465,6 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                            oninput="updateCharCounter(this,'addNameCounter',100)">
                 </div>
 
-                <!-- Category -->
                 <div class="form-group">
                     <label for="systemCategory">Category <span style="color:var(--danger)">*</span></label>
                     <select id="systemCategory" name="category" required>
@@ -493,10 +495,35 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     </div>
                 </div>
 
+
+  
+                <div class="form-group">
+                    <label>Network Type <span style="color:var(--danger)">*</span></label>
+                    <div class="network-type-segment" id="addNetworkTypeSegment">
+                        <button type="button" class="segment-btn" data-value="https" onclick="selectNetworkType('add', 'https')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            HTTPS
+                        </button>
+                        <button type="button" class="segment-btn" data-value="http" onclick="selectNetworkType('add', 'http')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path><line x1="17" y1="4" x2="17" y2="7"></line></svg>
+                            HTTP
+                        </button>
+                    </div>
+                    <input type="hidden" id="addNetworkTypeValue" name="network_type" value="">
+                    <div class="field-helper-row">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        Select the protocol used to access this system's domain
+                    </div>
+                </div>
+
+
+
                 <div class="form-group">
                     <label for="systemDomain">Domain <span style="color:var(--danger)">*</span></label>
                     <input type="text" id="systemDomain" name="domain" required placeholder="e.g., ams.gpi.com">
                 </div>
+
+              
 
                 <div class="form-group">
                     <label for="systemJapaneseDomain">Japanese Domain <span style="font-weight:400;color:var(--gray-400);font-size:12px;">(Optional)</span></label>
@@ -586,7 +613,6 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                            oninput="updateCharCounter(this,'editNameCounter',100)">
                 </div>
 
-                <!-- Category -->
                 <div class="form-group">
                     <label for="editSystemCategory">Category <span style="color:var(--danger)">*</span></label>
                     <select id="editSystemCategory" name="category" required>
@@ -603,11 +629,36 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     </div>
                 </div>
 
+
+ 
+                <div class="form-group">
+                    <label>Network Type <span style="color:var(--danger)">*</span></label>
+                    <div class="network-type-segment" id="editNetworkTypeSegment">
+                        <button type="button" class="segment-btn" data-value="https" onclick="selectNetworkType('edit', 'https')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            HTTPS
+                        </button>
+                        <button type="button" class="segment-btn" data-value="http" onclick="selectNetworkType('edit', 'http')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path><line x1="17" y1="4" x2="17" y2="7"></line></svg>
+                            HTTP
+                        </button>
+                    </div>
+                    <input type="hidden" id="editNetworkTypeValue" name="network_type" value="">
+                    <div class="field-helper-row">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        Select the protocol used to access this system's domain
+                    </div>
+                </div>
+
+
+
+
                 <div class="form-group">
                     <label for="editSystemDomain">Domain <span style="color:var(--danger)">*</span></label>
                     <input type="text" id="editSystemDomain" name="domain" required>
                 </div>
 
+               
                 <div class="form-group">
                     <label for="editSystemJapaneseDomain">Japanese Domain <span style="font-weight:400;color:var(--gray-400);font-size:12px;">(Optional)</span></label>
                     <input type="text" id="editSystemJapaneseDomain" name="japanese_domain" placeholder="e.g., glory.canteen.co.jp">

@@ -5,7 +5,7 @@ require_once '../config/database.php';
 
 $conn = getDBConnection();
 
-// ── Fetch categories 
+// Fetch categories 
 $catResult  = $conn->query("SELECT name, sort_order FROM categories ORDER BY sort_order ASC");
 $dbCategories = [];
 while ($row = $catResult->fetch_assoc()) {
@@ -24,24 +24,9 @@ $systems = [];
 while ($row = $result->fetch_assoc()) { $systems[] = $row; }
 $conn->close();
 
-$statusPriority = ['online' => 1, 'maintenance' => 2, 'down' => 3, 'offline' => 4, 'archived' => 5];
-
-usort($systems, function($a, $b) use ($categoryOrder, $statusPriority) {
-    $catA = $categoryOrder[$a['category'] ?? ''] ?? 99;
-    $catB = $categoryOrder[$b['category'] ?? ''] ?? 99;
-    if ($catA !== $catB) return $catA - $catB;
-    $pA = $statusPriority[$a['status'] ?? 'online'] ?? 999;
-    $pB = $statusPriority[$b['status'] ?? 'online'] ?? 999;
-    if ($pA !== $pB) return $pA - $pB;
+usort($systems, function($a, $b) {
     return strcasecmp($a['name'] ?? '', $b['name'] ?? '');
 });
-
-// Group by category
-$groupedSystems = [];
-foreach ($systems as $system) {
-    $cat = $system['category'] ?? ($dbCategories[0]['name'] ?? 'Direct');
-    $groupedSystems[$cat][] = $system;
-}
 
 $statusLabels = [
     'online' => 'Online', 'offline' => 'Offline',
@@ -191,6 +176,7 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
                             </div>
                         </div>
 
+                        <!-- Status Logs btn  -->
                         <a href="https://uptime.gpi.com" target="_blank" rel="noopener noreferrer" class="btn-status-logs-viewer" title="View system status change history">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -219,6 +205,22 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
                 </div>
             </div>
 
+            <!-- RECENTS SECTION -->
+            <div id="recentsSection" style="display: none;" class="recents-section">
+                <div class="recents-header">
+                    <h3 class="recents-title">Recents</h3>
+                    <button class="recents-clear-btn" onclick="clearRecents()" title="Clear recents">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        Clear
+                    </button>
+                </div>
+                <div class="systems-grid-viewer recents-grid" id="recentsGrid"></div>
+            </div>
+
+            <!-- SYSTEMS CONTAINER  -->
             <div id="viewerSystemsContainer">
                 <?php if (empty($systems)): ?>
                     <div class="systems-grid-viewer">
@@ -229,30 +231,27 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
                         </div>
                     </div>
                 <?php else: ?>
-                    <?php foreach ($dbCategories as $dbCat):
-                        $categoryName = $dbCat['name'];
-                        if (empty($groupedSystems[$categoryName])) continue;
-                    ?>
-                    <div class="viewer-category-group" data-category="<?php echo htmlspecialchars($categoryName); ?>">
-                        <h3 class="viewer-category-title"><?php echo htmlspecialchars($categoryName); ?> Systems</h3>
+                    <div class="viewer-category-group" data-category="all">
+                        <h3 class="viewer-section-title">Systems</h3>
                         <div class="systems-grid-viewer">
-                        <?php foreach ($groupedSystems[$categoryName] as $system): ?>
+                        <?php foreach ($systems as $system): ?>
                             <?php
                             $status        = $system['status'] ?? 'online';
                             $statusLabel   = $statusLabels[$status] ?? 'Online';
                             $contactNumber = $system['contact_number'] ?? '123';
                             ?>
                             <div class="system-card-viewer"
-                                 data-system-id="<?php echo $system['id']; ?>"
-                                 data-status="<?php echo htmlspecialchars($status); ?>"
-                                 data-category="<?php echo htmlspecialchars($system['category'] ?? $dbCategories[0]['name'] ?? 'Direct'); ?>"
-                                 data-contact-number="<?php echo htmlspecialchars($contactNumber); ?>"
-                                 data-japanese-domain="<?php echo htmlspecialchars($system['japanese_domain'] ?? ''); ?>"
-                                 data-description="<?php echo htmlspecialchars($system['description'] ?? ''); ?>"
-                                 data-japanese-description="<?php echo htmlspecialchars($system['japanese_description'] ?? ''); ?>"
-                                 tabindex="0" role="article"
-                                 onclick="openDomainViewer(this)"
-                                 style="cursor: pointer;">
+                                data-system-id="<?php echo $system['id']; ?>"
+                                data-status="<?php echo htmlspecialchars($status); ?>"
+                                data-category="<?php echo htmlspecialchars($system['category'] ?? $dbCategories[0]['name'] ?? 'Direct'); ?>"
+                                data-contact-number="<?php echo htmlspecialchars($contactNumber); ?>"
+                                data-japanese-domain="<?php echo htmlspecialchars($system['japanese_domain'] ?? ''); ?>"
+                                data-description="<?php echo htmlspecialchars($system['description'] ?? ''); ?>"
+                                data-japanese-description="<?php echo htmlspecialchars($system['japanese_description'] ?? ''); ?>"
+                                data-network-type="<?php echo htmlspecialchars($system['network_type'] ?? 'https'); ?>"
+                                tabindex="0" role="article"
+                                onclick="openDomainViewer(this)"
+                                style="cursor: pointer;">
 
                                 <a href="#" class="logo-link-viewer" aria-label="Open <?php echo htmlspecialchars($system['name']); ?>" onclick="event.stopPropagation();">
                                     <?php if (!empty($system['logo']) && file_exists('../' . $system['logo'])): ?>
@@ -288,7 +287,6 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
                         <?php endforeach; ?>
                         </div>
                     </div>
-                    <?php endforeach; ?>
                 <?php endif; ?>
             </div>
         </div>
