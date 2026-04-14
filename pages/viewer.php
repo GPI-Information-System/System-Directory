@@ -40,7 +40,8 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G-Portal - System Directory</title>
+    <title>G-Portal — System Directory</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/logo.png">
     <link rel="stylesheet" href="../assets/css/viewer.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
 </head>
@@ -293,7 +294,7 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
     </main>
 
     <footer class="viewer-footer">
-        <p>&copy; <?php echo date('Y'); ?> G-Portal. All rights reserved.</p>
+        <p> © GPI (Information System). All rights reserved. </p>
     </footer>
 
     <script>

@@ -26,6 +26,7 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>G-Portal - User Management</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/logo.png">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/users.css">
 </head>

@@ -141,6 +141,7 @@ function fmtDt($dt) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($errorConfig['title']) ?> — G-Portal</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/logo.png">
     <link rel="stylesheet" href="../assets/css/error_page.css">
     <style>
         :root {
