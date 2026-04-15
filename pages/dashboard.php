@@ -271,7 +271,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     $isArchived = $status === 'archived';
                     $statusLabels = ['online'=>'Online','offline'=>'Offline','maintenance'=>'Maintenance','down'=>'Down','archived'=>'Archived'];
                     $statusLabel = $statusLabels[$status] ?? 'Online';
-                    $contactNumber = $system['contact_number'] ?? '123';
+                    $contactNumber = $system['contact_number'] ?? '8119';
                     $badgeUrl = $system['badge_url'] ?? '';
                     $networkType = $system['network_type'] ?? 'https';
                     ?>
@@ -297,17 +297,13 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
 
                         <div class="card-header">
                             <div style="flex:1;">
-                                <?php if (!empty($system['logo']) && file_exists('../'.$system['logo'])): ?>
-                                    <a href="#" onclick="openDomain(<?php echo $system['id']; ?>);return false;" style="display:block;">
-                                        <img src="../<?php echo htmlspecialchars($system['logo']); ?>" alt="<?php echo htmlspecialchars($system['name']); ?>" class="system-logo system-logo-clickable">
-                                    </a>
-                                <?php else: ?>
-                                    <a href="#" onclick="openDomain(<?php echo $system['id']; ?>);return false;" style="display:block;">
-                                        <div class="system-logo-placeholder system-logo-clickable">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                                        </div>
-                                    </a>
-                                <?php endif; ?>
+                        <?php if (!empty($system['logo']) && file_exists('../'.$system['logo'])): ?>
+                            <img src="../<?php echo htmlspecialchars($system['logo']); ?>" alt="<?php echo htmlspecialchars($system['name']); ?>" class="system-logo">
+                        <?php else: ?>
+                            <div class="system-logo-placeholder">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            </div>
+                        <?php endif; ?>
                                 <div class="card-status-badge status-<?php echo htmlspecialchars($status); ?>">
                                     <span class="status-indicator"></span>
                                     <?php echo $statusLabel; ?>
@@ -546,7 +542,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
 
                 <div class="form-group">
                     <label for="systemContact">Contact Number</label>
-                    <input type="text" id="systemContact" name="contact_number" placeholder="e.g., 09171234567" value="123">
+                    <input type="text" id="systemContact" name="contact_number" placeholder="e.g., 8119" value="8119">
                     <div class="field-helper-row">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                         Displayed when system is Offline, Maintenance, or Down
@@ -558,7 +554,18 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                     <textarea id="systemDescription" name="description" placeholder="Brief description of the system"></textarea>
                 </div>
 
-            </div>
+                <div class="health-check-row">
+                    <div class="health-check-row-text">
+                        <div class="health-check-row-label">Exclude from Health Check</div>
+                        <div class="health-check-row-desc">Disable auto status monitoring for this system</div>
+                    </div>
+                    <label class="health-check-toggle">
+                        <input type="checkbox" id="addExcludeHealthCheck" name="exclude_health_check" value="1">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+            </div>  <!-- end modal-body -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
                 <button type="submit" class="btn btn-primary">Add System</button>
@@ -694,7 +701,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
 
                 <div class="form-group">
                     <label for="editSystemContact">Contact Number</label>
-                    <input type="text" id="editSystemContact" name="contact_number" placeholder="e.g., 09171234567">
+                    <input type="text" id="editSystemContact" name="contact_number" placeholder="e.g., 8119">
                     <div class="field-helper-row">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                         Displayed when system is Offline, Maintenance, or Down

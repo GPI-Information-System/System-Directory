@@ -441,10 +441,11 @@ body {
   width: 70px;
   height: 70px;
   border-radius: var(--radius-md);
-  object-fit: cover;
+  object-fit: inherit;
   border: 1px solid var(--secondary-color);
   background-color: var(--tertiary-color);
   transition: all var(--transition);
+  margin-bottom: 16px;
 }
 
 .system-logo-placeholder-viewer {
@@ -457,6 +458,7 @@ body {
   justify-content: center;
   border: 1px solid var(--secondary-color);
   transition: all var(--transition);
+  margin-bottom: 16px;
 }
 
 .system-logo-placeholder-viewer svg {

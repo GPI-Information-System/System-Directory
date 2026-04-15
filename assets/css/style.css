@@ -508,11 +508,12 @@ nav {
   width: 64px;
   height: 64px;
   border-radius: var(--radius-md);
-  object-fit: cover;
+  object-fit: inherit;
   margin: 0 auto 12px auto;
   display: block;
   border: 1px solid var(--secondary-color);
   background-color: var(--tertiary-color);
+  
 }
 .system-logo-placeholder {
   width: 64px;

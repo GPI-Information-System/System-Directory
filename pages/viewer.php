@@ -254,15 +254,13 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
                                 onclick="openDomainViewer(this)"
                                 style="cursor: pointer;">
 
-                                <a href="#" class="logo-link-viewer" aria-label="Open <?php echo htmlspecialchars($system['name']); ?>" onclick="event.stopPropagation();">
-                                    <?php if (!empty($system['logo']) && file_exists('../' . $system['logo'])): ?>
-                                        <img src="../<?php echo htmlspecialchars($system['logo']); ?>" alt="<?php echo htmlspecialchars($system['name']); ?> logo" class="system-logo-viewer">
-                                    <?php else: ?>
-                                        <div class="system-logo-placeholder-viewer">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                                        </div>
-                                    <?php endif; ?>
-                                </a>
+                                <?php if (!empty($system['logo']) && file_exists('../' . $system['logo'])): ?>
+                                    <img src="../<?php echo htmlspecialchars($system['logo']); ?>" alt="<?php echo htmlspecialchars($system['name']); ?> logo" class="system-logo-viewer">
+                                <?php else: ?>
+                                    <div class="system-logo-placeholder-viewer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                                    </div>
+                                <?php endif; ?>
 
                                 <div class="status-badge-viewer status-<?php echo htmlspecialchars($status); ?>">
                                     <span class="status-indicator-viewer"></span>

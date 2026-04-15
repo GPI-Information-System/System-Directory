@@ -49,6 +49,8 @@ function openAddModal() {
   if (nameInput) updateCharCounter(nameInput, "addNameCounter", 100);
   const addBox = document.getElementById("addLogoPreviewBox");
   if (addBox) addBox.classList.remove("visible");
+  const addHealthCheck = document.getElementById('addExcludeHealthCheck');
+  if (addHealthCheck) addHealthCheck.checked = false;
 
   // Initialize status 
   const statusSelect = document.getElementById("systemStatus");
