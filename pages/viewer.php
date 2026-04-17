@@ -34,6 +34,11 @@ $statusLabels = [
 ];
 
 $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 'archived'));
+
+
+$host            = $_SERVER['HTTP_HOST'] ?? '';
+$hostWithoutPort = explode(':', $host)[0];
+$isJapaneseAccess = filter_var($hostWithoutPort, FILTER_VALIDATE_IP) !== false;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -292,12 +297,15 @@ $totalSystems = count(array_filter($systems, fn($s) => ($s['status'] ?? '') !== 
     </main>
 
     <footer class="viewer-footer">
-        <p> © GPI (Information System). All rights reserved. </p>
+        <p> &copy; GPI (Information System). All rights reserved. </p>
     </footer>
 
     <script>
-        const TOTAL_SYSTEMS = <?php echo $totalSystems; ?>;
-        const DB_CATEGORIES = <?php echo json_encode(array_column($dbCategories, 'name')); ?>;
+        const TOTAL_SYSTEMS  = <?php echo $totalSystems; ?>;
+        const DB_CATEGORIES  = <?php echo json_encode(array_column($dbCategories, 'name')); ?>;
+
+
+        const AUTO_LANGUAGE  = '<?php echo $isJapaneseAccess ? 'jp' : 'en'; ?>';
 
         function toggleLogin() {
             const loginButton = document.getElementById('loginButton');

@@ -15,6 +15,7 @@ const SLIDER_ICON_VIEWER = `<svg width="18" height="18" viewBox="0 0 24 24" fill
 
 
 
+
 function syncRecentsVisibility() {
     const recentsSection = document.getElementById('recentsSection');
     if (!recentsSection) return;
@@ -272,6 +273,22 @@ function openDomainViewer(cardEl) {
 }
 
 
+
+function logSystemAccess(systemId, systemName, accessedFrom) {
+    const formData = new FormData();
+    formData.append('system_id',     systemId);
+    formData.append('system_name',   systemName);
+    formData.append('language_mode', isJapanese ? 'jp' : 'en');
+    formData.append('accessed_from', accessedFrom);
+
+    fetch('../backend/log_access.php', {
+        method: 'POST',
+        body: formData
+    }).catch(() => {
+    });
+}
+
+
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         document.getElementById('statusDropdownViewer')?.classList.remove('show');
@@ -294,7 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-/* JAPANESE TRANSLATIONS  */
+/*  JAPANESE TRANSLATIONS  */
 
 const JP_TRANSLATIONS = {
     status: {
@@ -325,7 +342,8 @@ const JP_TRANSLATIONS = {
 let isJapanese = false;
 
 function initJapaneseToggle() {
-    isJapanese = localStorage.getItem('gportal_jp_mode') === 'true';
+    isJapanese = (typeof AUTO_LANGUAGE !== 'undefined' && AUTO_LANGUAGE === 'jp');
+    localStorage.setItem('gportal_jp_mode', isJapanese ? 'true' : 'false');
     updateToggleUI();
     if (isJapanese) applyJapaneseTranslation();
 }
@@ -639,7 +657,7 @@ function revertToEnglish() {
 }
 
 
-/* ── RECENTS (Cookie-based, max 5 systems) */
+/*  RECENTS */
 
 const RECENTS_COOKIE = 'gportal_recents';
 const RECENTS_MAX    = 5;
@@ -727,6 +745,8 @@ function clearRecents() {
     if (section) section.style.display = 'none';
 }
 
+
+
 (function () {
     const _original = openDomainViewer;
 
@@ -737,9 +757,15 @@ function clearRecents() {
 
         if (!card) return;
 
-        if (!card.closest('#recentsGrid')) {
-            const id = card.getAttribute('data-system-id');
-            if (id) saveRecentId(id);
+        const systemId   = card.getAttribute('data-system-id') || '';
+        const systemName = card.querySelector('.system-name-viewer')?.textContent.trim() || '';
+        const accessedFrom = card.closest('#recentsGrid') ? 'recents' : 'grid';
+        if (accessedFrom === 'grid' && systemId) {
+            saveRecentId(systemId);
+        }
+
+        if (systemId && systemName) {
+            logSystemAccess(systemId, systemName, accessedFrom);
         }
 
         _original.call(this, card);

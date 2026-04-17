@@ -84,6 +84,12 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                 </li>
                 <?php if (isSuperAdmin()): ?>
                 <li>
+                    <a href="access_logs.php">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        Access Logs
+                    </a>
+                </li>
+                <li>
                     <a href="users.php">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                         User Management
@@ -657,16 +663,10 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
                         Select the protocol used to access this system's domain
                     </div>
                 </div>
-
-
-
-
                 <div class="form-group">
                     <label for="editSystemDomain">Domain <span style="color:var(--danger)">*</span></label>
                     <input type="text" id="editSystemDomain" name="domain" required>
                 </div>
-
-               
                 <div class="form-group">
                     <label for="editSystemJapaneseDomain">Japanese Domain <span style="font-weight:400;color:var(--gray-400);font-size:12px;">(Optional)</span></label>
                     <input type="text" id="editSystemJapaneseDomain" name="japanese_domain" placeholder="e.g., glory.canteen.co.jp">
@@ -1002,7 +1002,6 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
 </div>
 <?php endif; ?>
 
-<!-- Bulk Cancel Confirm -->
 <div id="bulkCancelConfirm" class="bulk-confirm-overlay" style="display:none;">
     <div class="bulk-confirm-box">
         <div class="bulk-confirm-icon">
@@ -1074,7 +1073,6 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
     </div>
 </div>
 
-<!-- BULK MARK AS ONLINE MODAL -->
 <div id="bulkMarkOnlineModal" class="modal">
     <div class="modal-content bmo-modal-content">
         <div class="modal-header maintenance-modal-header">
@@ -1101,7 +1099,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
     </div>
 </div>
 
-<!-- CATEGORIES MANAGEMENT MODAL -->
+
 <div id="categoriesModal"
      class="modal"
      data-super-admin="<?php echo isSuperAdmin() ? '1' : '0'; ?>">
@@ -1140,7 +1138,7 @@ $canScheduleMaintenance = isSuperAdmin() || isAdmin();
     </div>
 </div>
 
-<!-- CATEGORY DELETE CONFIRMATION MODAL -->
+
 <div id="catDeleteModal" class="delete-modal">
     <div class="delete-modal-content">
         <div class="delete-modal-header">

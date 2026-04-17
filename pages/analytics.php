@@ -1,8 +1,5 @@
 <?php
-
  //G-Portal Analytics & Reports PageFeatures: Uptime stats, Patch logs, Completed Maintenance, Monthly Reports, Trends
- 
-
 require_once '../config/session.php';
 require_once '../config/database.php';
 
@@ -70,6 +67,12 @@ $conn->close();
                             Analytics
                         </a>
                     </li>
+
+                        <a href="access_logs.php">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        Access Logs
+                    </a>
+
                     <?php if (isSuperAdmin()): ?>
                     <li>
                         <a href="users.php">
@@ -147,7 +150,6 @@ $conn->close();
                                 </div>
                                 <?php endforeach; ?>
                             </div>
-                            <!-- Hidden select keeps existing JS working -->
                             <select id="uptimeSystemSelect" style="display:none;" onchange="loadUptimeData()">
                                 <option value="">Select a system...</option>
                                 <?php foreach ($systems as $system): ?>
@@ -310,7 +312,6 @@ $conn->close();
                                 </div>
                                 <?php endforeach; ?>
                             </div>
-                            <!-- Hidden select keeps existing JS working -->
                             <select id="reportSystemSelect" style="display:none;" onchange="loadMonthlyReport()">
                                 <option value="">Select a system...</option>
                                 <?php foreach ($systems as $system): ?>
