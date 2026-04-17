@@ -478,6 +478,7 @@ function applyJapaneseTranslation() {
         'Direct Systems':   'ダイレクトシステム',
         'Indirect Systems': 'インダイレクトシステム',
         'Support Systems':  'サポートシステム',
+        'Japan Systems':  '日本のシステム',
     };
     document.querySelectorAll('#categoryDropdownViewer .filter-item').forEach(item => {
         const textNode = Array.from(item.childNodes).find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());

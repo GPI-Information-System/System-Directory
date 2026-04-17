@@ -47,8 +47,8 @@ $isJapaneseAccess = filter_var($hostWithoutPort, FILTER_VALIDATE_IP) !== false;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>G-Portal — System Directory</title>
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/logo.png">
-    <link rel="stylesheet" href="../assets/css/viewer.css">
-    <link rel="stylesheet" href="../assets/css/notifications.css">
+    <link rel="stylesheet" href="../assets/css/viewer.css?v=<?= time(); ?>">
+    <link rel="stylesheet" href="../assets/css/notifications.css?v=<?= time(); ?>">
 </head>
 <body class="viewer-page">
     <header class="viewer-header">
@@ -57,7 +57,7 @@ $isJapaneseAccess = filter_var($hostWithoutPort, FILTER_VALIDATE_IP) !== false;
             <div class="header-right">
                 <div class="jp-lang-switcher" id="jpLangSwitcher">
                     <button class="jp-lang-option" id="jpLangEng" onclick="setLanguage('en')">
-                        Eng
+                        EN
                     </button>
                     <div class="jp-lang-divider"></div>
                     <button class="jp-lang-option" id="jpLangJp" onclick="setLanguage('jp')">
@@ -315,8 +315,8 @@ $isJapaneseAccess = filter_var($hostWithoutPort, FILTER_VALIDATE_IP) !== false;
         }
     </script>
     <script src="../assets/js/jquery-3.7.1.min.js"></script>
-    <script src="../assets/js/viewer.js"></script>
-    <script src="../assets/js/notifications.js"></script>
-    <script src="../assets/js/health_check.js"></script>
+    <script src="../assets/js/viewer.js?v=<?= time(); ?>"></script>
+    <script src="../assets/js/notifications.js?v=<?= time(); ?>"></script>
+    <script src="../assets/js/health_check.js?v=<?= time(); ?>"></script>
 </body>
 </html>
