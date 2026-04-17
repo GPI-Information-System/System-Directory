@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Apr 14, 2026 at 04:50 AM
+-- Generation Time: Apr 17, 2026 at 03:17 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -20,6 +20,23 @@ SET time_zone = "+00:00";
 --
 -- Database: `system_directory_db`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `access_logs`
+--
+
+CREATE TABLE `access_logs` (
+  `id` int(11) NOT NULL,
+  `system_id` int(11) NOT NULL,
+  `system_name` varchar(255) NOT NULL,
+  `ip_address` varchar(45) NOT NULL,
+  `browser_device` varchar(500) DEFAULT NULL,
+  `language_mode` varchar(5) DEFAULT 'en',
+  `accessed_from` varchar(20) DEFAULT 'grid',
+  `accessed_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -128,7 +145,7 @@ CREATE TABLE `systems` (
 --
 
 INSERT INTO `systems` (`id`, `name`, `category`, `domain`, `network_type`, `japanese_domain`, `badge_url`, `logo`, `description`, `japanese_description`, `contact_number`, `status`, `created_at`, `updated_at`, `exclude_health_check`) VALUES
-(1, 'Document Management System', 'Direct', 'dms.gpi.com', 'https', '192.168.5.228:80', 'https://uptime.gpi.com/api/badge/1/status', 'uploads/logos/logo_69c60295255ae.png', '', '', '1120', 'down', '2026-03-27 04:07:49', '2026-04-14 02:49:19', 0),
+(1, 'Document Management System', 'Direct', 'dms.gpi.com', 'https', '192.168.5.228:80', 'https://uptime.gpi.com/api/badge/1/status', 'uploads/logos/logo_69c60295255ae.png', '', '', '1120', 'down', '2026-03-27 04:07:49', '2026-04-14 05:17:13', 0),
 (2, 'Equipment Monitoring System', 'Direct', 'ems.gpi.com', 'https', '', 'https://uptime.gpi.com/api/badge/15/status', 'uploads/logos/logo_69c60379dbafd.png', '', '', '1120', 'down', '2026-03-27 04:11:37', '2026-04-14 02:48:57', 0),
 (3, 'iBoard System', 'Direct', 'iboard.gpi.com', 'https', '', 'https://uptime.gpi.com/api/badge/14/status', 'uploads/logos/logo_69c603f904016.png', '', '', '1120', 'down', '2026-03-27 04:13:45', '2026-04-01 02:18:06', 0),
 (4, 'LOA Monitoring System', 'Direct', 'glory.lms.com.ph', 'https', '', 'https://uptime.gpi.com/api/badge/16/status', 'uploads/logos/logo_69c604f273221.png', '', '', '1120', 'down', '2026-03-27 04:17:54', '2026-03-28 01:51:18', 0),
@@ -177,6 +194,12 @@ INSERT INTO `users` (`id`, `username`, `password`, `role`, `email`, `created_at`
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `access_logs`
+--
+ALTER TABLE `access_logs`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `categories`
@@ -246,6 +269,12 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `access_logs`
+--
+ALTER TABLE `access_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
@@ -273,7 +302,7 @@ ALTER TABLE `status_logs`
 -- AUTO_INCREMENT for table `systems`
 --
 ALTER TABLE `systems`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `users`
